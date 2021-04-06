@@ -6,9 +6,7 @@
 
 
 stages:
-  - check
   - test
-  - build
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -16,8 +14,7 @@ variables:
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   RUST_LIB_BACKTRACE:              "0"
-  # this var is changed to "-:staging" when the CI image gets rebuilt
-  CI_IMAGE:                        "paritytech/ink-waterfall-ci-linux:production"
+  CI_IMAGE:                        "paritytech/ink-waterfall-ci-linux:latest"
 
 workflow:
   rules:
@@ -63,28 +60,6 @@ workflow:
     - linux-docker
 
 
-#### stage:                        check
-
-fmt:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
-
-clippy:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - cargo clippy --verbose -- -D warnings;
-
-#### stage:                        test (all features)
-
-test:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - cargo test --verbose --workspace --all-features
-
 test-new-project-template:
   stage:                           test
   <<:                              *docker-env
@@ -97,20 +72,3 @@ test-new-project-template:
 
     - cargo contract build --manifest-path new_project/Cargo.toml
     - cargo contract check --manifest-path new_project/Cargo.toml
-
-#### stage:                        build (default features)
-
-build:
-  stage:                           build
-  <<:                              *docker-env
-  <<:                              *collect-artifacts
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-    - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-  script:
-    - cargo build --verbose --release
-  after_script:
-    - mkdir -p ./artifacts/ink-waterfall/
-    - cp ${CARGO_TARGET_DIR}/release/ink-waterfall ./artifacts/ink-waterfall/
