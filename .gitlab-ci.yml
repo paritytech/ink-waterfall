@@ -1,0 +1,116 @@
+# .gitlab-ci.yml
+#
+# ink-waterfall
+#
+# pipelines can be triggered manually in the web
+
+
+stages:
+  - check
+  - test
+  - build
+
+variables:
+  GIT_STRATEGY:                    fetch
+  GIT_DEPTH:                       "100"
+  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
+  CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
+  RUST_LIB_BACKTRACE:              "0"
+  # this var is changed to "-:staging" when the CI image gets rebuilt
+  CI_IMAGE:                        "paritytech/ink-waterfall-ci-linux:production"
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH
+
+.collect-artifacts:                &collect-artifacts
+  artifacts:
+    name:                          "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}"
+    when:                          on_success
+    expire_in:                     7 days
+    paths:
+      - artifacts/
+
+.docker-env:                       &docker-env
+  image:                           "${CI_IMAGE}"
+  before_script:
+    - cargo -vV
+    - rustc -vV
+    - rustup show
+    - bash --version
+    - ./scripts/pre_cache.sh
+    # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
+    - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' > ${CARGO_HOME}/config
+    - sccache -s
+    - git show
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_COMMIT_REF_NAME == "tags"
+    - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
+    - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+  dependencies:                    []
+  interruptible:                   true
+  retry:
+    max:                           2
+    when:
+      - runner_system_failure
+      - unknown_failure
+      - api_failure
+  tags:
+    - linux-docker
+
+
+#### stage:                        check
+
+fmt:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - cargo fmt --verbose --all -- --check
+
+clippy:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - cargo clippy --verbose -- -D warnings;
+
+#### stage:                        test (all features)
+
+test:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - cargo test --verbose --workspace --all-features
+
+test-new-project-template:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - cargo contract new new_project
+
+    # needed because otherwise:
+    # `error: current package believes it's in a workspace when it's not`
+    - echo "[workspace]" >> new_project/Cargo.toml
+
+    - cargo contract build --manifest-path new_project/Cargo.toml
+    - cargo contract check --manifest-path new_project/Cargo.toml
+
+#### stage:                        build (default features)
+
+build:
+  stage:                           build
+  <<:                              *docker-env
+  <<:                              *collect-artifacts
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+  script:
+    - cargo build --verbose --release
+  after_script:
+    - mkdir -p ./artifacts/ink-waterfall/
+    - cp ${CARGO_TARGET_DIR}/release/ink-waterfall ./artifacts/ink-waterfall/
