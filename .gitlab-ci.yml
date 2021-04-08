@@ -58,26 +58,13 @@ workflow:
     - linux-docker
 
 
-test-new-project-template:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - cargo contract new new_project
-
-    # needed because otherwise:
-    # `error: current package believes it's in a workspace when it's not`
-    - echo "[workspace]" >> new_project/Cargo.toml
-
-    - cargo contract build --manifest-path new_project/Cargo.toml
-    - cargo contract check --manifest-path new_project/Cargo.toml
-
-
 run:
   stage:                           test
   <<:                              *docker-env
-  script:
+  before_script:
     - git clone --depth 1 https://github.com/paritytech/ink.git
-    - cargo contract build --manifest-path ink/examples/flipper/Cargo.toml
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
     - geckodriver --port 4444 &
+  script:
+    - cargo contract build --manifest-path ink/examples/flipper/Cargo.toml
     - cargo test --all

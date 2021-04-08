@@ -56,12 +56,9 @@ async fn works() -> Result<(), Box<dyn std::error::Error>> {
         .click()
         .await?;
 
-    // TODO
-    sleep(Duration::from_millis(2000)).await;
-
     eprintln!("click upload");
     client
-        .find(Locator::XPath(
+        .wait_for_find(Locator::XPath(
             "//*[contains(text(),'Upload & Instantiate Contract')]",
         ))
         .await?
@@ -107,6 +104,7 @@ async fn works() -> Result<(), Box<dyn std::error::Error>> {
     client
         .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
         .await?;
+
     eprintln!("click details");
     client
         .execute(
@@ -114,10 +112,12 @@ async fn works() -> Result<(), Box<dyn std::error::Error>> {
             Vec::new(),
         )
         .await?;
+
     eprintln!("click instantiate");
     client
         .execute("$(\"button:contains('Instantiate')\").click()", Vec::new())
         .await?;
+
     eprintln!("click sign and submit");
     client
         .execute(
