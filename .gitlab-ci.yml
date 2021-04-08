@@ -81,7 +81,6 @@ run:
     - ls /builds/
     - ls /builds/parity/ink-waterfall/
     - ls /builds/parity/ink-waterfall/.ink/
-    -
     - cargo contract build --manifest-path /builds/parity/ink-waterfall/.git/examples/flipper/Cargo.toml
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
     - geckodriver --port 4444 &
