@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use fantoccini::{
-    Client,
     ClientBuilder,
     Locator,
 };
@@ -36,24 +35,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .goto("https://paritytech.github.io/canvas-ui/#/upload")
         .await?;
 
+    eprintln!("click action button");
     client
         .wait_for_find(Locator::Css(".actions button"))
         .await?
         .click()
         .await?;
+
+    eprintln!("click settings");
     client
         .find(Locator::Css(".app--SideBar-settings"))
         .await?
         .click()
         .await?;
 
+    eprintln!("click local node");
     client
         .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
         .await?
         .click()
         .await?;
 
+    // TODO
     sleep(Duration::from_millis(2000)).await;
+
+    eprintln!("click upload");
     client
         .find(Locator::XPath(
             "//*[contains(text(),'Upload & Instantiate Contract')]",
@@ -84,27 +90,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     client.wait_for_find(Locator::Css("#jquery-ready")).await?;
 
+    eprintln!("click combobox");
     client
         .execute("$('[role=combobox]').click()", Vec::new())
         .await?;
+    eprintln!("click alice");
     client
         .execute("$('[name=alice]').click()", Vec::new())
         .await?;
 
     let mut upload = client.find(Locator::Css(".ui--InputFile input")).await?;
+    // /ci-cache/ink-waterfall/targets/master/run/ink
     upload.send_keys("/builds/parity/ink-waterfall/ink/examples/flipper/target/ink/flipper.contract").await?;
+    //upload.send_keys("/tmp/flipper.contract").await?;
     client
         .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
         .await?;
+    eprintln!("click details");
     client
         .execute(
             "$(\":contains('Constructor Details')\").click()",
             Vec::new(),
         )
         .await?;
+    eprintln!("click instantiate");
     client
         .execute("$(\"button:contains('Instantiate')\").click()", Vec::new())
         .await?;
+    eprintln!("click sign and submit");
     client
         .execute(
             "$(\"button:contains('Sign & Submit')\").click()",
@@ -119,6 +132,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .await?;
 
+    eprintln!("click dismiss");
     client
         .wait_for_find(Locator::XPath(
             "//*[contains(text(),'Dismiss all notifications')]",
@@ -127,6 +141,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .click()
         .await?;
 
+    eprintln!("click execute");
     client
         .find(Locator::XPath("//*[contains(text(),'Execute Contract')]"))
         .await?
@@ -134,6 +149,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     // open listbox for methods
+    eprintln!("click listbox");
     client
         .find(Locator::XPath(
             "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
@@ -143,9 +159,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     // click get
+    eprintln!("choose get");
     client.find(Locator::XPath("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'get')]")).await?.click().await?;
 
     // click call
+    eprintln!("click call");
     client
         .find(Locator::XPath("//button[contains(text(),'Call')]"))
         .await?
@@ -156,6 +174,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     client.wait_for_find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']//*[text() = 'false']")).await?;
 
     // clear all
+    eprintln!("click clear all");
     client
         .find(Locator::XPath("//*[text() = 'Clear all']"))
         .await?
@@ -163,6 +182,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     // open listbox for methods
+    eprintln!("open listbox");
     client
         .find(Locator::XPath(
             "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
@@ -172,9 +192,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     // click flip
+    eprintln!("click flip");
     client.find(Locator::XPath("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'flip')]")).await?.click().await?;
 
     // click call
+    eprintln!("click call");
     client
         .find(Locator::XPath("//button[contains(text(),'Call')]"))
         .await?
