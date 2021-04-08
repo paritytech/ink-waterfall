@@ -189,6 +189,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     // click sign and submit
+    eprintln!("sign and submit");
     client
         .find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
         .await?
