@@ -94,16 +94,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     client
         .execute("$('[role=combobox]').click()", Vec::new())
         .await?;
+
     eprintln!("click alice");
     client
         .execute("$('[name=alice]').click()", Vec::new())
         .await?;
 
     let mut upload = client.find(Locator::Css(".ui--InputFile input")).await?;
-    // /ci-cache/ink-waterfall/targets/master/run/ink
     upload.send_keys("/ci-cache/ink-waterfall/targets/master/run/ink/flipper.contract").await?;
-    //upload.send_keys("/builds/parity/ink-waterfall/ink/examples/flipper/target/ink/flipper.contract").await?;
-    //upload.send_keys("/tmp/flipper.contract").await?;
     client
         .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
         .await?;
@@ -142,7 +140,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .click()
         .await?;
 
-    sleep(Duration::from_millis(2000)).await;
+    // wait for disappearance animation to finish instead
+    // otherwise the notifications might occlude buttons
+    eprintln!("wait for animation to finish");
+    client
+        .execute(
+            "$('.ui--Status').hide()",
+            Vec::new(),
+        )
+        .await?;
 
     eprintln!("click execute");
     client
