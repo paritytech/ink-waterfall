@@ -101,7 +101,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut upload = client.find(Locator::Css(".ui--InputFile input")).await?;
     // /ci-cache/ink-waterfall/targets/master/run/ink
-    upload.send_keys("/builds/parity/ink-waterfall/ink/examples/flipper/target/ink/flipper.contract").await?;
+    upload.send_keys("/ci-cache/ink-waterfall/targets/master/run/ink/flipper.contract").await?;
+    //upload.send_keys("/builds/parity/ink-waterfall/ink/examples/flipper/target/ink/flipper.contract").await?;
     //upload.send_keys("/tmp/flipper.contract").await?;
     client
         .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
