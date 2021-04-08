@@ -20,8 +20,8 @@ use serde_json;
 use std::time::Duration;
 use tokio::time::sleep;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::test]
+async fn works() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to webdriver instance that is listening on port 4444
     let mut caps = serde_json::map::Map::new();
     let opts = serde_json::json!({ "args": ["--headless"] });
@@ -101,7 +101,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     let mut upload = client.find(Locator::Css(".ui--InputFile input")).await?;
-    upload.send_keys("/ci-cache/ink-waterfall/targets/master/run/ink/flipper.contract").await?;
+    upload
+        .send_keys("/ci-cache/ink-waterfall/targets/master/run/ink/flipper.contract")
+        .await?;
     client
         .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
         .await?;
@@ -144,15 +146,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // otherwise the notifications might occlude buttons
     eprintln!("wait for animation to finish");
     client
-        .execute(
-            "$('.ui--Status').hide()",
-            Vec::new(),
-        )
+        .execute("$('.ui--Status').hide()", Vec::new())
         .await?;
 
     eprintln!("click execute");
     client
-        .find(Locator::XPath("//button[contains(text(),'Execute Contract')]"))
+        .find(Locator::XPath(
+            "//button[contains(text(),'Execute Contract')]",
+        ))
         .await?
         .click()
         .await?;
