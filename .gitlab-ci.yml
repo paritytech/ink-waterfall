@@ -77,7 +77,6 @@ run:
   <<:                              *docker-env
   script:
     - cargo contract build --manifest-path /builds/parity/ink-waterfall/examples/flipper/Cargo.toml
-    -
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
     - geckodriver --port 4444 &
     - cargo run
