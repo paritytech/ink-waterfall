@@ -76,7 +76,6 @@ run:
   stage:                           test
   <<:                              *docker-env
   script:
-    - ls /ci-cache/ink-waterfall/targets/master/run/ink/
     - git clone --depth 1 https://github.com/paritytech/ink.git
     - cargo contract build --manifest-path ink/examples/flipper/Cargo.toml
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
