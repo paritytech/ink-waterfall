@@ -142,9 +142,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .click()
         .await?;
 
+    sleep(Duration::from_millis(2000)).await;
+
     eprintln!("click execute");
     client
-        .find(Locator::XPath("//*[contains(text(),'Execute Contract')]"))
+        .find(Locator::XPath("//button[contains(text(),'Execute Contract')]"))
         .await?
         .click()
         .await?;
