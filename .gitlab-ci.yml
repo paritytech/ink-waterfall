@@ -67,4 +67,4 @@ run:
     - geckodriver --port 4444 &
   script:
     - cargo contract build --manifest-path ink/examples/flipper/Cargo.toml
-    - cargo test --all
+    - cargo test --features headless --all

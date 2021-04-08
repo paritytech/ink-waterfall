@@ -12,3 +12,8 @@ webdriver = { version = "0.43.0", default-features = false }
 fantoccini = { version = "0.17.3" }
 serde = "1.0"
 serde_json = "1.0"
+regex = "1.4"
+log = "0.4"
+
+[features]
+headless = []

@@ -12,8 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(test)]
-mod utils;
-
-#[cfg(test)]
-mod tests;
+pub mod canvas_ui;
