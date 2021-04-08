@@ -72,3 +72,12 @@ test-new-project-template:
 
     - cargo contract build --manifest-path new_project/Cargo.toml
     - cargo contract check --manifest-path new_project/Cargo.toml
+
+
+run:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
+    - geckodriver --port 4444 &
+    - cargo run
