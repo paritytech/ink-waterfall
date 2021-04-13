@@ -15,5 +15,7 @@ serde_json = "1.0"
 regex = "1.4"
 log = "0.4"
 
+lang_macro = { path = "./lang_macro"}
+
 [features]
 headless = []

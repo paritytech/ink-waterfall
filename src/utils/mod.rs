@@ -13,3 +13,13 @@
 // limitations under the License.
 
 pub mod canvas_ui;
+pub mod cargo_contract;
+
+use std::path::PathBuf;
+
+pub fn example_path(example: &str) -> PathBuf {
+    let examples_path = std::env::var("INK_EXAMPLES_PATH")
+        .expect("env variable INK_EXAMPLES_PATH must be set");
+    let path = PathBuf::from(examples_path);
+    path.join(example)
+}

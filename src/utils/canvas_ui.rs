@@ -30,6 +30,8 @@ pub struct CanvasUI {
 
 impl CanvasUI {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
+        // TODO Spawn geckodriver
+
         // Connect to webdriver instance that is listening on port 4444
         let client = ClientBuilder::native()
             .capabilities(get_capabilities())
@@ -38,8 +40,9 @@ impl CanvasUI {
         Ok(Self { client })
     }
 
-    pub async fn close(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.client.close().await?;
+        // TODO Kill geckodriver
         Ok(())
     }
 

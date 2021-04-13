@@ -12,17 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::utils::canvas_ui::CanvasUI;
+use crate::utils::{
+    canvas_ui::CanvasUI,
+    cargo_contract,
+};
+use lang_macro::waterfall_test;
 
-#[tokio::test]
-async fn works() -> Result<(), Box<dyn std::error::Error>> {
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+#[waterfall_test]
+async fn works(mut canvas_ui: CanvasUI) -> Result<()> {
     // given
-    let mut canvas_ui = CanvasUI::new().await?;
-    let contract_addr = canvas_ui
-        .upload(
-            "/ci-cache/ink-waterfall/targets/master/run/ink/flipper.contract"
-        )
-        .await?;
+    let manifest_path = crate::utils::example_path("flipper/Cargo.toml");
+    let contract_file =
+        cargo_contract::build(&manifest_path).expect("contract build failed");
+
+    let contract_addr = canvas_ui.upload(&contract_file).await?;
     assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "false");
 
     // when
@@ -32,6 +37,5 @@ async fn works() -> Result<(), Box<dyn std::error::Error>> {
 
     // then
     assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "true");
-    canvas_ui.close().await?;
     Ok(())
 }

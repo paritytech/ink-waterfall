@@ -66,5 +66,4 @@ run:
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
     - geckodriver --port 4444 &
   script:
-    - cargo contract build --manifest-path ink/examples/flipper/Cargo.toml
-    - cargo test --features headless --all
+    - cargo test --features headless
