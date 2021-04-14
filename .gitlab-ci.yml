@@ -76,7 +76,7 @@ test-with-master-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
-    CANVAS_UI_URL:                    "http://localhost:3000/"
+    CANVAS_UI_URL:                    "http://127.0.0.1:3000/"
   script:
     - RUST_LOG=info cargo test --features headless -- --nocapture
 
