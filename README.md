@@ -47,8 +47,6 @@ export CANVAS_UI_URL="http://localhost:3000/"
 cargo test
 ```
 
-```
-
 ## Environment variables
 
 * `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder.

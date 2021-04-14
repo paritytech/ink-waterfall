@@ -71,6 +71,7 @@ test-with-master-canvas-ui:
 
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
+    RUST_LOG:                         "info"
     INK_EXAMPLES_PATH:                "./ink/examples/"
     WATERFALL_TIMEOUT_SECS_PER_TEST:  "180"
     CANVAS_UI_URL:                    "http://localhost:3000/"
@@ -84,6 +85,7 @@ test-with-published-canvas-ui:
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
+    RUST_LOG:                         "info"
     INK_EXAMPLES_PATH:                "./ink/examples/"
     WATERFALL_TIMEOUT_SECS_PER_TEST:  "180"
 
