@@ -55,3 +55,10 @@ workflow:
       - api_failure
   tags:
     - linux-docker
+
+
+test:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - true
