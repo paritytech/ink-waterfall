@@ -28,7 +28,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     let output = Command::new("cargo")
         .arg("contract")
         .arg("build")
-        .arg(format!("--manifest-path={}", manifest_path.display()))
+        .arg("--manifest-path=Cargo.toml")
         .current_dir(dir)
         .output()
         .map_err(|err| format!("oh no - {:?}", err))

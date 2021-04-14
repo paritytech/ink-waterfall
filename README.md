@@ -3,9 +3,9 @@
 The idea of this project is to have proper end-to-end tests for this pipeline:
 ```
 ink! ➜
-     cargo-contract ➜
-                    canvas-ui ➜
-                              canvas-node
+   cargo-contract ➜
+                canvas-ui ➜
+                         canvas-node
 ```
 
 The `HEAD` of the `master` branch is used for every component.
