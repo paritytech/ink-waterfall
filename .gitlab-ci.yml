@@ -68,7 +68,7 @@ test-with-master-canvas-ui:
     # we might not always have the latest master here.
     - git clone --depth 1 https://github.com/paritytech/canvas-ui.git
     - cd canvas-ui && yarn install
-    - yarn start 2>&1 > /tmp/canvas-ui.log &
+    - yarn start &
     - cd ..
 
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
