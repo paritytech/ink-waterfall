@@ -70,28 +70,28 @@ impl CanvasUI {
             .goto("https://paritytech.github.io/canvas-ui/#/upload")
             .await?;
 
-        eprintln!("click action button");
+        log::info!("click action button");
         self.client
             .wait_for_find(Locator::Css(".actions button"))
             .await?
             .click()
             .await?;
 
-        eprintln!("click settings");
+        log::info!("click settings");
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
             .click()
             .await?;
 
-        eprintln!("click local node");
+        log::info!("click local node");
         self.client
             .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?
             .click()
             .await?;
 
-        eprintln!("injecting jquery");
+        log::info!("injecting jquery");
         let inject = String::from(
             "(function (){\
         var d = document;\
@@ -113,22 +113,22 @@ impl CanvasUI {
         );
         self.client.execute(&*inject, Vec::new()).await?;
 
-        eprintln!("waiting for jquery");
+        log::info!("waiting for jquery");
         self.client
             .wait_for_find(Locator::Css("#jquery-ready"))
             .await?;
 
-        eprintln!("click combobox");
+        log::info!("click combobox");
         self.client
             .execute("$('[role=combobox]').click()", Vec::new())
             .await?;
 
-        eprintln!("click alice");
+        log::info!("click alice");
         self.client
             .execute("$('[name=alice]').click()", Vec::new())
             .await?;
 
-        eprintln!("uploading {:?}", path);
+        log::info!("uploading {:?}", path);
         let mut upload = self
             .client
             .find(Locator::Css(".ui--InputFile input"))
@@ -138,12 +138,12 @@ impl CanvasUI {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        eprintln!("click upload");
+        log::info!("click upload");
         self.client
             .execute("$(\"button:contains('Upload')\").click()", Vec::new())
             .await?;
 
-        eprintln!("click sign and submit");
+        log::info!("click sign and submit");
         self.client
             .execute(
                 "$(\"button:contains('Sign & Submit')\").click()",
@@ -158,7 +158,7 @@ impl CanvasUI {
             ))
             .await?;
 
-        eprintln!("click dismiss");
+        log::info!("click dismiss");
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Dismiss all notifications')]",
@@ -169,12 +169,12 @@ impl CanvasUI {
 
         // wait for disappearance animation to finish instead
         // otherwise the notifications might occlude buttons
-        eprintln!("wait for animation to finish");
+        log::info!("wait for animation to finish");
         self.client
             .execute("$('.ui--Status').hide()", Vec::new())
             .await?;
 
-        eprintln!("click execute");
+        log::info!("click execute");
         self.client
             .find(Locator::XPath(
                 "//button[contains(text(),'Execute Contract')]",
@@ -207,7 +207,7 @@ impl CanvasUI {
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
-        eprintln!("click listbox");
+        log::info!("click listbox");
         self.client
             .find(Locator::XPath(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
@@ -217,7 +217,7 @@ impl CanvasUI {
             .await?;
 
         // click `method`
-        eprintln!("choose {:?}", method);
+        log::info!("choose {:?}", method);
         let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", method);
         self.client
             .find(Locator::XPath(&path))
@@ -226,7 +226,7 @@ impl CanvasUI {
             .await?;
 
         // click call
-        eprintln!("click call");
+        log::info!("click call");
         self.client
             .find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
@@ -252,7 +252,7 @@ impl CanvasUI {
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
-        eprintln!("click listbox");
+        log::info!("click listbox");
         self.client
             .find(Locator::XPath(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
@@ -262,7 +262,7 @@ impl CanvasUI {
             .await?;
 
         // click `method`
-        eprintln!("choose {:?}", method);
+        log::info!("choose {:?}", method);
         let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", method);
         self.client
             .find(Locator::XPath(&path))
@@ -271,7 +271,7 @@ impl CanvasUI {
             .await?;
 
         // click call
-        eprintln!("click call");
+        log::info!("click call");
         self.client
             .find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
@@ -286,7 +286,7 @@ impl CanvasUI {
             .await?;
 
         // click sign and submit
-        eprintln!("sign and submit");
+        log::info!("sign and submit");
         self.client
             .find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
             .await?
@@ -294,7 +294,7 @@ impl CanvasUI {
             .await?;
 
         // maybe assert?
-        eprintln!("waiting for success notification");
+        log::info!("waiting for success notification");
         self.client.wait_for_find(Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and contains(text(), 'ExtrinsicSuccess')]")).await?;
         self.client
             .wait_for_find(Locator::XPath(
@@ -305,7 +305,7 @@ impl CanvasUI {
             .await?;
 
         // clear all
-        eprintln!("click clear all");
+        log::info!("click clear all");
         self.client
             .find(Locator::XPath("//*[text() = 'Clear all']"))
             .await?
@@ -315,7 +315,7 @@ impl CanvasUI {
         // let mut el = self.client.wait_for_find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await?;
         // let txt = el.text().await?;
         // Ok(txt)
-        // eprintln!("value transaction {:?}", value);
+        // log::info!("value transaction {:?}", value);
         Ok(())
     }
 }

@@ -57,7 +57,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
             .map_err(|err| format!("{}: '{:?}'", err, stdout))?;
         let basename = captures.get(1).expect("no capture group found").as_str();
         let path = PathBuf::from(directory).join(format!("{}.contract", basename));
-        eprintln!("path {:?}", path);
+        log::info!("Path to the resulting contract bundle: {:?}", path);
         Ok(path)
     } else {
         let stderr = String::from_utf8(output.stderr).expect("string conversion failed");
