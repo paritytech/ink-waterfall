@@ -39,7 +39,7 @@ impl CanvasUI {
         assert_canvas_node_running();
 
         let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
-        eprintln!("picking {:?}", port);
+        log::info!("Picked free port {:?} for geckodriver instance", port);
         let mut command = process::Command::new("geckodriver");
         let geckodriver = command
             .args(&["--port", &port])
@@ -58,7 +58,6 @@ impl CanvasUI {
     }
 
     pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.geckodriver.kill().expect("command wasn't running");
         self.client.close().await?;
         Ok(())
     }
@@ -318,6 +317,16 @@ impl CanvasUI {
         // Ok(txt)
         // eprintln!("value transaction {:?}", value);
         Ok(())
+    }
+}
+
+impl Drop for CanvasUI {
+    fn drop(&mut self) {
+        // We kill the `geckodriver` instance here and not in `CanvasUI::shutdown()`.
+        // The reason is that if a test fails (e.g. due to an assertion), then the test
+        // will be interrupted and the shutdown method at the end of a test will not
+        // be reached, but this drop will.
+        self.geckodriver.kill().expect("unable to kill geckodriver, it probably wasn't running");
     }
 }
 
