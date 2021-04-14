@@ -14,7 +14,7 @@ The `HEAD` of the `master` branch is used for every component.
 ## Required dependencies
 
 * [`canvas-node`](https://paritytech.github.io/ink-docs/getting-started/setup#installing-the-canvas-node)
-* [`cargo-contract`[https://paritytech.github.io/ink-docs/getting-started/setup#ink-cli]
+* [`cargo-contract`](https://paritytech.github.io/ink-docs/getting-started/setup#ink-cli)
 * [The ink! repository](https://github.com/paritytech/ink)
 * [`geckodriver`](https://github.com/mozilla/geckodriver/) - packages are available in some package managers.
 * Firefox
