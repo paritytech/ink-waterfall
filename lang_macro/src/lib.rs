@@ -58,6 +58,12 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 let timeout: u64 = timeout.parse::<u64>()
                     .expect("unable to parse WATERFALL_TEST_TIMEOUT into u64");
                 std::thread::sleep(std::time::Duration::from_secs(timeout));
+
+                std::process::Command::new("pkill")
+                    .args(&["-9", "-f", "geckodriver"])
+                    .output()
+                    .expect("can not execute pkill");
+
                 panic!("The test '{}' didn't finish in time.", stringify!(#fn_name));
             });
 
