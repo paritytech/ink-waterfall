@@ -17,14 +17,17 @@ use fantoccini::{
     ClientBuilder,
     Locator,
 };
+use psutil::process::processes;
 use regex::Regex;
 use serde_json::{
     self,
     map::Map,
     value::Value,
 };
-use std::process;
-use psutil::process::processes;
+use std::{
+    path::PathBuf,
+    process,
+};
 
 pub struct CanvasUI {
     client: Client,
@@ -37,7 +40,6 @@ impl CanvasUI {
         let processes = processes().expect("can't get processes");
         let canvas_node_running = processes
             .into_iter()
-            //.filter_map(|p| p.is_ok())
             .filter_map(|pr| pr.ok())
             .map(|p| p.cmdline())
             .filter_map(|cmdline| cmdline.ok())
@@ -45,10 +47,15 @@ impl CanvasUI {
             .any(|str| str.contains("canvas"));
         assert!(canvas_node_running, "canvas node not running");
 
+        process::Command::new("pkill")
+            .args(&["-9", "-f", "geckodriver"])
+            .output()
+            .expect("can not execute pkill");
+
         let mut command = process::Command::new("geckodriver");
-        let geckodriver = command.arg("--port")
+        let geckodriver = command
+            .arg("--port")
             .arg("4444")
-            .arg("-v")
             .spawn()
             .expect("geckodriver can not be spawned");
 
@@ -57,7 +64,10 @@ impl CanvasUI {
             .capabilities(get_capabilities())
             .connect("http://localhost:4444")
             .await?;
-        Ok(Self { client, geckodriver })
+        Ok(Self {
+            client,
+            geckodriver,
+        })
     }
 
     pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
@@ -68,7 +78,7 @@ impl CanvasUI {
 
     pub async fn upload(
         &mut self,
-        path: &str,
+        path: PathBuf,
     ) -> Result<String, Box<dyn std::error::Error>> {
         self.client
             .goto("https://paritytech.github.io/canvas-ui/#/upload")
@@ -95,14 +105,7 @@ impl CanvasUI {
             .click()
             .await?;
 
-        eprintln!("click upload");
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Upload & Instantiate Contract')]",
-            ))
-            .await?
-            .click()
-            .await?;
+        eprintln!("injecting jquery");
         let inject = String::from(
             "(function (){\
         var d = document;\
@@ -124,6 +127,7 @@ impl CanvasUI {
         );
         self.client.execute(&*inject, Vec::new()).await?;
 
+        eprintln!("waiting for jquery");
         self.client
             .wait_for_find(Locator::Css("#jquery-ready"))
             .await?;
@@ -138,29 +142,19 @@ impl CanvasUI {
             .execute("$('[name=alice]').click()", Vec::new())
             .await?;
 
+        eprintln!("uploading {:?}", path);
         let mut upload = self
             .client
             .find(Locator::Css(".ui--InputFile input"))
             .await?;
-        upload
-            //.send_keys("/ci-cache/ink-waterfall/targets/master/run/ink/flipper.contract")
-            .send_keys(path)
-            .await?;
+        upload.send_keys(&path.display().to_string()).await?;
         self.client
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        eprintln!("click details");
+        eprintln!("click upload");
         self.client
-            .execute(
-                "$(\":contains('Constructor Details')\").click()",
-                Vec::new(),
-            )
-            .await?;
-
-        eprintln!("click instantiate");
-        self.client
-            .execute("$(\"button:contains('Instantiate')\").click()", Vec::new())
+            .execute("$(\"button:contains('Upload')\").click()", Vec::new())
             .await?;
 
         eprintln!("click sign and submit");

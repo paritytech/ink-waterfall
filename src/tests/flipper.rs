@@ -27,7 +27,7 @@ async fn works(mut canvas_ui: CanvasUI) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = canvas_ui.upload(&contract_file).await?;
+    let contract_addr = canvas_ui.upload(contract_file).await?;
     assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "false");
 
     // when
@@ -37,5 +37,6 @@ async fn works(mut canvas_ui: CanvasUI) -> Result<()> {
 
     // then
     assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "true");
+
     Ok(())
 }

@@ -21,7 +21,7 @@ use std::{
 /// Run cargo with the supplied args
 ///
 /// If successful, returns the stdout bytes
-pub(crate) fn build(manifest_path: &PathBuf) -> Result<String, String> {
+pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     let mut dir = manifest_path.clone();
     dir.pop(); // pop `Cargo.toml` from the path
 
@@ -37,16 +37,28 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<String, String> {
     if output.status.success() {
         let stdout = String::from_utf8(output.stdout).expect("string conversion failed");
         // extract the path to the resulting `.contract` from the output
-        let re = Regex::new(
+        let re_path = Regex::new(
             r"Your contract artifacts are ready. You can find them in:\n([A-Za-z0-9_\-/]+)\n"
         )
             .expect("invalid regex");
-        let captures = re
+        let captures = re_path
             .captures(&stdout)
             .ok_or("regex does not match the command output")
             .map_err(|err| format!("{}: '{:?}'", err, stdout))?;
-        let path = captures.get(1).expect("no capture group found").as_str();
-        Ok(String::from(path))
+        let directory = captures.get(1).expect("no capture group found").as_str();
+
+        // extract the basename to the resulting `.contract`
+        let re_basename =
+            Regex::new(r"\- ([A-Za-z0-9_\-/]+).contract \(code \+ metadata\)\n")
+                .expect("invalid regex");
+        let captures = re_basename
+            .captures(&stdout)
+            .ok_or("regex does not match the command output")
+            .map_err(|err| format!("{}: '{:?}'", err, stdout))?;
+        let basename = captures.get(1).expect("no capture group found").as_str();
+        let path = PathBuf::from(directory).join(format!("{}.contract", basename));
+        eprintln!("path {:?}", path);
+        Ok(path)
     } else {
         let stderr = String::from_utf8(output.stderr).expect("string conversion failed");
         Err(format!(
