@@ -26,8 +26,10 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = crate::utils::example_path("flipper/Cargo.toml");
+    eprintln!("manifest_path {:?}", manifest_path);
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
+    eprintln!("contract_file {:?}", contract_file);
 
     let contract_addr = canvas_ui.upload(contract_file).await?;
     assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "false");
