@@ -17,6 +17,7 @@ pub mod cargo_contract;
 
 use std::path::PathBuf;
 
+/// Returns the full path to the ink! example directory for `example`.
 pub fn example_path(example: &str) -> PathBuf {
     let examples_path = std::env::var("INK_EXAMPLES_PATH")
         .expect("env variable INK_EXAMPLES_PATH must be set");

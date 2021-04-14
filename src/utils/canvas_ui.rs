@@ -146,7 +146,9 @@ impl CanvasUi {
             .client
             .find(Locator::Css(".ui--InputFile input"))
             .await?;
-        upload.send_keys(&contract_path.display().to_string()).await?;
+        upload
+            .send_keys(&contract_path.display().to_string())
+            .await?;
         self.client
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
@@ -351,7 +353,9 @@ impl Drop for CanvasUi {
         // The reason is that if a test fails (e.g. due to an assertion), then the test
         // will be interrupted and the shutdown method at the end of a test will not
         // be reached, but this drop will.
-        self.geckodriver.kill().expect("unable to kill geckodriver, it probably wasn't running");
+        self.geckodriver
+            .kill()
+            .expect("unable to kill geckodriver, it probably wasn't running");
     }
 }
 
