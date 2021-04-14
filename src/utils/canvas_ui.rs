@@ -36,22 +36,7 @@ pub struct CanvasUI {
 
 impl CanvasUI {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        // check if `canvas-node` process is running
-        let processes = processes().expect("can't get processes");
-        let canvas_node_running = processes
-            .into_iter()
-            .filter_map(|pr| pr.ok())
-            .map(|p| p.cmdline())
-            .filter_map(|cmdline| cmdline.ok())
-            .filter_map(|opt| opt)
-            .any(|str| str.contains("canvas"));
-        assert!(canvas_node_running, "canvas node not running");
-
-        // Ensure that no leftover `geckodriver` is there from a previous failed test
-        process::Command::new("pkill")
-            .args(&["-9", "-f", "geckodriver"])
-            .output()
-            .expect("can not execute pkill");
+        assert_canvas_node_running();
 
         let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
         eprintln!("picking {:?}", port);
@@ -334,6 +319,19 @@ impl CanvasUI {
         // eprintln!("value transaction {:?}", value);
         Ok(())
     }
+}
+
+/// Asserts that the `canvas` process is running.
+fn assert_canvas_node_running() {
+    let processes = processes().expect("can't get processes");
+    let canvas_node_running = processes
+        .into_iter()
+        .filter_map(|pr| pr.ok())
+        .map(|p| p.cmdline())
+        .filter_map(|cmdline| cmdline.ok())
+        .filter_map(|opt| opt)
+        .any(|str| str.contains("canvas"));
+    assert!(canvas_node_running, "canvas node not running");
 }
 
 #[cfg(feature = "headless")]
