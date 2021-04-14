@@ -23,26 +23,46 @@ use serde_json::{
     map::Map,
     value::Value,
 };
+use std::process;
+use psutil::process::processes;
 
 pub struct CanvasUI {
-    pub client: Client,
+    client: Client,
+    geckodriver: process::Child,
 }
 
 impl CanvasUI {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        // TODO Spawn geckodriver
+        // check if `canvas-node` process is running
+        let processes = processes().expect("can't get processes");
+        let canvas_node_running = processes
+            .into_iter()
+            //.filter_map(|p| p.is_ok())
+            .filter_map(|pr| pr.ok())
+            .map(|p| p.cmdline())
+            .filter_map(|cmdline| cmdline.ok())
+            .filter_map(|opt| opt)
+            .any(|str| str.contains("canvas"));
+        assert!(canvas_node_running, "canvas node not running");
+
+        let mut command = process::Command::new("geckodriver");
+        let geckodriver = command.arg("--port")
+            .arg("4444")
+            .arg("-v")
+            .spawn()
+            .expect("geckodriver can not be spawned");
 
         // Connect to webdriver instance that is listening on port 4444
         let client = ClientBuilder::native()
             .capabilities(get_capabilities())
             .connect("http://localhost:4444")
             .await?;
-        Ok(Self { client })
+        Ok(Self { client, geckodriver })
     }
 
     pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.geckodriver.kill().expect("command wasn't running");
         self.client.close().await?;
-        // TODO Kill geckodriver
         Ok(())
     }
 

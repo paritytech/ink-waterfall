@@ -25,7 +25,6 @@ The `HEAD` of the `master` branch is used for every component.
 ```
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 canvas --tmp --dev > /tmp/canvas.log 2>&1 &
-geckodriver --port 4444 &
 
 cargo test 
 

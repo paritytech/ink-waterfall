@@ -64,6 +64,5 @@ run:
   before_script:
     - git clone --depth 1 https://github.com/paritytech/ink.git
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
-    - geckodriver --port 4444 &
   script:
     - cargo test --features headless
