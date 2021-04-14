@@ -697,8 +697,7 @@ checksum = "feb3b2b1033b8a60b4da6ee470325f887758c95d5320f52f9ce0df055a55940e"
 [[package]]
 name = "portpicker"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b497d05c16fe00939445c00a4fe2fa4f3d3dfc9c0401a3ab5c577afda2debb9"
+source = "git+https://github.com/awestlake87/portpicker-rs#3e3fb63fb99b04d3f11a9187deb591e752db1a89"
 dependencies = [
  "rand 0.6.5",
 ]

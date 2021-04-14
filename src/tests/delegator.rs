@@ -13,36 +13,3 @@
 // limitations under the License.
 
 //! Tests for the `delegator `example.
-
-use crate::utils::{
-    canvas_ui::CanvasUi,
-    cargo_contract,
-};
-use lang_macro::waterfall_test;
-
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-fn build_all() {}
-
-// #[waterfall_test]
-// async fn works(mut canvas_ui: CanvasUi) -> Result<()> {
-// given
-// let manifest_path = crate::utils::example_path("flipper/Cargo.toml");
-// let contract_file =
-// cargo_contract::build(&manifest_path).expect("contract build failed");
-//
-// let contract_addr = canvas_ui.upload(contract_file).await?;
-// assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "false");
-//
-// when
-// canvas_ui
-// .execute_transaction(&contract_addr, "flip")
-// .await?;
-//
-// then
-// assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "true");
-//
-// Ok(())
-// }
-//
-//

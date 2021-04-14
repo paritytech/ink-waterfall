@@ -15,7 +15,7 @@ serde_json = "1.0"
 regex = "1.4"
 log = "0.4"
 psutil = "3.2.1"
-portpicker = "0.1.0"
+portpicker = { git = "https://github.com/awestlake87/portpicker-rs" }
 
 lang_macro = { path = "./lang_macro"}
 
