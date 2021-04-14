@@ -31,7 +31,7 @@ use quote::quote;
 pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let item_fn =
         syn::parse2::<syn::ItemFn>(item.into()).expect("no item_fn can be parsed");
-    let name = &item_fn.sig.ident;
+    let fn_name = &item_fn.sig.ident;
     let block = &item_fn.block;
     let fn_return_type = &item_fn.sig.output;
     let vis = &item_fn.vis;
@@ -43,7 +43,24 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let res = quote! {
         #( #attrs )*
         #[tokio::test]
-        async #vis fn #name () #ret {
+        async #vis fn #fn_name () #ret {
+            // hack to get a timeout for async tests running.
+            // this is necessary so that the ci doesn't wait forever to fail, thus
+            // enabling faster feedback cycles.
+            let __orig_hook = std::panic::take_hook();
+            std::panic::set_hook(Box::new(move |panic_info| {
+                // invoke the default handler and exit the process
+                __orig_hook(panic_info);
+            }));
+            std::thread::spawn(|| {
+                let timeout: String = std::env::var("WATERFALL_TEST_TIMEOUT")
+                    .unwrap_or(String::from("180")); // 3 * 60 = three minutes
+                let timeout: u64 = timeout.parse::<u64>()
+                    .expect("unable to parse WATERFALL_TEST_TIMEOUT into u64");
+                std::thread::sleep(std::time::Duration::from_secs(timeout));
+                panic!("The test '{}' didn't finish in time.", stringify!(#fn_name));
+            });
+
             let mut canvas_ui = CanvasUi::new().await?;
             let __ret = {
                 #block

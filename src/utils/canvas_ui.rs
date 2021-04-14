@@ -42,14 +42,18 @@ impl CanvasUi {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
         assert_canvas_node_running();
 
+        // the output is unfortunately always printed
+        // https://users.rust-lang.org/t/cargo-test-printing-println-output-from-child-threads/11627
+        // https://github.com/rust-lang/rust/issues/35136
         let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
         log::info!("Picked free port {:?} for geckodriver instance", port);
         let geckodriver = process::Command::new("geckodriver")
-            .args(&["--port", &port])
+            .args(&["--port", &port, "--log", "fatal"])
+            .stdout(std::process::Stdio::piped())
             .spawn()
             .expect("geckodriver can not be spawned");
 
-        // Connect to webdriver instance that is listening on port 4444
+        // connect to webdriver instance that is listening on port 4444
         let client = ClientBuilder::native()
             .capabilities(get_capabilities())
             .connect(&format!("http://localhost:{}", port))
