@@ -106,7 +106,7 @@ impl CanvasUi {
             .click()
             .await?;
 
-        eprintln!("click upload");
+        log::info!("click upload");
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Upload & Instantiate Contract')]",
@@ -164,7 +164,7 @@ impl CanvasUi {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        eprintln!("click details");
+        log::info!("click details");
         self.client
             .execute(
                 "$(\":contains('Constructor Details')\").click()",

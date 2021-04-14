@@ -14,6 +14,8 @@ variables:
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   RUST_LIB_BACKTRACE:              "0"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
+  RUST_LOG:                        "info"
+  WATERFALL_TIMEOUT_SECS_PER_TEST: "180"
 
 workflow:
   rules:
@@ -71,9 +73,7 @@ test-with-master-canvas-ui:
 
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
-    RUST_LOG:                         "info"
     INK_EXAMPLES_PATH:                "./ink/examples/"
-    WATERFALL_TIMEOUT_SECS_PER_TEST:  "1"
     CANVAS_UI_URL:                    "http://localhost:3000/"
   script:
     - RUST_LOG=info cargo test --features headless -- --nocapture
@@ -85,11 +85,9 @@ test-with-published-canvas-ui:
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
-    RUST_LOG:                         "info"
-    INK_EXAMPLES_PATH:                "ink/examples/"
-    WATERFALL_TIMEOUT_SECS_PER_TEST:  "180"
+    INK_EXAMPLES_PATH:                "./ink/examples/"
 
     # run the tests with the published `canvas-ui` (at the `gh-pages` branch)
     CANVAS_UI_URL:                    "https://paritytech.github.io/canvas-ui/"
   script:
-    - RUST_LOG=info cargo test --features headless -- --nocapture
+    - cargo test --features headless
