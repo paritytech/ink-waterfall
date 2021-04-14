@@ -67,7 +67,9 @@ test-with-master-canvas-ui:
     # We don't do this in the Dockerfile, since caching might interfere and
     # we might not always have the latest master here.
     - git clone --depth 1 https://github.com/paritytech/canvas-ui.git
-    - pushd canvas-ui && yarn install && (yarn start 2>&1 > /tmp/canvas-ui.log 2>&1 &) && popd
+    - cd canvas-ui && yarn install
+    - yarn start 2>&1 > /tmp/canvas-ui.log &
+    - cd ..
 
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
 
