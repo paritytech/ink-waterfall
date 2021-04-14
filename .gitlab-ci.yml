@@ -73,7 +73,7 @@ test-with-master-canvas-ui:
   variables:
     RUST_LOG:                         "info"
     INK_EXAMPLES_PATH:                "./ink/examples/"
-    WATERFALL_TIMEOUT_SECS_PER_TEST:  "180"
+    WATERFALL_TIMEOUT_SECS_PER_TEST:  "1"
     CANVAS_UI_URL:                    "http://localhost:3000/"
   script:
     - RUST_LOG=info cargo test --features headless -- --nocapture
