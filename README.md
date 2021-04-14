@@ -48,3 +48,11 @@ cargo test
 ```
 
 ```
+
+## Environment variables
+
+* `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder.
+* `CANVAS_UI_URL` ‒ URL of the `canvas-ui`.
+* `WATERFALL_TIMEOUT_SECS_PER_TEST` ‒ The number of seconds each test is allowed to take.
+  This is necessary so that the CI fails early and doesn't wait for e.g. the Gitlab timeout,
+  just because some UI element has changed its name.
