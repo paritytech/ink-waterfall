@@ -47,22 +47,24 @@ impl CanvasUI {
             .any(|str| str.contains("canvas"));
         assert!(canvas_node_running, "canvas node not running");
 
+        // Ensure that no leftover `geckodriver` is there from a previous failed test
         process::Command::new("pkill")
             .args(&["-9", "-f", "geckodriver"])
             .output()
             .expect("can not execute pkill");
 
+        let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
+        eprintln!("picking {:?}", port);
         let mut command = process::Command::new("geckodriver");
         let geckodriver = command
-            .arg("--port")
-            .arg("4444")
+            .args(&["--port", &port])
             .spawn()
             .expect("geckodriver can not be spawned");
 
         // Connect to webdriver instance that is listening on port 4444
         let client = ClientBuilder::native()
             .capabilities(get_capabilities())
-            .connect("http://localhost:4444")
+            .connect(&format!("http://localhost:{}", port))
             .await?;
         Ok(Self {
             client,
