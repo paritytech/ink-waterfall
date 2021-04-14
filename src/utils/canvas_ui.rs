@@ -29,19 +29,22 @@ use std::{
     process,
 };
 
-pub struct CanvasUI {
+/// Holds everything necessary to interact with the `canvas-ui`.
+pub struct CanvasUi {
     client: Client,
     geckodriver: process::Child,
 }
 
-impl CanvasUI {
+impl CanvasUi {
+    /// Creates a new `CanvasUi` instance.
+    ///
+    /// As part of this set-up a `geckodriver` instance is spawned to a free port.
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
         assert_canvas_node_running();
 
         let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
         log::info!("Picked free port {:?} for geckodriver instance", port);
-        let mut command = process::Command::new("geckodriver");
-        let geckodriver = command
+        let geckodriver = process::Command::new("geckodriver")
             .args(&["--port", &port])
             .spawn()
             .expect("geckodriver can not be spawned");
@@ -57,14 +60,24 @@ impl CanvasUI {
         })
     }
 
+    /// Closes the `client`.
+    ///
+    /// It would be better to have this in `CanvasUi::Drop`, but this is not possible
+    /// due to the async nature of the `client.close()` method.
     pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.client.close().await?;
         Ok(())
     }
 
+    /// Uploads the contract behind `contract_path`.
+    ///
+    /// # Note
+    ///
+    /// This method must not make any assumptions about the state of the Ui before
+    /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn upload(
         &mut self,
-        path: PathBuf,
+        contract_path: PathBuf,
     ) -> Result<String, Box<dyn std::error::Error>> {
         self.client
             .goto("https://paritytech.github.io/canvas-ui/#/upload")
@@ -128,12 +141,12 @@ impl CanvasUI {
             .execute("$('[name=alice]').click()", Vec::new())
             .await?;
 
-        log::info!("uploading {:?}", path);
+        log::info!("uploading {:?}", contract_path);
         let mut upload = self
             .client
             .find(Locator::Css(".ui--InputFile input"))
             .await?;
-        upload.send_keys(&path.display().to_string()).await?;
+        upload.send_keys(&contract_path.display().to_string()).await?;
         self.client
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
@@ -195,6 +208,12 @@ impl CanvasUI {
         Ok(String::from(addr))
     }
 
+    /// Executes the RPC call `method` for the contract at `addr`.
+    ///
+    /// # Note
+    ///
+    /// This method must not make any assumptions about the state of the Ui before
+    /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn execute_rpc(
         &mut self,
         addr: &str,
@@ -240,6 +259,12 @@ impl CanvasUI {
         Ok(txt)
     }
 
+    /// Executes the transaction `method` for the contract at `addr`.
+    ///
+    /// # Note
+    ///
+    /// This method must not make any assumptions about the state of the Ui before
+    /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn execute_transaction(
         &mut self,
         addr: &str,
@@ -320,9 +345,9 @@ impl CanvasUI {
     }
 }
 
-impl Drop for CanvasUI {
+impl Drop for CanvasUi {
     fn drop(&mut self) {
-        // We kill the `geckodriver` instance here and not in `CanvasUI::shutdown()`.
+        // We kill the `geckodriver` instance here and not in `CanvasUi::shutdown()`.
         // The reason is that if a test fails (e.g. due to an assertion), then the test
         // will be interrupted and the shutdown method at the end of a test will not
         // be reached, but this drop will.
@@ -343,6 +368,7 @@ fn assert_canvas_node_running() {
     assert!(canvas_node_running, "canvas node not running");
 }
 
+/// Returns the capabilities with which the `fantoccini::Client` is instantiated.
 #[cfg(feature = "headless")]
 fn get_capabilities() -> Map<String, Value> {
     let mut caps = Map::new();
@@ -351,6 +377,7 @@ fn get_capabilities() -> Map<String, Value> {
     caps
 }
 
+/// Returns the capabilities with which the `fantoccini::Client` is instantiated.
 #[cfg(not(feature = "headless"))]
 fn get_capabilities() -> Map<String, Value> {
     Map::new()

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::utils::{
-    canvas_ui::CanvasUI,
+    canvas_ui::CanvasUi,
     cargo_contract,
 };
 use lang_macro::waterfall_test;
@@ -21,7 +21,7 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn works(mut canvas_ui: CanvasUI) -> Result<()> {
+async fn works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = crate::utils::example_path("flipper/Cargo.toml");
     let contract_file =
