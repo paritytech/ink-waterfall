@@ -53,7 +53,7 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 __orig_hook(panic_info);
             }));
             std::thread::spawn(|| {
-                let timeout: String = std::env::var("WATERFALL_TEST_TIMEOUT")
+                let timeout: String = std::env::var("WATERFALL_TIMEOUT_SECS_PER_TEST")
                     .unwrap_or(String::from("180")); // 3 * 60 = three minutes
                 let timeout: u64 = timeout.parse::<u64>()
                     .expect("unable to parse WATERFALL_TEST_TIMEOUT into u64");

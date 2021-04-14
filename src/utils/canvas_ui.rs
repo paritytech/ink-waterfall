@@ -83,9 +83,7 @@ impl CanvasUi {
         &mut self,
         contract_path: PathBuf,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        self.client
-            .goto("https://paritytech.github.io/canvas-ui/#/upload")
-            .await?;
+        self.client.goto(&url("/#/upload")).await?;
 
         log::info!("click action button");
         self.client
@@ -104,6 +102,15 @@ impl CanvasUi {
         log::info!("click local node");
         self.client
             .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
+            .await?
+            .click()
+            .await?;
+
+        eprintln!("click upload");
+        self.client
+            .wait_for_find(Locator::XPath(
+                "//*[contains(text(),'Upload & Instantiate Contract')]",
+            ))
             .await?
             .click()
             .await?;
@@ -157,9 +164,17 @@ impl CanvasUi {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        log::info!("click upload");
+        eprintln!("click details");
         self.client
-            .execute("$(\"button:contains('Upload')\").click()", Vec::new())
+            .execute(
+                "$(\":contains('Constructor Details')\").click()",
+                Vec::new(),
+            )
+            .await?;
+
+        log::info!("click instantiate");
+        self.client
+            .execute("$(\"button:contains('Instantiate')\").click()", Vec::new())
             .await?;
 
         log::info!("click sign and submit");
@@ -202,13 +217,11 @@ impl CanvasUi {
             .click()
             .await?;
 
-        let url = self.client.current_url().await?;
-
-        let re = Regex::new(
-            r"https://paritytech.github.io/canvas-ui/#/execute/([0-9a-zA-Z]+)/0",
-        )
-        .expect("invalid regex");
-        let captures = re.captures(url.as_str()).expect("must exist");
+        let base_url = url("");
+        let re = Regex::new(&format!("{}/#/execute/([0-9a-zA-Z]+)/0", base_url))
+            .expect("invalid regex");
+        let curr_client_url = self.client.current_url().await?;
+        let captures = re.captures(curr_client_url.as_str()).expect("must exist");
         let addr = captures.get(1).expect("no capture group").as_str();
         log::info!("addr {:?}", addr);
         Ok(String::from(addr))
@@ -225,10 +238,7 @@ impl CanvasUi {
         addr: &str,
         method: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let url = format!(
-            "https://paritytech.github.io/canvas-ui/#/execute/{}/0",
-            addr
-        );
+        let url = format!("{}{}/0", url("/#/execute/"), addr);
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
@@ -276,10 +286,7 @@ impl CanvasUi {
         addr: &str,
         method: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let url = format!(
-            "https://paritytech.github.io/canvas-ui/#/execute/{}/0",
-            addr
-        );
+        let url = format!("{}{}/0", url("/#/execute/"), addr);
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
@@ -374,6 +381,15 @@ fn assert_canvas_node_running() {
         .filter_map(|opt| opt)
         .any(|str| str.contains("canvas"));
     assert!(canvas_node_running, "canvas node not running");
+}
+
+/// Returns the URL to the `path` in the Canvas UI.
+///
+/// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
+fn url(path: &str) -> String {
+    let base_url: String = std::env::var("CANVAS_UI_URL")
+        .unwrap_or(String::from("https://paritytech.github.io/canvas-ui/"));
+    String::from(format!("{}{}", base_url, path))
 }
 
 /// Returns the capabilities with which the `fantoccini::Client` is instantiated.
