@@ -76,7 +76,7 @@ test-with-master-canvas-ui:
     WATERFALL_TIMEOUT_SECS_PER_TEST:  "180"
     CANVAS_UI_URL:                    "http://localhost:3000/"
   script:
-    - cargo test --features headless
+    - cargo test --features headless -- --nocapture
 
 test-with-published-canvas-ui:
   stage:                           test
@@ -86,10 +86,10 @@ test-with-published-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     RUST_LOG:                         "info"
-    INK_EXAMPLES_PATH:                "./ink/examples/"
+    INK_EXAMPLES_PATH:                "ink/examples/"
     WATERFALL_TIMEOUT_SECS_PER_TEST:  "180"
 
     # run the tests with the published `canvas-ui` (at the `gh-pages` branch)
     CANVAS_UI_URL:                    "https://paritytech.github.io/canvas-ui/"
   script:
-    - cargo test --features headless
+    - cargo test --features headless -- --nocapture
