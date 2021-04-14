@@ -26,9 +26,11 @@ The `HEAD` of the `master` branch is used for every component.
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 canvas --tmp --dev > /tmp/canvas.log 2>&1 &
 
-# by default you will see the Firefox GUI and the interactions with it
+# by default you will see the Firefox GUI and
+# the tests interacting with it
 cargo test 
 
-# …you can also start the tests headless though, then you won't see anything
+# …you can also start the tests headless though,
+# then you won't see anything
 cargo test --features headless
 ```
