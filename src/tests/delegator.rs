@@ -32,23 +32,22 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 #[waterfall_test]
 async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
-    let accumulator =
+    let accumulator_path =
         cargo_contract::build(&utils::example_path("delegator/accumulator/Cargo.toml"))
             .expect("accumulator build failed");
-    let adder = cargo_contract::build(&utils::example_path("delegator/adder/Cargo.toml"))
-        .expect("adder build failed");
-    let subber =
+    let adder_path =
+        cargo_contract::build(&utils::example_path("delegator/adder/Cargo.toml"))
+            .expect("adder build failed");
+    let subber_path =
         cargo_contract::build(&utils::example_path("delegator/subber/Cargo.toml"))
             .expect("subber build failed");
-    let delegator = cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
-        .expect("delegator build failed");
+    let delegator_path =
+        cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
+            .expect("delegator build failed");
 
-    let accumulator_addr = canvas_ui.upload(UploadInput::new(accumulator)).await?;
-    let adder_addr = canvas_ui.upload(UploadInput::new(adder)).await?;
-    let subber_addr = canvas_ui.upload(UploadInput::new(subber)).await?;
-
-    let delegator = cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
-        .expect("delegator build failed");
+    let _accumulator_addr = canvas_ui.upload(UploadInput::new(accumulator_path)).await?;
+    let _adder_addr = canvas_ui.upload(UploadInput::new(adder_path)).await?;
+    let _subber_addr = canvas_ui.upload(UploadInput::new(subber_path)).await?;
 
     let accumulator_hash = String::from(
         "0x694f690cebfca6ada3e548747b9e9438f4a277c77e8dc66bbdbfc441d921b3c7",
@@ -61,9 +60,9 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     );
 
     // when
-    let delegator_addr = canvas_ui
+    let _delegator_addr = canvas_ui
         .upload(
-            UploadInput::new(delegator)
+            UploadInput::new(delegator_path)
                 .endowment("1000000", "Unit")
                 .push_initial_value("accumulatorCodeHash", &accumulator_hash)
                 .push_initial_value("adderCodeHash", &adder_hash)

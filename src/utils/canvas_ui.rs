@@ -468,6 +468,7 @@ impl UploadInput {
     }
 
     /// Sets the contract path.
+    #[allow(dead_code)]
     pub fn contract_path(mut self, path: PathBuf) -> Self {
         self.contract_path = path;
         self
