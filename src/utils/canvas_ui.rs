@@ -85,16 +85,25 @@ impl CanvasUi {
     /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn upload(
         &mut self,
-        contract_path: PathBuf,
+        upload_input: UploadInput,
     ) -> Result<String, Box<dyn std::error::Error>> {
         self.client.goto(&url("/#/upload")).await?;
 
-        log::info!("click action button");
+        // we wait until the settings are visible to make sure the page is ready
         self.client
-            .wait_for_find(Locator::Css(".actions button"))
-            .await?
-            .click()
+            .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?;
+
+        log::info!("click skip intro button, if it is available");
+        if let Ok(skip_button) = self.client
+            .find(Locator::XPath("//button[contains(text(),'Skip Intro')]"))
+            .await {
+            log::info!("found skip button");
+            skip_button.click()
+                .await?;
+        } else {
+            log::info!("did NOT find skip button");
+        }
 
         log::info!("click settings");
         self.client
@@ -156,24 +165,91 @@ impl CanvasUi {
             .execute("$('[name=alice]').click()", Vec::new())
             .await?;
 
-        log::info!("uploading {:?}", contract_path);
+        log::info!("uploading {:?}", upload_input.contract_path);
         let mut upload = self
             .client
             .find(Locator::Css(".ui--InputFile input"))
             .await?;
         upload
-            .send_keys(&contract_path.display().to_string())
+            .send_keys(&upload_input.contract_path.display().to_string())
             .await?;
         self.client
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
+        /*
+        // I used this for local debugging to make tooltips disappear if the cursor
+        // was placed unfortunately.
+        log::info!("click sidebar");
+        self.client
+            .wait_for_find(Locator::XPath(
+                "//div[@class = 'app--SideBar']",
+            ))
+            .await?
+            .click();
+        */
+
+        log::info!("click settings");
+        self.client
+            .find(Locator::Css(".app--SideBar-settings"))
+            .await?
+            .click()
+            .await?;
+        log::info!("click settings");
+        self.client
+            .find(Locator::Css(".app--SideBar-settings"))
+            .await?
+            .click()
+            .await?;
+
+        //std::thread::sleep(std::time::Duration::from_millis(500));
+
         log::info!("click details");
         self.client
-            .execute(
-                "$(\":contains('Constructor Details')\").click()",
-                Vec::new(),
-            )
+            .wait_for_find(Locator::XPath(
+                "//*[contains(text(),'Constructor Details')]",
+            ))
+            .await?
+            .click()
+            .await?;
+
+        for (key, value) in upload_input.initial_values.iter() {
+            log::info!("inserting '{}' into input field '{}'", value, key);
+            let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/input", key);
+            let mut input = self
+                .client
+                .find(Locator::XPath(&path))
+                .await?;
+            // we need to clear the default `0x000...` input from the field
+            input
+                .clear()
+                .await?;
+            input
+                .send_keys(&value)
+                .await?;
+        }
+
+        log::info!("set endowment to {}", upload_input.endowment);
+        let mut input = self
+            .client
+            .find(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/input"))
+            .await?;
+        input
+            .clear()
+            .await?;
+        input
+            .send_keys(&upload_input.endowment)
+            .await?;
+
+        log::info!("click endowment list box");
+        self.client
+            .wait_for_find(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/div[@role='listbox']"))
+            .await?;
+
+        log::info!("click endowment unit option {}", upload_input.endowment_unit);
+        let path = format!("//div[@role='option']/span[contains(text(),'{}')]", upload_input.endowment_unit);
+        self.client
+            .wait_for_find(Locator::XPath(&path))
             .await?;
 
         log::info!("click instantiate");
@@ -354,10 +430,6 @@ impl CanvasUi {
             .click()
             .await?;
 
-        // let mut el = self.client.wait_for_find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await?;
-        // let txt = el.text().await?;
-        // Ok(txt)
-        // log::info!("value transaction {:?}", value);
         Ok(())
     }
 }
