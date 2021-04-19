@@ -70,7 +70,7 @@ test-with-master-canvas-ui:
 
     - cd canvas-ui
     - yarn install
-    - yarn start
+    - yarn start > /tmp/canvas-ui.log 2>&1 &
     # We should get rid of this `sleep`, it's just here because the process is detached
     # and there sometimes is an issue where it takes too long to be responsive.
     # It would be better to e.g. loop with small `sleep`'s until `curl` returns a `200 OK`.
