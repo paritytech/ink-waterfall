@@ -96,6 +96,9 @@ impl CanvasUi {
             .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?;
 
+        // We should get rid of this `sleep`
+        std::thread::sleep(std::time::Duration::from_secs(3));
+
         log::info!("click skip intro button, if it is available");
         if let Ok(skip_button) = self
             .client
@@ -105,7 +108,7 @@ impl CanvasUi {
             log::info!("found skip button");
             skip_button.click().await?;
         } else {
-            log::info!("did NOT find skip button");
+            panic!("Did NOT find 'Skip Into' button!");
         }
 
         log::info!("click settings");
@@ -134,22 +137,22 @@ impl CanvasUi {
         log::info!("injecting jquery");
         let inject = String::from(
             "(function (){\
-        var d = document;\
-        if (!d.getElementById('jquery')) {\
-            var s = d.createElement('script');\
-            s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
-            s.id = 'jquery';\
-            d.body.appendChild(s);\
-            (function() {\
-              var nTimer = setInterval(function() {\
-                if (window.jQuery) {\
-                    $('body').append('<div id=\"jquery-ready\"></div');\
-                  clearInterval(nTimer);\
-                }\
-              }, 100);\
-            })();\
-        }\
-    })();",
+                    var d = document;\
+                    if (!d.getElementById('jquery')) {\
+                        var s = d.createElement('script');\
+                        s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
+                        s.id = 'jquery';\
+                        d.body.appendChild(s);\
+                        (function() {\
+                            var nTimer = setInterval(function() {\
+                                if (window.jQuery) {\
+                                    $('body').append('<div id=\"jquery-ready\"></div');\
+                                    clearInterval(nTimer);\
+                                }\
+                            }, 100);\
+                        })();\
+                    }\
+                })();",
         );
         self.client.execute(&*inject, Vec::new()).await?;
 
@@ -203,7 +206,8 @@ impl CanvasUi {
             .click()
             .await?;
 
-        // std::thread::sleep(std::time::Duration::from_millis(500));
+        // We should get rid of this `sleep`
+        std::thread::sleep(std::time::Duration::from_millis(500));
 
         log::info!("click details");
         self.client

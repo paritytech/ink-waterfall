@@ -26,6 +26,9 @@ use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+// we ignore the test for the ci, since the delegator upload is
+// currently broken: https://github.com/paritytech/canvas-ui/issues/95
+#[ignore]
 #[waterfall_test]
 async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
@@ -57,15 +60,19 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         "0x27b8eebfe9e80ae0d90f7f7b60f4acfe530b7f1025e5b462e49719757a88f0d4",
     );
 
-    // the delegator upload is currently broken: https://github.com/paritytech/canvas-ui/issues/95
-    // let delegator_addr = canvas_ui.upload(
-    //      UploadInput::new(delegator)
-    //          .endowment("1000000", "Unit")
-    //          .push_initial_value("accumulatorCodeHash", &accumulator_hash)
-    //          .push_initial_value("adderCodeHash", &adder_hash)
-    //          .push_initial_value("subberCodeHash", &subber_hash),
-    //  )
-    // .await?;
+    // when
+    let delegator_addr = canvas_ui
+        .upload(
+            UploadInput::new(delegator)
+                .endowment("1000000", "Unit")
+                .push_initial_value("accumulatorCodeHash", &accumulator_hash)
+                .push_initial_value("adderCodeHash", &adder_hash)
+                .push_initial_value("subberCodeHash", &subber_hash),
+        )
+        .await?;
+
+    // then
+    // interactions with the contract…
 
     Ok(())
 }
