@@ -69,6 +69,10 @@ impl CanvasUi {
     /// It would be better to have this in `CanvasUi::Drop`, but this is not possible
     /// due to the async nature of the `client.close()` method.
     pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        if !closing_enabled() {
+            log::info!("keeping client open due to env variable `WATERFALL_CLOSE_BROWSER`");
+            return Ok(());
+        }
         self.client.close().await?;
         Ok(())
     }
@@ -221,7 +225,7 @@ impl CanvasUi {
         let re = Regex::new(&format!("{}/#/execute/([0-9a-zA-Z]+)/0", base_url))
             .expect("invalid regex");
         let curr_client_url = self.client.current_url().await?;
-        let captures = re.captures(curr_client_url.as_str()).expect("must exist");
+        let captures = re.captures(curr_client_url.as_str()).expect("contract address cannot be extracted from website");
         let addr = captures.get(1).expect("no capture group").as_str();
         log::info!("addr {:?}", addr);
         Ok(String::from(addr))
@@ -358,8 +362,54 @@ impl CanvasUi {
     }
 }
 
+pub struct UploadInput {
+    /// TODO
+    contract_path: PathBuf,
+    /// TODO
+    initial_values: Vec<(String, String)>,
+    /// TODO
+    endowment: String,
+    /// TODO
+    endowment_unit: String,
+}
+
+impl UploadInput {
+    /// TODO
+    pub fn new(contract_path: PathBuf) -> Self {
+        Self {
+            contract_path,
+            initial_values: Vec::new(),
+            endowment: "1000".to_string(),
+            endowment_unit: "Unit".to_string(),
+        }
+    }
+
+    /// TODO
+    pub fn push_initial_value(mut self, key: &str, val: &str) -> Self {
+        self.initial_values.push((key.to_string(), val.to_string()));
+        self
+    }
+
+    /// TODO
+    pub fn contract_path(mut self, path: PathBuf) -> Self {
+        self.contract_path = path;
+        self
+    }
+
+    /// TODO
+    pub fn endowment(mut self, endowment: &str, unit: &str) -> Self {
+        self.endowment = endowment.to_string();
+        self.endowment_unit = unit.to_string();
+        self
+    }
+}
+
 impl Drop for CanvasUi {
     fn drop(&mut self) {
+        if !closing_enabled() {
+            log::info!("keeping browser open due to env variable `WATERFALL_CLOSE_BROWSER`");
+            return
+        }
         // We kill the `geckodriver` instance here and not in `CanvasUi::shutdown()`.
         // The reason is that if a test fails (e.g. due to an assertion), then the test
         // will be interrupted and the shutdown method at the end of a test will not
@@ -388,8 +438,17 @@ fn assert_canvas_node_running() {
 /// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
 fn url(path: &str) -> String {
     let base_url: String = std::env::var("CANVAS_UI_URL")
-        .unwrap_or(String::from("https://paritytech.github.io/canvas-ui/"));
+        .unwrap_or(String::from("https://paritytech.github.io/canvas-ui"));
     String::from(format!("{}{}", base_url, path))
+}
+
+/// Returns `true` if the shutdown procedure should be executed after a test run.
+/// This mostly involves closing the browser.
+///
+/// Returns `false` if the environment variable `WATERFALL_CLOSE_BROWSER` is set to `false`.
+fn closing_enabled() -> bool{
+    std::env::var("WATERFALL_CLOSE_BROWSER")
+        .unwrap_or("true".to_string()).parse().expect("unable to parse `WATERFALL_CLOSE_BROWSER` into `bool`")
 }
 
 /// Returns the capabilities with which the `fantoccini::Client` is instantiated.

@@ -20,6 +20,9 @@ The `HEAD` of the `master` branch is used for every component.
   binary releases [in the repository](https://github.com/mozilla/geckodriver/releases).
 * Firefox
 
+The [`canvas-ui`](https://github.com/paritytech/canvas-ui) is an optional requirement, by default
+the [published version](https://paritytech.github.io/canvas-ui) is used.
+
 
 ## Run it locally
 
@@ -27,13 +30,20 @@ The `HEAD` of the `master` branch is used for every component.
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 canvas --tmp --dev > /tmp/canvas.log 2>&1 &
 
-# by default you will see the Firefox GUI and
-# the tests interacting with it
+# by default you will see the Firefox GUI and the
+# tests interacting with it
 cargo test 
 
-# …you can also start the tests headless though,
-# then you won't see anything
+# …you can also start the tests headless though, then
+# you won't see anything
 cargo test --features headless
+
+# handy for debugging:
+# you can prevent the test suite from closing the browser
+# window. then you can still interact with the browser after
+# the test failed/succeeded. 
+export WATERFALL_CLOSE_BROWSER=false
+cargo test
 ```
 
 By default, the `canvas-ui` published at [https://paritytech.github.io/canvas-ui](https://paritytech.github.io/canvas-ui)
@@ -43,7 +53,7 @@ By default, the `canvas-ui` published at [https://paritytech.github.io/canvas-ui
 git clone --depth 1 https://github.com/paritytech/canvas-ui.git
 pushd canvas-ui && yarn install && (yarn start 2>&1 > /tmp/canvas-ui.log 2>&1 &) && popd
 
-export CANVAS_UI_URL="http://localhost:3000/"
+export CANVAS_UI_URL="http://localhost:3000"
 cargo test
 ```
 
@@ -54,3 +64,4 @@ cargo test
 * `WATERFALL_TIMEOUT_SECS_PER_TEST` ‒ The number of seconds each test is allowed to take.
   This is necessary so that the CI fails early and doesn't wait for e.g. the Gitlab timeout,
   just because some UI element has changed its name.
+* `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.

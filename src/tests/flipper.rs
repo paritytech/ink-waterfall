@@ -17,19 +17,21 @@
 use crate::utils::{
     canvas_ui::CanvasUi,
     cargo_contract,
+    self,
 };
 use lang_macro::waterfall_test;
+use crate::utils::canvas_ui::UploadInput;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
-    let manifest_path = crate::utils::example_path("flipper/Cargo.toml");
+    let manifest_path = utils::example_path("flipper/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = canvas_ui.upload(contract_file).await?;
+    let contract_addr = canvas_ui.upload(UploadInput::new(contract_file)).await?;
     assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "false");
 
     // when
