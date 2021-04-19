@@ -435,18 +435,18 @@ impl CanvasUi {
 }
 
 pub struct UploadInput {
-    /// TODO
+    /// Path to the contract which should be uploaded.
     contract_path: PathBuf,
-    /// TODO
+    /// Values to instantiate the contract with.
     initial_values: Vec<(String, String)>,
-    /// TODO
+    /// Initial endowment of the contract.
     endowment: String,
-    /// TODO
+    /// Unit for initial endowment of the contract.
     endowment_unit: String,
 }
 
 impl UploadInput {
-    /// TODO
+    /// Creates a new `UploadInput` instance.
     pub fn new(contract_path: PathBuf) -> Self {
         Self {
             contract_path,
@@ -456,19 +456,19 @@ impl UploadInput {
         }
     }
 
-    /// TODO
+    /// Adds an initial value.
     pub fn push_initial_value(mut self, key: &str, val: &str) -> Self {
         self.initial_values.push((key.to_string(), val.to_string()));
         self
     }
 
-    /// TODO
+    /// Sets the contract path.
     pub fn contract_path(mut self, path: PathBuf) -> Self {
         self.contract_path = path;
         self
     }
 
-    /// TODO
+    /// Sets the initial endowment.
     pub fn endowment(mut self, endowment: &str, unit: &str) -> Self {
         self.endowment = endowment.to_string();
         self.endowment_unit = unit.to_string();
