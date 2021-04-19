@@ -70,8 +70,10 @@ impl CanvasUi {
     /// due to the async nature of the `client.close()` method.
     pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         if !closing_enabled() {
-            log::info!("keeping client open due to env variable `WATERFALL_CLOSE_BROWSER`");
-            return Ok(());
+            log::info!(
+                "keeping client open due to env variable `WATERFALL_CLOSE_BROWSER`"
+            );
+            return Ok(())
         }
         self.client.close().await?;
         Ok(())
@@ -95,12 +97,13 @@ impl CanvasUi {
             .await?;
 
         log::info!("click skip intro button, if it is available");
-        if let Ok(skip_button) = self.client
+        if let Ok(skip_button) = self
+            .client
             .find(Locator::XPath("//button[contains(text(),'Skip Intro')]"))
-            .await {
+            .await
+        {
             log::info!("found skip button");
-            skip_button.click()
-                .await?;
+            skip_button.click().await?;
         } else {
             log::info!("did NOT find skip button");
         }
@@ -177,17 +180,15 @@ impl CanvasUi {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        /*
         // I used this for local debugging to make tooltips disappear if the cursor
         // was placed unfortunately.
-        log::info!("click sidebar");
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//div[@class = 'app--SideBar']",
-            ))
-            .await?
-            .click();
-        */
+        // log::info!("click sidebar");
+        // self.client
+        // .wait_for_find(Locator::XPath(
+        // "//div[@class = 'app--SideBar']",
+        // ))
+        // .await?
+        // .click();
 
         log::info!("click settings");
         self.client
@@ -202,7 +203,7 @@ impl CanvasUi {
             .click()
             .await?;
 
-        //std::thread::sleep(std::time::Duration::from_millis(500));
+        // std::thread::sleep(std::time::Duration::from_millis(500));
 
         log::info!("click details");
         self.client
@@ -215,42 +216,40 @@ impl CanvasUi {
 
         for (key, value) in upload_input.initial_values.iter() {
             log::info!("inserting '{}' into input field '{}'", value, key);
-            let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/input", key);
-            let mut input = self
-                .client
-                .find(Locator::XPath(&path))
-                .await?;
+            let path = format!(
+                "//label/*[contains(text(),'{}')]/ancestor::div[1]//*/input",
+                key
+            );
+            let mut input = self.client.find(Locator::XPath(&path)).await?;
             // we need to clear the default `0x000...` input from the field
-            input
-                .clear()
-                .await?;
-            input
-                .send_keys(&value)
-                .await?;
+            input.clear().await?;
+            input.send_keys(&value).await?;
         }
 
         log::info!("set endowment to {}", upload_input.endowment);
         let mut input = self
             .client
-            .find(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/input"))
+            .find(Locator::XPath(
+                "//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/input",
+            ))
             .await?;
-        input
-            .clear()
-            .await?;
-        input
-            .send_keys(&upload_input.endowment)
-            .await?;
+        input.clear().await?;
+        input.send_keys(&upload_input.endowment).await?;
 
         log::info!("click endowment list box");
         self.client
             .wait_for_find(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/div[@role='listbox']"))
             .await?;
 
-        log::info!("click endowment unit option {}", upload_input.endowment_unit);
-        let path = format!("//div[@role='option']/span[contains(text(),'{}')]", upload_input.endowment_unit);
-        self.client
-            .wait_for_find(Locator::XPath(&path))
-            .await?;
+        log::info!(
+            "click endowment unit option {}",
+            upload_input.endowment_unit
+        );
+        let path = format!(
+            "//div[@role='option']/span[contains(text(),'{}')]",
+            upload_input.endowment_unit
+        );
+        self.client.wait_for_find(Locator::XPath(&path)).await?;
 
         log::info!("click instantiate");
         self.client
@@ -301,7 +300,9 @@ impl CanvasUi {
         let re = Regex::new(&format!("{}/#/execute/([0-9a-zA-Z]+)/0", base_url))
             .expect("invalid regex");
         let curr_client_url = self.client.current_url().await?;
-        let captures = re.captures(curr_client_url.as_str()).expect("contract address cannot be extracted from website");
+        let captures = re
+            .captures(curr_client_url.as_str())
+            .expect("contract address cannot be extracted from website");
         let addr = captures.get(1).expect("no capture group").as_str();
         log::info!("addr {:?}", addr);
         Ok(String::from(addr))
@@ -479,7 +480,9 @@ impl UploadInput {
 impl Drop for CanvasUi {
     fn drop(&mut self) {
         if !closing_enabled() {
-            log::info!("keeping browser open due to env variable `WATERFALL_CLOSE_BROWSER`");
+            log::info!(
+                "keeping browser open due to env variable `WATERFALL_CLOSE_BROWSER`"
+            );
             return
         }
         // We kill the `geckodriver` instance here and not in `CanvasUi::shutdown()`.
@@ -518,9 +521,11 @@ fn url(path: &str) -> String {
 /// This mostly involves closing the browser.
 ///
 /// Returns `false` if the environment variable `WATERFALL_CLOSE_BROWSER` is set to `false`.
-fn closing_enabled() -> bool{
+fn closing_enabled() -> bool {
     std::env::var("WATERFALL_CLOSE_BROWSER")
-        .unwrap_or("true".to_string()).parse().expect("unable to parse `WATERFALL_CLOSE_BROWSER` into `bool`")
+        .unwrap_or("true".to_string())
+        .parse()
+        .expect("unable to parse `WATERFALL_CLOSE_BROWSER` into `bool`")
 }
 
 /// Returns the capabilities with which the `fantoccini::Client` is instantiated.

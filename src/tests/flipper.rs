@@ -15,12 +15,14 @@
 //! Tests for the `flipper `example.
 
 use crate::utils::{
-    canvas_ui::CanvasUi,
-    cargo_contract,
     self,
+    canvas_ui::{
+        CanvasUi,
+        UploadInput,
+    },
+    cargo_contract,
 };
 use lang_macro::waterfall_test;
-use crate::utils::canvas_ui::UploadInput;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
