@@ -51,7 +51,13 @@ By default, the `canvas-ui` published at [https://paritytech.github.io/canvas-ui
 
 ```bash
 git clone --depth 1 https://github.com/paritytech/canvas-ui.git
-pushd canvas-ui && yarn install && (yarn start 2>&1 > /tmp/canvas-ui.log 2>&1 &) && popd
+cd canvas-ui/
+yarn install
+yarn start > /tmp/canvas-ui.log 2>&1 &
+cd ..
+
+# check that the ui is ready and a `200 OK` is returned
+curl -I http://localhost:3000/
 
 export CANVAS_UI_URL="http://localhost:3000"
 cargo test
