@@ -15,8 +15,8 @@ This way we want to always ensure that our components work properly together.
 
 * The tests in this repository use the `HEAD` of the `master` branch of all these components.
 * They build the ink! examples using `cargo-contract`.
-* The resulting `.contract` file is subsequently deployed on a local `canvas-node`.
-  instance using the `canvas-ui`.
+* The resulting `.contract` file is deployed on a local `canvas-node` instance using
+  the `canvas-ui`.
 * This is done by emulating browser interactions with the `canvas-ui` (such as clicking,
   uploading files, …).
 * After successful deployment some more browser interactions with the contract are emulated,
