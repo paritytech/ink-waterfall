@@ -74,10 +74,9 @@ test-with-master-canvas-ui:
     - cd ..
 
     # Loop until Canvas UI is ready
-    - CURL=`curl -w "%{http_code}\n" "http://localhost:3000" -o /dev/null`
-      until [ "$CURL" == "200" ]; do
-        printf '.'
-        sleep 2
+    - until $(curl --output /dev/null --silent --head --fail http://localhost:3000); do
+        printf '.';
+        sleep 1;
       done
 
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &

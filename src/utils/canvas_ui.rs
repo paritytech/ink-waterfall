@@ -92,13 +92,15 @@ impl CanvasUi {
         log::info!("opening {:?}", url("/#/upload"));
         self.client.goto(&url("/#/upload")).await?;
 
-        // we wait until the settings are visible to make sure the page is ready
+        // We wait until the settings are visible to make sure the page is ready
         log::info!("waiting for settings to become visible");
         self.client
             .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?;
 
-        // We should get rid of this `sleep`
+        // We should get rid of this `sleep`. The problem is that the "Skip Intro" button
+        // sometimes appears after a bit of time and sometimes it doesn't (if it was already
+        // clicked away during the session).
         std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("click skip intro button, if it is available");
