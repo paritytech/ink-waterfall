@@ -75,7 +75,8 @@ test-with-master-canvas-ui:
     # and there sometimes is an issue where it takes too long to be responsive.
     # It would be better to e.g. loop with small `sleep`'s until `curl` returns a `200 OK`.
     - sleep 1m
-    - curl http://127.0.0.1:3000/
+    # The `curl` is just here to get some debugging output into the CI log.
+    - curl http://localhost:3000/
     - cd ..
 
     - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
@@ -83,7 +84,7 @@ test-with-master-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
-    CANVAS_UI_URL:                    "http://127.0.0.1:3000/"
+    CANVAS_UI_URL:                    "http://localhost:3000/"
   script:
     - RUST_LOG=info cargo test --features headless -- --nocapture
 

@@ -89,9 +89,11 @@ impl CanvasUi {
         &mut self,
         upload_input: UploadInput,
     ) -> Result<String, Box<dyn std::error::Error>> {
+        log::info!("opening {:?}", url("/#/upload"));
         self.client.goto(&url("/#/upload")).await?;
 
         // we wait until the settings are visible to make sure the page is ready
+        log::info!("waiting for settings to become visible");
         self.client
             .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?;
