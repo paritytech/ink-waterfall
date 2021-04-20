@@ -110,7 +110,9 @@ impl CanvasUi {
             log::info!("found skip button");
             skip_button.click().await?;
         } else {
-            panic!("Did NOT find 'Skip Into' button!");
+            // The CI button is not always there, e.g. if multiple contracts are
+            // deployed subsequently in the same browser session.
+            eprintln!("Did NOT find 'Skip Into' button!");
         }
 
         log::info!("click settings");

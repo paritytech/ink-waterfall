@@ -60,7 +60,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     );
 
     // when
-    let _delegator_addr = canvas_ui
+    let delegator_addr = canvas_ui
         .upload(
             UploadInput::new(delegator_path)
                 .endowment("1000000", "Unit")
@@ -72,6 +72,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
 
     // then
     // interactions with the contract…
+    assert_eq!(canvas_ui.execute_rpc(&delegator_addr, "get").await?, "0");
 
     Ok(())
 }
