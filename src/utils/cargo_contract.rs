@@ -26,6 +26,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     dir.pop(); // pop `Cargo.toml` from the path
 
     let output = Command::new("cargo")
+        .arg("+nightly")
         .arg("contract")
         .arg("build")
         .arg("--manifest-path=Cargo.toml")
