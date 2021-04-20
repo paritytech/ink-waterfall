@@ -8,17 +8,30 @@ ink! ➜
                          canvas-node
 ```
 
-The `HEAD` of the `master` branch is used for every component.
+This way we want to always ensure that our components work properly together.
 
+
+## How it Works
+
+* The tests in this repository use the `HEAD` of the `master` branch of all these components.
+* They build the ink! examples using `cargo-contract`.
+* The resulting `.contract` file is subsequently deployed on a local `canvas-node`.
+  instance using the `canvas-ui`.
+* This is done by emulating browser interactions with the `canvas-ui` (such as clicking,
+  uploading files, …).
+* After successful deployment some more browser interactions with the contract are emulated,
+  in order to assert that the contract behaves as expected.
+  
 
 ## Required dependencies
 
-* [`canvas-node`](https://paritytech.github.io/ink-docs/getting-started/setup#installing-the-canvas-node)
-* [`cargo-contract`](https://paritytech.github.io/ink-docs/getting-started/setup#ink-cli)
-* [The ink! repository](https://github.com/paritytech/ink)
+* [`cargo-contract`](https://github.com/paritytech/cargo-contract#installation) with its dependencies
+  `binaryen` and `rust-src`.
 * [`geckodriver`](https://github.com/mozilla/geckodriver/) - is required for emulating interactions with
   a browser. Packages are available in some package managers, binary releases are available
   [in the repository](https://github.com/mozilla/geckodriver/releases).
+* [`canvas-node`](https://paritytech.github.io/ink-docs/getting-started/setup#installing-the-canvas-node)
+* [The ink! repository](https://github.com/paritytech/ink)
 * Firefox
 
 The [`canvas-ui`](https://github.com/paritytech/canvas-ui) is an optional requirement, by default
