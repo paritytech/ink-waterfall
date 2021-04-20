@@ -521,6 +521,11 @@ fn assert_canvas_node_running() {
 fn url(path: &str) -> String {
     let base_url: String = std::env::var("CANVAS_UI_URL")
         .unwrap_or(String::from("https://paritytech.github.io/canvas-ui"));
+
+    // strip a possibly ending `/` from he URL, since a URL like `http://foo//bar`
+    // can cause issues.
+    let base_url = base_url.trim_end_matches('/');
+
     String::from(format!("{}{}", base_url, path))
 }
 

@@ -15,7 +15,7 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
-  WATERFALL_TIMEOUT_SECS_PER_TEST: "240"
+  WATERFALL_TIMEOUT_SECS_PER_TEST: "180"
 
 workflow:
   rules:
@@ -84,9 +84,9 @@ test-with-master-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
-    CANVAS_UI_URL:                    "http://localhost:3000/"
+    CANVAS_UI_URL:                    "http://localhost:3000"
   script:
-    - RUST_LOG=info cargo test --features headless -- --nocapture
+    - cargo test --features headless -- --nocapture
 
 test-with-published-canvas-ui:
   stage:                           test
