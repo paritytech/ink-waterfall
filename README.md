@@ -13,7 +13,7 @@ ink! ➜
                          canvas-node
 ```
 
-This way we want to always ensure that our components work properly together.
+This way we want to always ensure that these components work properly together.
 The CI for this project currently tests this pipeline for ink!'s `flipper` example.
 
 
@@ -23,8 +23,8 @@ The CI for this project currently tests this pipeline for ink!'s `flipper` examp
 * They build the ink! examples using `cargo-contract`.
 * The resulting `.contract` file is deployed on a local `canvas-node` instance using
   the `canvas-ui`.
-* This is done by emulating browser interactions with the `canvas-ui` (such as clicking,
-  uploading files, …).
+* This is done by emulating browser interactions in Firefox with the `canvas-ui` (such as
+  clicking, uploading files, …).
 * After successful deployment some more browser interactions with the contract are emulated,
   in order to assert that the contract behaves as expected.
   
@@ -50,7 +50,7 @@ the [published version](https://paritytech.github.io/canvas-ui) is used.
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 canvas --tmp --dev > /tmp/canvas.log 2>&1 &
 
-# by default you will see the Firefox GUI and the
+# by default you will see the firefox gui and the
 # tests interacting with it
 cargo test 
 
