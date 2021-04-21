@@ -17,3 +17,9 @@ mod utils;
 
 #[cfg(test)]
 mod tests;
+
+use std::sync::Once;
+
+/// We use this to only initialize `env_logger` once.
+pub static INIT: Once = Once::new();
+

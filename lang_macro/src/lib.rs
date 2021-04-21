@@ -44,7 +44,9 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #( #attrs )*
         #[tokio::test]
         async #vis fn #fn_name () #ret {
-            env_logger::init();
+            crate::INIT.call_once(|| {
+                env_logger::init();
+            });
 
             // hack to get a timeout for async tests running.
             // this is necessary so that the ci doesn't wait forever to fail, thus
