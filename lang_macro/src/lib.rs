@@ -58,7 +58,7 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
             }));
             std::thread::spawn(|| {
                 let timeout: String = std::env::var("WATERFALL_TIMEOUT_SECS_PER_TEST")
-                    .unwrap_or(String::from("180")); // 3 * 60 = three minutes
+                    .unwrap_or(String::from("300")); // 5 * 60 = five minutes
                 let timeout: u64 = timeout.parse::<u64>()
                     .expect("unable to parse WATERFALL_TEST_TIMEOUT into u64");
 
@@ -70,7 +70,12 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     .output()
                     .expect("can not execute pkill");
 
-                panic!("The test '{}' didn't finish in time.", stringify!(#fn_name));
+                panic!(
+                    "The test '{}' didn't finish in time and was killed.\n\n\
+                    If this is no failure of UI-interaction you should consider\
+                    increasing `WATERFALL_TIMEOUT_SECS_PER_TEST`",
+                    stringify!(#fn_name)
+                );
             });
 
             let mut canvas_ui = CanvasUi::new().await?;
