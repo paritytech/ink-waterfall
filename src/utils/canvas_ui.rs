@@ -516,7 +516,10 @@ fn assert_canvas_node_running() {
         .filter_map(|cmdline| cmdline.ok())
         .filter_map(|opt| opt)
         .any(|str| str.contains("canvas"));
-    assert!(canvas_node_running, "canvas node not running");
+    assert!(
+        canvas_node_running,
+        "ERROR: The canvas node is not running!"
+    );
 }
 
 /// Returns the URL to the `path` in the Canvas UI.

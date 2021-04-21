@@ -22,6 +22,8 @@ use std::{
 ///
 /// If successful, returns the stdout bytes
 pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
+    assert_wasm_opt_available();
+
     let mut dir = manifest_path.clone();
     dir.pop(); // pop `Cargo.toml` from the path
 
@@ -68,4 +70,15 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
             stderr
         ))
     }
+}
+
+/// Asserts that `wasm-opt` is available.
+fn assert_wasm_opt_available() {
+    assert!(
+        which::which("wasm-opt").is_ok(),
+        "ERROR: The `wasm-opt` binary cannot be found!\n\n\
+        Please check that it is installed and in your `PATH`.\n\n\
+        See the `cargo-contract` readme for instructions on how to install it:\n\
+        https://github.com/paritytech/cargo-contract."
+    );
 }
