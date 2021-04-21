@@ -1,5 +1,10 @@
 # Readme
 
+[![ci-result][a1]][a2]
+
+[a1]: https://gitlab.parity.io/parity/ink/badges/master/pipeline.svg
+[a2]: https://gitlab.parity.io/parity/ink/pipelines?ref=master
+
 The idea of this project is to have proper end-to-end tests for this pipeline:
 ```
 ink! ➜
@@ -9,6 +14,7 @@ ink! ➜
 ```
 
 This way we want to always ensure that our components work properly together.
+The CI for this project currently tests this pipeline for ink!'s `flipper` example.
 
 
 ## How it Works
