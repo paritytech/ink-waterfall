@@ -21,26 +21,30 @@ use crate::utils::{
         UploadInput,
     },
     cargo_contract,
+    extract_hash_from_contract_bundle,
 };
 use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-// we ignore the test for the ci, since the delegator upload is
-// currently broken: https://github.com/paritytech/canvas-ui/issues/95
-#[ignore]
 #[waterfall_test]
 async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let accumulator_path =
         cargo_contract::build(&utils::example_path("delegator/accumulator/Cargo.toml"))
             .expect("accumulator build failed");
+    let accumulator_hash = extract_hash_from_contract_bundle(&accumulator_path);
+
     let adder_path =
         cargo_contract::build(&utils::example_path("delegator/adder/Cargo.toml"))
             .expect("adder build failed");
+    let adder_hash = extract_hash_from_contract_bundle(&adder_path);
+
     let subber_path =
         cargo_contract::build(&utils::example_path("delegator/subber/Cargo.toml"))
             .expect("subber build failed");
+    let subber_hash = extract_hash_from_contract_bundle(&subber_path);
+
     let delegator_path =
         cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
             .expect("delegator build failed");
@@ -48,16 +52,6 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     let _accumulator_addr = canvas_ui.upload(UploadInput::new(accumulator_path)).await?;
     let _adder_addr = canvas_ui.upload(UploadInput::new(adder_path)).await?;
     let _subber_addr = canvas_ui.upload(UploadInput::new(subber_path)).await?;
-
-    let accumulator_hash = String::from(
-        "0x694f690cebfca6ada3e548747b9e9438f4a277c77e8dc66bbdbfc441d921b3c7",
-    );
-    let adder_hash = String::from(
-        "0x74de7cebd87ffc53621987d0ec18f610867dfd22b56ee8f7162e3a7bbef99bd4",
-    );
-    let subber_hash = String::from(
-        "0x27b8eebfe9e80ae0d90f7f7b60f4acfe530b7f1025e5b462e49719757a88f0d4",
-    );
 
     // when
     let delegator_addr = canvas_ui
@@ -71,8 +65,14 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .await?;
 
     // then
-    // interactions with the contract…
-    assert_eq!(canvas_ui.execute_rpc(&delegator_addr, "get").await?, "0");
+    // this should work without having to set the `max_gas_allowed` explicitly here!
+    // can be removed once https://github.com/paritytech/canvas-ui/issues/95 has been fixed.
+    assert_eq!(
+        canvas_ui
+            .execute_rpc(&delegator_addr, "get", Some("2500"))
+            .await?,
+        "0"
+    );
 
     Ok(())
 }

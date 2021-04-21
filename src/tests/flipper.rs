@@ -34,7 +34,11 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
     let contract_addr = canvas_ui.upload(UploadInput::new(contract_file)).await?;
-    assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "false");
+    // assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get", None).await?, "false");
+    assert_eq!(
+        canvas_ui.execute_rpc(&contract_addr, "get", None).await?,
+        "false"
+    );
 
     // when
     canvas_ui
@@ -42,6 +46,10 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .await?;
 
     // then
-    assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get").await?, "true");
+    assert_eq!(
+        canvas_ui.execute_rpc(&contract_addr, "get", None).await?,
+        "true"
+    );
+
     Ok(())
 }

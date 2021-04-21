@@ -114,7 +114,7 @@ impl CanvasUi {
         } else {
             // The CI button is not always there, e.g. if multiple contracts are
             // deployed subsequently in the same browser session.
-            eprintln!("Did NOT find 'Skip Into' button!");
+            eprintln!("Did not find 'Skip Intro' button!");
         }
 
         log::info!("click settings");
@@ -328,6 +328,7 @@ impl CanvasUi {
         &mut self,
         addr: &str,
         method: &str,
+        max_gas_allowed: Option<&str>,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let url = format!("{}{}/0", url("/#/execute/"), addr);
         self.client.goto(url.as_str()).await?;
@@ -350,6 +351,30 @@ impl CanvasUi {
             .await?
             .click()
             .await?;
+
+        if let Some(max) = max_gas_allowed {
+            // click no
+            log::info!("unset 'use estimated gas' checkbox");
+            let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .click()
+                .await?;
+
+            log::info!("{}", &format!("enter max gas {:?}", max));
+            let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .clear()
+                .await?;
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .send_keys(max)
+                .await?;
+        }
 
         // click call
         log::info!("click call");
@@ -454,6 +479,9 @@ pub struct UploadInput {
     endowment: String,
     /// Unit for initial endowment of the contract.
     endowment_unit: String,
+    /// Maximum allowed gas.
+    #[allow(dead_code)]
+    max_allowed_gas: String,
 }
 
 impl UploadInput {
@@ -464,6 +492,7 @@ impl UploadInput {
             initial_values: Vec::new(),
             endowment: "1000".to_string(),
             endowment_unit: "Unit".to_string(),
+            max_allowed_gas: "2500".to_string(),
         }
     }
 
@@ -484,6 +513,13 @@ impl UploadInput {
     pub fn endowment(mut self, endowment: &str, unit: &str) -> Self {
         self.endowment = endowment.to_string();
         self.endowment_unit = unit.to_string();
+        self
+    }
+
+    /// Sets the max allowed gas.
+    #[allow(dead_code)]
+    pub fn max_allowed_gas(mut self, max: &str) -> Self {
+        self.max_allowed_gas = max.to_string();
         self
     }
 }
