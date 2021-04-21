@@ -13,7 +13,7 @@ ink! ➜
                          canvas-node
 ```
 
-This way we want to always ensure that these components work properly together.
+This way we want to ensure that these components always work properly together.
 The CI for this project currently tests this pipeline for ink!'s `flipper` example.
 
 
