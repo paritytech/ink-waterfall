@@ -18,9 +18,9 @@ use std::{
     process::Command,
 };
 
-/// Run cargo with the supplied args
+/// Builds the contract at `manifest_path` using `cargo +nightly contract`.
 ///
-/// If successful, returns the stdout bytes
+/// If successful, returns the path to the `.contract` file.
 pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     assert_wasm_opt_available();
 

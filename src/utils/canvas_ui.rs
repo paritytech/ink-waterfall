@@ -112,9 +112,9 @@ impl CanvasUi {
             log::info!("found skip button");
             skip_button.click().await?;
         } else {
-            // The CI button is not always there, e.g. if multiple contracts are
-            // deployed subsequently in the same browser session.
-            eprintln!("Did not find 'Skip Intro' button!");
+            // The "Skip Intro" button is not always there, e.g. if multiple contracts
+            // are deployed subsequently in the same browser session by one test.
+            eprintln!("did not find 'Skip Intro' button, ignoring it.");
         }
 
         log::info!("click settings");
@@ -353,7 +353,7 @@ impl CanvasUi {
             .await?;
 
         if let Some(max) = max_gas_allowed {
-            // click no
+            // click checkbox
             log::info!("unset 'use estimated gas' checkbox");
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
             self.client
@@ -564,7 +564,7 @@ fn assert_canvas_node_running() {
         .map(|p| p.cmdline())
         .filter_map(|cmdline| cmdline.ok())
         .filter_map(|opt| opt)
-        .any(|str| str.contains("canvas"));
+        .any(|str| str.contains("canvas "));
     assert!(
         canvas_node_running,
         "ERROR: The canvas node is not running!"
