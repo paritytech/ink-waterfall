@@ -401,14 +401,16 @@ impl CanvasUi {
         &mut self,
         addr: &str,
         method: &str,
+        value: Option<(String, String)>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let url = format!("{}{}/0", url("/#/execute/"), addr);
         self.client.goto(url.as_str()).await?;
+        self.client.refresh().await?;
 
         // open listbox for methods
         log::info!("click listbox");
         self.client
-            .find(Locator::XPath(
+            .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
             ))
             .await?
@@ -423,6 +425,25 @@ impl CanvasUi {
             .await?
             .click()
             .await?;
+
+        // possibly add values
+        if let Some((key, val)) = value {
+            log::info!("{}", &format!("enter {:?} into {:?}", val, key));
+            let path = format!(
+                "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                key
+            );
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .clear()
+                .await?;
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .send_keys(&val)
+                .await?;
+        }
 
         // click call
         log::info!("click call");
@@ -454,14 +475,6 @@ impl CanvasUi {
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Dismiss all notifications')]",
             ))
-            .await?
-            .click()
-            .await?;
-
-        // clear all
-        log::info!("click clear all");
-        self.client
-            .find(Locator::XPath("//*[text() = 'Clear all']"))
             .await?
             .click()
             .await?;

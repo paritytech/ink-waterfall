@@ -42,7 +42,7 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
 
     // when
     canvas_ui
-        .execute_transaction(&contract_addr, "flip")
+        .execute_transaction(&contract_addr, "flip", None)
         .await?;
 
     // then
