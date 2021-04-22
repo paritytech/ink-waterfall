@@ -18,7 +18,7 @@ use crate::utils::{
     self,
     canvas_ui::{
         CanvasUi,
-        UploadInput,
+        Upload,
     },
     cargo_contract,
 };
@@ -33,7 +33,7 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = canvas_ui.upload(UploadInput::new(contract_file)).await?;
+    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
     // assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get", None).await?, "false");
     assert_eq!(
         canvas_ui.execute_rpc(&contract_addr, "get", None).await?,

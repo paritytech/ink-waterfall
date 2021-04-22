@@ -85,9 +85,9 @@ impl CanvasUi {
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
-    pub async fn upload(
+    pub async fn execute_upload(
         &mut self,
-        upload_input: UploadInput,
+        upload_input: Upload,
     ) -> Result<String, Box<dyn std::error::Error>> {
         log::info!("opening {:?}", url("/#/upload"));
         self.client.goto(&url("/#/upload")).await?;
@@ -483,7 +483,7 @@ impl CanvasUi {
     }
 }
 
-pub struct UploadInput {
+pub struct Upload {
     /// Path to the contract which should be uploaded.
     contract_path: PathBuf,
     /// Values to instantiate the contract with.
@@ -497,7 +497,7 @@ pub struct UploadInput {
     max_allowed_gas: String,
 }
 
-impl UploadInput {
+impl Upload {
     /// Creates a new `UploadInput` instance.
     pub fn new(contract_path: PathBuf) -> Self {
         Self {

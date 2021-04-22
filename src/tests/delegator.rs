@@ -18,7 +18,7 @@ use crate::utils::{
     self,
     canvas_ui::{
         CanvasUi,
-        UploadInput,
+        Upload,
     },
     cargo_contract,
     extract_hash_from_contract_bundle,
@@ -49,14 +49,14 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
             .expect("delegator build failed");
 
-    let _accumulator_addr = canvas_ui.upload(UploadInput::new(accumulator_path)).await?;
-    let _adder_addr = canvas_ui.upload(UploadInput::new(adder_path)).await?;
-    let _subber_addr = canvas_ui.upload(UploadInput::new(subber_path)).await?;
+    let _accumulator_addr = canvas_ui.execute_upload(Upload::new(accumulator_path)).await?;
+    let _adder_addr = canvas_ui.execute_upload(Upload::new(adder_path)).await?;
+    let _subber_addr = canvas_ui.execute_upload(Upload::new(subber_path)).await?;
 
     // when
     let delegator_addr = canvas_ui
-        .upload(
-            UploadInput::new(delegator_path)
+        .execute_upload(
+            Upload::new(delegator_path)
                 .endowment("1000000", "Unit")
                 .push_initial_value("accumulatorCodeHash", &accumulator_hash)
                 .push_initial_value("adderCodeHash", &adder_hash)
