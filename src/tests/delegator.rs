@@ -18,6 +18,7 @@ use crate::utils::{
     self,
     canvas_ui::{
         CanvasUi,
+        Transaction,
         Upload,
     },
     cargo_contract,
@@ -49,7 +50,9 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
             .expect("delegator build failed");
 
-    let _accumulator_addr = canvas_ui.execute_upload(Upload::new(accumulator_path)).await?;
+    let _accumulator_addr = canvas_ui
+        .execute_upload(Upload::new(accumulator_path))
+        .await?;
     let _adder_addr = canvas_ui.execute_upload(Upload::new(adder_path)).await?;
     let _subber_addr = canvas_ui.execute_upload(Upload::new(subber_path)).await?;
 
@@ -75,9 +78,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     );
     canvas_ui
         .execute_transaction(
-            &delegator_addr,
-            "change",
-            Some(("by: i32".to_string(), "13".to_string())),
+            Transaction::new(&delegator_addr, "change").push_value("by: i32", "13"),
         )
         .await?;
     assert_eq!(
@@ -87,13 +88,13 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         "13"
     );
     canvas_ui
-        .execute_transaction(&delegator_addr, "switch", None)
+        .execute_transaction(
+            Transaction::new(&delegator_addr, "switch").push_value("by: i32", "13"),
+        )
         .await?;
     canvas_ui
         .execute_transaction(
-            &delegator_addr,
-            "change",
-            Some(("by: i32".to_string(), "3".to_string())),
+            Transaction::new(&delegator_addr, "change").push_value("by: i32", "3"),
         )
         .await?;
     assert_eq!(

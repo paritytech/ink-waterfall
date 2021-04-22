@@ -18,6 +18,7 @@ use crate::utils::{
     self,
     canvas_ui::{
         CanvasUi,
+        Transaction,
         Upload,
     },
     cargo_contract,
@@ -42,7 +43,7 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
 
     // when
     canvas_ui
-        .execute_transaction(&contract_addr, "flip", None)
+        .execute_transaction(Transaction::new(&contract_addr, "flip"))
         .await?;
 
     // then

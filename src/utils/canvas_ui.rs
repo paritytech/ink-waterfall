@@ -362,7 +362,7 @@ impl CanvasUi {
                 .click()
                 .await?;
 
-            log::info!("{}", &format!("enter max gas {:?}", max));
+            log::info!("{}", &format!("entering max gas {:?}", max));
             let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
                 .find(Locator::XPath(path))
@@ -399,11 +399,9 @@ impl CanvasUi {
     /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn execute_transaction(
         &mut self,
-        addr: &str,
-        method: &str,
-        value: Option<(String, String)>,
+        input: Transaction,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let url = format!("{}{}/0", url("/#/execute/"), addr);
+        let url = format!("{}{}/0", url("/#/execute/"), input.contract_address);
         self.client.goto(url.as_str()).await?;
         self.client.refresh().await?;
 
@@ -418,8 +416,8 @@ impl CanvasUi {
             .await?;
 
         // click `method`
-        log::info!("choose {:?}", method);
-        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", method);
+        log::info!("choose {:?}", input.method);
+        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", input.method);
         self.client
             .find(Locator::XPath(&path))
             .await?
@@ -427,8 +425,8 @@ impl CanvasUi {
             .await?;
 
         // possibly add values
-        if let Some((key, val)) = value {
-            log::info!("{}", &format!("enter {:?} into {:?}", val, key));
+        for (key, value) in input.values {
+            log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
                 "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                 key
@@ -441,7 +439,7 @@ impl CanvasUi {
             self.client
                 .find(Locator::XPath(&path))
                 .await?
-                .send_keys(&val)
+                .send_keys(&value)
                 .await?;
         }
 
@@ -483,6 +481,50 @@ impl CanvasUi {
     }
 }
 
+impl Drop for CanvasUi {
+    fn drop(&mut self) {
+        if !closing_enabled() {
+            log::info!(
+                "keeping browser open due to env variable `WATERFALL_CLOSE_BROWSER`"
+            );
+            return
+        }
+        // We kill the `geckodriver` instance here and not in `CanvasUi::shutdown()`.
+        // The reason is that if a test fails (e.g. due to an assertion), then the test
+        // will be interrupted and the shutdown method at the end of a test will not
+        // be reached, but this drop will.
+        self.geckodriver
+            .kill()
+            .expect("unable to kill geckodriver, it probably wasn't running");
+    }
+}
+
+pub struct Transaction {
+    /// Address of the contract.
+    contract_address: String,
+    /// Method to execute.
+    method: String,
+    /// Values to pass along.
+    values: Vec<(String, String)>,
+}
+
+impl Transaction {
+    /// Creates a new `Transaction` instance.
+    pub fn new(contract_address: &str, method: &str) -> Self {
+        Self {
+            contract_address: contract_address.to_string(),
+            method: method.to_string(),
+            values: Vec::new(),
+        }
+    }
+
+    /// Adds an initial value.
+    pub fn push_value(mut self, key: &str, val: &str) -> Self {
+        self.values.push((key.to_string(), val.to_string()));
+        self
+    }
+}
+
 pub struct Upload {
     /// Path to the contract which should be uploaded.
     contract_path: PathBuf,
@@ -498,7 +540,7 @@ pub struct Upload {
 }
 
 impl Upload {
-    /// Creates a new `UploadInput` instance.
+    /// Creates a new `Upload` instance.
     pub fn new(contract_path: PathBuf) -> Self {
         Self {
             contract_path,
@@ -534,24 +576,6 @@ impl Upload {
     pub fn max_allowed_gas(mut self, max: &str) -> Self {
         self.max_allowed_gas = max.to_string();
         self
-    }
-}
-
-impl Drop for CanvasUi {
-    fn drop(&mut self) {
-        if !closing_enabled() {
-            log::info!(
-                "keeping browser open due to env variable `WATERFALL_CLOSE_BROWSER`"
-            );
-            return
-        }
-        // We kill the `geckodriver` instance here and not in `CanvasUi::shutdown()`.
-        // The reason is that if a test fails (e.g. due to an assertion), then the test
-        // will be interrupted and the shutdown method at the end of a test will not
-        // be reached, but this drop will.
-        self.geckodriver
-            .kill()
-            .expect("unable to kill geckodriver, it probably wasn't running");
     }
 }
 
