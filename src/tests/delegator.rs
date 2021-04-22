@@ -73,6 +73,35 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
             .await?,
         "0"
     );
+    canvas_ui
+        .execute_transaction(
+            &delegator_addr,
+            "change",
+            Some(("by: i32".to_string(), "13".to_string())),
+        )
+        .await?;
+    assert_eq!(
+        canvas_ui
+            .execute_rpc(&delegator_addr, "get", Some("2500"))
+            .await?,
+        "13"
+    );
+    canvas_ui
+        .execute_transaction(&delegator_addr, "switch", None)
+        .await?;
+    canvas_ui
+        .execute_transaction(
+            &delegator_addr,
+            "change",
+            Some(("by: i32".to_string(), "3".to_string())),
+        )
+        .await?;
+    assert_eq!(
+        canvas_ui
+            .execute_rpc(&delegator_addr, "get", Some("2500"))
+            .await?,
+        "10"
+    );
 
     Ok(())
 }
