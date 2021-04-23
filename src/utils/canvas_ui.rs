@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use fantoccini::{
+    error::CmdError,
     Client,
     ClientBuilder,
     Locator,
@@ -400,7 +401,7 @@ impl CanvasUi {
     pub async fn execute_transaction(
         &mut self,
         input: Transaction,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<Vec<Event>, Error> {
         let url = format!("{}{}/0", url("/#/execute/"), input.contract_address);
         self.client.goto(url.as_str()).await?;
         self.client.refresh().await?;
@@ -467,8 +468,35 @@ impl CanvasUi {
             .await?;
 
         // maybe assert?
-        log::info!("waiting for success notification");
-        self.client.wait_for_find(Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and contains(text(), 'ExtrinsicSuccess')]")).await?;
+        log::info!("waiting for either success or failure notification");
+        self.client.wait_for_find(
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed'))]")
+        ).await?;
+
+        // extract all status messages
+        let statuses = self
+            .client
+            .find_all(Locator::XPath(
+                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
+            ))
+            .await?;
+        log::info!("found {:?} status messages", statuses.len());
+        let mut statuses_processed = Vec::new();
+        for mut el in statuses {
+            let mut header = el
+                .find(Locator::XPath("div[@class = 'header']"))
+                .await?
+                .text()
+                .await?;
+            let mut status = el
+                .find(Locator::XPath("div[@class = 'status']"))
+                .await?
+                .text()
+                .await?;
+            log::info!("found status message {:?} with {:?}", header, status);
+            statuses_processed.push(Event { header, status });
+        }
+
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Dismiss all notifications')]",
@@ -477,7 +505,18 @@ impl CanvasUi {
             .click()
             .await?;
 
-        Ok(())
+        let success = statuses_processed
+            .iter()
+            .any(|status| status.header == "system.ExtrinsicSuccess");
+        let failure = statuses_processed
+            .iter()
+            .any(|status| status.header == "system.ExtrinsicFailed");
+        match (success, failure) {
+            (true, false) => Ok(statuses_processed),
+            (false, true) => Err(Error::ExtrinsicFailed(statuses_processed)),
+            (false, false) => panic!("ERROR: Neither 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
+            (true, true) => panic!("ERROR: Both 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
+        }
     }
 }
 
@@ -497,6 +536,24 @@ impl Drop for CanvasUi {
             .kill()
             .expect("unable to kill geckodriver, it probably wasn't running");
     }
+}
+
+pub enum Error {
+    ExtrinsicFailed(Vec<Event>),
+    Other(Box<dyn std::error::Error>),
+}
+
+impl From<CmdError> for Error {
+    fn from(cmd_err: CmdError) -> Self {
+        Error::Other(Box::new(cmd_err))
+    }
+}
+
+pub struct Event {
+    /// The header text returned in a status event by the UI.
+    header: String,
+    /// The status text returned in a status event by the UI.
+    status: String,
 }
 
 pub struct Transaction {

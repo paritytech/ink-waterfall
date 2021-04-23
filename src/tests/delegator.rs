@@ -80,7 +80,8 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .execute_transaction(
             Transaction::new(&delegator_addr, "change").push_value("by: i32", "13"),
         )
-        .await?;
+        .await
+        .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
             .execute_rpc(&delegator_addr, "get", Some("2500"))
@@ -91,12 +92,14 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .execute_transaction(
             Transaction::new(&delegator_addr, "switch").push_value("by: i32", "13"),
         )
-        .await?;
+        .await
+        .expect("failed to execute transaction");
     canvas_ui
         .execute_transaction(
             Transaction::new(&delegator_addr, "change").push_value("by: i32", "3"),
         )
-        .await?;
+        .await
+        .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
             .execute_rpc(&delegator_addr, "get", Some("2500"))

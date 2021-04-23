@@ -44,7 +44,8 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // when
     canvas_ui
         .execute_transaction(Transaction::new(&contract_addr, "flip"))
-        .await?;
+        .await
+        .expect("failed to execute transaction");
 
     // then
     assert_eq!(
