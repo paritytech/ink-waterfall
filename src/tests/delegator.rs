@@ -17,8 +17,8 @@
 use crate::utils::{
     self,
     canvas_ui::{
+        Call,
         CanvasUi,
-        Transaction,
         Upload,
     },
     cargo_contract,
@@ -72,40 +72,39 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // can be removed once https://github.com/paritytech/canvas-ui/issues/95 has been fixed.
     assert_eq!(
         canvas_ui
-            .execute_rpc(&delegator_addr, "get", Some("2500"))
+            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("2500"))
             .await?,
         "0"
     );
     canvas_ui
         .execute_transaction(
-            Transaction::new(&delegator_addr, "change").push_value("by: i32", "13"),
+            Call::new(&delegator_addr, "change").push_value("by: i32", "13"),
         )
         .await
         .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
-            .execute_rpc(&delegator_addr, "get", Some("2500"))
+            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("2500"))
             .await?,
         "13"
     );
     canvas_ui
         .execute_transaction(
-            Transaction::new(&delegator_addr, "switch").push_value("by: i32", "13"),
+            Call::new(&delegator_addr, "switch").push_value("by: i32", "13"),
         )
         .await
         .expect("failed to execute transaction");
     canvas_ui
         .execute_transaction(
-            Transaction::new(&delegator_addr, "change").push_value("by: i32", "3"),
+            Call::new(&delegator_addr, "change").push_value("by: i32", "3"),
         )
         .await
         .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
-            .execute_rpc(&delegator_addr, "get", Some("2500"))
+            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("2500"))
             .await?,
         "10"
     );
-
     Ok(())
 }

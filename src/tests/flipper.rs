@@ -17,8 +17,8 @@
 use crate::utils::{
     self,
     canvas_ui::{
+        Call,
         CanvasUi,
-        Transaction,
         Upload,
     },
     cargo_contract,
@@ -35,23 +35,25 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
     let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
-    // assert_eq!(canvas_ui.execute_rpc(&contract_addr, "get", None).await?, "false");
     assert_eq!(
-        canvas_ui.execute_rpc(&contract_addr, "get", None).await?,
+        canvas_ui
+            .execute_rpc(Call::new(&contract_addr, "get"))
+            .await?,
         "false"
     );
 
     // when
     canvas_ui
-        .execute_transaction(Transaction::new(&contract_addr, "flip"))
+        .execute_transaction(Call::new(&contract_addr, "flip"))
         .await
         .expect("failed to execute transaction");
 
     // then
     assert_eq!(
-        canvas_ui.execute_rpc(&contract_addr, "get", None).await?,
+        canvas_ui
+            .execute_rpc(Call::new(&contract_addr, "get"))
+            .await?,
         "true"
     );
-
     Ok(())
 }

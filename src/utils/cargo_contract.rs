@@ -34,7 +34,12 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
         .arg("--manifest-path=Cargo.toml")
         .current_dir(dir)
         .output()
-        .map_err(|err| format!("oh no - {:?}", err))
+        .map_err(|err| {
+            format!(
+                "ERROR while executing `cargo-contract` with {:?}: {:?}",
+                manifest_path, err
+            )
+        })
         .expect("failed to execute process");
 
     if output.status.success() {

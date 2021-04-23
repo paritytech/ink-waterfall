@@ -82,7 +82,7 @@ impl CanvasUi {
 
     /// Uploads the contract behind `contract_path`.
     ///
-    /// # Note
+    /// # Developer Note
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
@@ -319,19 +319,17 @@ impl CanvasUi {
         Ok(String::from(addr))
     }
 
-    /// Executes the RPC call `method` for the contract at `addr`.
+    /// Executes the RPC call `call`.
     ///
-    /// # Note
+    /// # Developer Note
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn execute_rpc(
         &mut self,
-        addr: &str,
-        method: &str,
-        max_gas_allowed: Option<&str>,
+        call: Call,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let url = format!("{}{}/0", url("/#/execute/"), addr);
+        let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
@@ -345,15 +343,16 @@ impl CanvasUi {
             .await?;
 
         // click `method`
-        log::info!("choose {:?}", method);
-        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", method);
+        log::info!("choose {:?}", call.method);
+        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", call.method);
         self.client
             .find(Locator::XPath(&path))
             .await?
             .click()
             .await?;
 
-        if let Some(max) = max_gas_allowed {
+        // possibly set max gas
+        if let Some(max_gas) = call.max_gas_allowed {
             // click checkbox
             log::info!("unset 'use estimated gas' checkbox");
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
@@ -363,7 +362,7 @@ impl CanvasUi {
                 .click()
                 .await?;
 
-            log::info!("{}", &format!("entering max gas {:?}", max));
+            log::info!("{}", &format!("entering max gas {:?}", max_gas));
             let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
                 .find(Locator::XPath(path))
@@ -373,7 +372,26 @@ impl CanvasUi {
             self.client
                 .find(Locator::XPath(path))
                 .await?
-                .send_keys(max)
+                .send_keys(&max_gas)
+                .await?;
+        }
+
+        // possibly add values
+        for (key, value) in call.values {
+            log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
+            let path = format!(
+                "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                key
+            );
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .clear()
+                .await?;
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .send_keys(&value)
                 .await?;
         }
 
@@ -385,24 +403,21 @@ impl CanvasUi {
             .click()
             .await?;
 
-        // must contain false
+        // wait for outcomes
         let mut el = self.client.wait_for_find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await?;
         let txt = el.text().await?;
-        log::info!("value {:?}", txt);
+        log::info!("outcomes value {:?}", txt);
         Ok(txt)
     }
 
-    /// Executes the transaction `method` for the contract at `addr`.
+    /// Executes the transaction `call`.
     ///
-    /// # Note
+    /// # Developer Note
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
-    pub async fn execute_transaction(
-        &mut self,
-        input: Transaction,
-    ) -> Result<Vec<Event>, Error> {
-        let url = format!("{}{}/0", url("/#/execute/"), input.contract_address);
+    pub async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
+        let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
         self.client.goto(url.as_str()).await?;
         self.client.refresh().await?;
 
@@ -417,16 +432,41 @@ impl CanvasUi {
             .await?;
 
         // click `method`
-        log::info!("choose {:?}", input.method);
-        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", input.method);
+        log::info!("choose {:?}", call.method);
+        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", call.method);
         self.client
             .find(Locator::XPath(&path))
             .await?
             .click()
             .await?;
 
+        // possibly set max gas
+        if let Some(max_gas) = call.max_gas_allowed {
+            // click checkbox
+            log::info!("unset 'use estimated gas' checkbox");
+            let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .click()
+                .await?;
+
+            log::info!("{}", &format!("entering max gas {:?}", max_gas));
+            let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .clear()
+                .await?;
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .send_keys(&max_gas)
+                .await?;
+        }
+
         // possibly add values
-        for (key, value) in input.values {
+        for (key, value) in call.values {
             log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
                 "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
@@ -483,12 +523,12 @@ impl CanvasUi {
         log::info!("found {:?} status messages", statuses.len());
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            let mut header = el
+            let header = el
                 .find(Locator::XPath("div[@class = 'header']"))
                 .await?
                 .text()
                 .await?;
-            let mut status = el
+            let status = el
                 .find(Locator::XPath("div[@class = 'status']"))
                 .await?
                 .text()
@@ -496,6 +536,7 @@ impl CanvasUi {
             log::info!("found status message {:?} with {:?}", header, status);
             statuses_processed.push(Event { header, status });
         }
+        let events = Events::new(statuses_processed);
 
         self.client
             .wait_for_find(Locator::XPath(
@@ -505,15 +546,11 @@ impl CanvasUi {
             .click()
             .await?;
 
-        let success = statuses_processed
-            .iter()
-            .any(|status| status.header == "system.ExtrinsicSuccess");
-        let failure = statuses_processed
-            .iter()
-            .any(|status| status.header == "system.ExtrinsicFailed");
+        let success = events.contains("system.ExtrinsicSuccess");
+        let failure = events.contains("system.ExtrinsicFailed");
         match (success, failure) {
-            (true, false) => Ok(statuses_processed),
-            (false, true) => Err(Error::ExtrinsicFailed(statuses_processed)),
+            (true, false) => Ok(events),
+            (false, true) => Err(Error::ExtrinsicFailed(events)),
             (false, false) => panic!("ERROR: Neither 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
             (true, true) => panic!("ERROR: Both 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
         }
@@ -538,8 +575,9 @@ impl Drop for CanvasUi {
     }
 }
 
+#[derive(Debug)]
 pub enum Error {
-    ExtrinsicFailed(Vec<Event>),
+    ExtrinsicFailed(Events),
     Other(Box<dyn std::error::Error>),
 }
 
@@ -549,6 +587,7 @@ impl From<CmdError> for Error {
     }
 }
 
+#[derive(Debug)]
 pub struct Event {
     /// The header text returned in a status event by the UI.
     header: String,
@@ -556,21 +595,44 @@ pub struct Event {
     status: String,
 }
 
-pub struct Transaction {
+#[derive(Debug)]
+pub struct Events {
+    /// The events returned by the UI as a result of a RPC call or a transaction.
+    events: Vec<Event>,
+}
+
+impl Events {
+    /// Creates a new `Events` instance.
+    pub fn new(events: Vec<Event>) -> Self {
+        Self { events }
+    }
+
+    /// Returns `true` if the `event` is contained in these events.
+    pub fn contains(&self, event: &str) -> bool {
+        self.events
+            .iter()
+            .any(|evt| evt.header == event || evt.status == event)
+    }
+}
+
+pub struct Call {
     /// Address of the contract.
     contract_address: String,
     /// Method to execute.
     method: String,
+    /// Maximum gas allowed.
+    max_gas_allowed: Option<String>,
     /// Values to pass along.
     values: Vec<(String, String)>,
 }
 
-impl Transaction {
+impl Call {
     /// Creates a new `Transaction` instance.
     pub fn new(contract_address: &str, method: &str) -> Self {
         Self {
             contract_address: contract_address.to_string(),
             method: method.to_string(),
+            max_gas_allowed: None,
             values: Vec::new(),
         }
     }
@@ -578,6 +640,12 @@ impl Transaction {
     /// Adds an initial value.
     pub fn push_value(mut self, key: &str, val: &str) -> Self {
         self.values.push((key.to_string(), val.to_string()));
+        self
+    }
+
+    /// Sets the maximum gas allowed.
+    pub fn max_gas(mut self, max_gas: &str) -> Self {
+        self.max_gas_allowed = Some(max_gas.to_string());
         self
     }
 }
