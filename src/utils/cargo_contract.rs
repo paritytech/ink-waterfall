@@ -33,14 +33,18 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
         .arg("build")
         .arg("--manifest-path=Cargo.toml")
         .current_dir(dir)
-        .output()
+        // we want to receive the child's output as part of the ink-waterfall stdout
+        .stdout(std::process::Stdio::piped())
+        .spawn()
         .map_err(|err| {
             format!(
                 "ERROR while executing `cargo-contract` with {:?}: {:?}",
                 manifest_path, err
             )
         })
-        .expect("failed to execute process");
+        .expect("failed to execute process")
+        .wait_with_output()
+        .expect("failed to receive output");
 
     if output.status.success() {
         let stdout = String::from_utf8(output.stdout).expect("string conversion failed");
