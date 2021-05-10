@@ -89,9 +89,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         "13"
     );
     canvas_ui
-        .execute_transaction(
-            Call::new(&delegator_addr, "switch")
-        )
+        .execute_transaction(Call::new(&delegator_addr, "switch"))
         .await
         .expect("failed to execute transaction");
     canvas_ui

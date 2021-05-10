@@ -13,5 +13,6 @@
 // limitations under the License.
 
 mod contract_terminate;
+mod contract_transfer;
 mod delegator;
 mod flipper;
