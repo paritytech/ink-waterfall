@@ -80,6 +80,31 @@ impl CanvasUi {
         Ok(())
     }
 
+    /// Returns the balance postfix numbers.
+    pub async fn balance_postfix(
+        &mut self,
+        account: String,
+    ) -> Result<u128, Box<dyn std::error::Error>> {
+        self.client
+            .goto(
+                "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
+            )
+            .await?;
+        std::thread::sleep(std::time::Duration::from_secs(3));
+
+        let path = format!(
+            "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
+            account
+        );
+        let txt = self
+            .client
+            .find(Locator::XPath(&path))
+            .await?
+            .text()
+            .await?;
+        Ok(txt.parse::<u128>().expect("failed parsing"))
+    }
+
     /// Uploads the contract behind `contract_path`.
     ///
     /// # Developer Note
@@ -351,6 +376,24 @@ impl CanvasUi {
             .click()
             .await?;
 
+        // Open listbox
+        log::info!("Open listbox for rpc vs. transaction");
+        let path = "//*[contains(text(),'Send as RPC call')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]";
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .click()
+            .await?;
+
+        // Send as RPC call
+        log::info!("select 'Send as RPC call'");
+        let path = "//*[contains(text(),'Send as RPC call')]/ancestor::div[1]";
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .click()
+            .await?;
+
         // possibly set max gas
         if let Some(max_gas) = call.max_gas_allowed {
             // click checkbox
@@ -439,6 +482,81 @@ impl CanvasUi {
             .await?
             .click()
             .await?;
+
+        // Open listbox
+        log::info!("open listbox for rpc vs. transaction");
+        let path = "//*[contains(text(),'Send as transaction')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]";
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .click()
+            .await?;
+
+        // Send as transaction
+        log::info!("select 'Send as transaction'");
+        let path = "//*[contains(text(),'Send as transaction')]/ancestor::div[1]";
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .click()
+            .await?;
+
+        if let Some(caller) = call.caller {
+            // open listbox for accounts
+            log::info!("click listbox for accounts");
+            self.client
+                .wait_for_find(Locator::XPath(
+                    "//*[contains(text(),'Call from Account')]/ancestor::div[1]/div",
+                ))
+                .await?
+                .click()
+                .await?;
+
+            // choose caller
+            log::info!("choose {:?}", caller);
+            let path = format!("//div[@name = '{}']", caller.to_lowercase());
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .click()
+                .await?;
+        }
+
+        // Possibly add payment
+        if let Some(payment) = call.payment {
+            // Open listbox
+            log::info!("open listbox for payment units");
+            let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .click()
+                .await?;
+
+            log::info!("click payment unit option {}", payment.unit);
+            let path = format!(
+                "//div[@role='option']/span[contains(text(),'{}')]/ancestor::div[1]",
+                payment.unit
+            );
+            self.client
+                .wait_for_find(Locator::XPath(&path))
+                .await?
+                .click()
+                .await?;
+
+            log::info!("{}", &format!("entering payment {:?}", payment.payment));
+            let path = "//*[contains(text(),'Payment')]/ancestor::div[1]/div//input[@type = 'text']";
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .clear()
+                .await?;
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .send_keys(&payment.payment)
+                .await?;
+        }
 
         // possibly set max gas
         if let Some(max_gas) = call.max_gas_allowed {
@@ -588,6 +706,14 @@ impl From<CmdError> for Error {
 }
 
 #[derive(Debug)]
+pub struct Payment {
+    /// The payment.
+    payment: String,
+    /// The unit of payment.
+    unit: String,
+}
+
+#[derive(Debug)]
 pub struct Event {
     /// The header text returned in a status event by the UI.
     header: String,
@@ -624,6 +750,10 @@ pub struct Call {
     max_gas_allowed: Option<String>,
     /// Values to pass along.
     values: Vec<(String, String)>,
+    /// The payment to send with the call.
+    payment: Option<Payment>,
+    /// The account from which to execute the call.
+    caller: Option<String>,
 }
 
 impl Call {
@@ -634,6 +764,8 @@ impl Call {
             method: method.to_string(),
             max_gas_allowed: None,
             values: Vec::new(),
+            payment: None,
+            caller: None,
         }
     }
 
@@ -646,6 +778,21 @@ impl Call {
     /// Sets the maximum gas allowed.
     pub fn max_gas(mut self, max_gas: &str) -> Self {
         self.max_gas_allowed = Some(max_gas.to_string());
+        self
+    }
+
+    /// Sets the payment submitted with the call.
+    pub fn payment(mut self, payment: &str, unit: &str) -> Self {
+        self.payment = Some(Payment {
+            payment: payment.to_string(),
+            unit: unit.to_string(),
+        });
+        self
+    }
+
+    /// Sets the account from which to execute the call.
+    pub fn caller(mut self, caller: &str) -> Self {
+        self.caller = Some(caller.to_string());
         self
     }
 }
