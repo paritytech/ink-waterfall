@@ -28,7 +28,6 @@ use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[ignore]
 #[waterfall_test]
 async fn contract_terminate_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
