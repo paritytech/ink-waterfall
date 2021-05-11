@@ -15,7 +15,7 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
-  WATERFALL_TIMEOUT_SECS_PER_TEST: "300"
+  WATERFALL_TIMEOUT_SECS_PER_TEST: "400"
 
 workflow:
   rules:
