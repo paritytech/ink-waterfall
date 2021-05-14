@@ -57,3 +57,25 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
     );
     Ok(())
 }
+
+#[waterfall_test]
+async fn default_constructor(mut canvas_ui: CanvasUi) -> Result<()> {
+    // given
+    let manifest_path = utils::example_path("flipper/Cargo.toml");
+    let contract_file =
+        cargo_contract::build(&manifest_path).expect("contract build failed");
+
+    // when
+    let contract_addr = canvas_ui
+        .execute_upload(Upload::new(contract_file).constructor("default"))
+        .await?;
+
+    // then
+    assert_eq!(
+        canvas_ui
+            .execute_rpc(Call::new(&contract_addr, "get"))
+            .await?,
+        "false"
+    );
+    Ok(())
+}
