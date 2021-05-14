@@ -470,7 +470,7 @@ impl CanvasUi {
         }
 
         // possibly add values
-        for (key, value) in call.values {
+        for (key, mut value) in call.values {
             log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
                 "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
@@ -481,11 +481,12 @@ impl CanvasUi {
                 .await?
                 .clear()
                 .await?;
+            value.push('\n');
             self.client
                 .find(Locator::XPath(&path))
                 .await?
                 .send_keys(&value)
-                .await?;
+                .await?
         }
 
         // click call
