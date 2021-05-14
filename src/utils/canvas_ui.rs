@@ -262,6 +262,26 @@ impl CanvasUi {
             input.send_keys(&value).await?;
         }
 
+        if let Some(constructor) = upload_input.constructor {
+            log::info!("click constructor list box");
+            self.client
+                .wait_for_find(Locator::XPath(
+                    "//label/*[contains(text(),'Instantiation Constructor')]/ancestor::div[1]//*/div[@role='listbox']"
+                ))
+                .await?.click().await?;
+
+            log::info!("click constructor option {}", constructor);
+            let path = format!(
+                "//span[@class = 'ui--MessageSignature-name' and contains(text(),'{}')]",
+                constructor
+            );
+            self.client
+                .wait_for_find(Locator::XPath(&path))
+                .await?
+                .click()
+                .await?;
+        }
+
         log::info!("set endowment to {}", upload_input.endowment);
         let mut input = self
             .client
@@ -817,6 +837,8 @@ pub struct Upload {
     /// Maximum allowed gas.
     #[allow(dead_code)]
     max_allowed_gas: String,
+    /// The constructor to use. If not specified the default selected one is used.
+    constructor: Option<String>,
 }
 
 impl Upload {
@@ -828,6 +850,7 @@ impl Upload {
             endowment: "1000".to_string(),
             endowment_unit: "Unit".to_string(),
             max_allowed_gas: "2500".to_string(),
+            constructor: None,
         }
     }
 
@@ -855,6 +878,12 @@ impl Upload {
     #[allow(dead_code)]
     pub fn max_allowed_gas(mut self, max: &str) -> Self {
         self.max_allowed_gas = max.to_string();
+        self
+    }
+
+    /// Sets the constructor to use for instantiation.
+    pub fn constructor(mut self, constructor: &str) -> Self {
+        self.constructor = Some(constructor.to_string());
         self
     }
 }
