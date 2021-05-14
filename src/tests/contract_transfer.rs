@@ -28,7 +28,7 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn contract_transfer_works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
     let contract_file =
@@ -49,13 +49,25 @@ async fn contract_transfer_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // then
     let balance_after = canvas_ui.balance_postfix("BOB".to_string()).await?;
     assert_eq!(balance_after - balance_before, 1);
+    Ok(())
+}
 
-    let _events = canvas_ui
+#[waterfall_test]
+async fn transfer_exactly_ten_to_contract(mut canvas_ui: CanvasUi) -> Result<()> {
+    // given
+    let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
+    let contract_file =
+        cargo_contract::build(&manifest_path).expect("contract build failed");
+    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+
+    // when
+    let result = canvas_ui
         .execute_transaction(
             Call::new(&contract_addr, "was_it_ten").payment("10", "pico"),
         )
-        .await
-        .expect("failed to execute transaction");
+        .await;
 
+    // then
+    assert!(result.is_ok());
     Ok(())
 }
