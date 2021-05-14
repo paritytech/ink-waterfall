@@ -287,6 +287,14 @@ impl CanvasUi {
         );
         self.client.wait_for_find(Locator::XPath(&path)).await?;
 
+        log::info!("Check 'Unique Instantiation Salt' checkbox");
+        let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class, 'ui--Toggle')]/div";
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .click()
+            .await?;
+
         log::info!("click instantiate");
         self.client
             .execute("$(\"button:contains('Instantiate')\").click()", Vec::new())
@@ -340,7 +348,7 @@ impl CanvasUi {
             .captures(curr_client_url.as_str())
             .expect("contract address cannot be extracted from website");
         let addr = captures.get(1).expect("no capture group").as_str();
-        log::info!("addr {:?}", addr);
+        log::info!("contract address {:?}", addr);
         Ok(String::from(addr))
     }
 
