@@ -338,15 +338,16 @@ impl CanvasUi {
 
         log::info!("click instantiate");
         self.client
-            .execute("$(\"button:contains('Instantiate')\").click()", Vec::new())
+            .find(Locator::XPath("//button[contains(text(),'Instantiate')]"))
+            .await?
+            .click()
             .await?;
 
         log::info!("click sign and submit");
         self.client
-            .execute(
-                "$(\"button:contains('Sign & Submit')\").click()",
-                Vec::new(),
-            )
+            .wait_for_find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
+            .await?
+            .click()
             .await?;
 
         // h1: Contract successfully instantiated
