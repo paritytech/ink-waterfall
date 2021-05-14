@@ -250,6 +250,27 @@ impl CanvasUi {
             .click()
             .await?;
 
+        if let Some(caller) = upload_input.caller {
+            // open listbox for accounts
+            log::info!("click listbox for accounts");
+            self.client
+                .wait_for_find(Locator::XPath(
+                    "//*[contains(text(),'instantiation account')]/ancestor::div[1]/div",
+                ))
+                .await?
+                .click()
+                .await?;
+
+            // choose caller
+            log::info!("choose {:?}", caller);
+            let path = format!("//div[@name = '{}']", caller.to_lowercase());
+            self.client
+                .find(Locator::XPath(&path))
+                .await?
+                .click()
+                .await?;
+        }
+
         for (key, value) in upload_input.initial_values.iter() {
             log::info!("inserting '{}' into input field '{}'", value, key);
             let path = format!(
@@ -839,6 +860,8 @@ pub struct Upload {
     max_allowed_gas: String,
     /// The constructor to use. If not specified the default selected one is used.
     constructor: Option<String>,
+    /// The caller to use. If not specified the default selected one is used.
+    caller: Option<String>,
 }
 
 impl Upload {
@@ -851,6 +874,7 @@ impl Upload {
             endowment_unit: "Unit".to_string(),
             max_allowed_gas: "2500".to_string(),
             constructor: None,
+            caller: None,
         }
     }
 
@@ -884,6 +908,12 @@ impl Upload {
     /// Sets the constructor to use for instantiation.
     pub fn constructor(mut self, constructor: &str) -> Self {
         self.constructor = Some(constructor.to_string());
+        self
+    }
+
+    /// Sets the caller to use for instantiation.
+    pub fn caller(mut self, caller: &str) -> Self {
+        self.caller = Some(caller.to_string());
         self
     }
 }
