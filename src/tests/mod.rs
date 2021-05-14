@@ -15,4 +15,5 @@
 mod contract_terminate;
 mod contract_transfer;
 mod delegator;
+mod erc20;
 mod flipper;
