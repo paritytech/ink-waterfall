@@ -17,3 +17,4 @@ mod contract_transfer;
 mod delegator;
 mod erc20;
 mod flipper;
+mod rand_extension;

@@ -929,7 +929,7 @@ fn assert_canvas_node_running() {
         .map(|p| p.cmdline())
         .filter_map(|cmdline| cmdline.ok())
         .filter_map(|opt| opt)
-        .any(|str| str.contains("canvas "));
+        .any(|str| str.contains("canvas ") || str.contains("canvas-rand-extension "));
     assert!(
         canvas_node_running,
         "ERROR: The canvas node is not running!"
