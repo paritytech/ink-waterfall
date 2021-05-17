@@ -88,6 +88,8 @@ test-with-master-canvas-ui:
     CANVAS_UI_URL:                    "http://localhost:3000"
   script:
     - cargo test --features headless -- --nocapture
+  after_script:
+    - pkill -f canvas
 
 test-with-published-canvas-ui:
   stage:                           test
@@ -103,7 +105,7 @@ test-with-published-canvas-ui:
   script:
     - cargo test --features headless
   after_script:
-    - pkill -f canvas
+    - pkill -f -x "canvas --tmp --dev"
 
 test-rand-extension-with-published-canvas-ui:
   stage:                           test
@@ -119,4 +121,4 @@ test-rand-extension-with-published-canvas-ui:
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
-    - pkill -f canvas-rand-extension
+    - pkill -f -x "canvas-rand-extension --tmp --dev"
