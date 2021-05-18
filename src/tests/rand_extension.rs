@@ -34,7 +34,11 @@ async fn rand_extension(mut canvas_ui: CanvasUi) -> Result<()> {
     let manifest_path = utils::example_path("rand-extension/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = canvas_ui
+        .execute_upload(
+            Upload::new(contract_file).push_initial_value("initValue", "0x00"),
+        )
+        .await?;
 
     // when
     assert_eq!(
