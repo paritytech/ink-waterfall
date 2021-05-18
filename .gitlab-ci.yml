@@ -59,38 +59,6 @@ workflow:
   tags:
     - linux-docker
 
-
-test-with-master-canvas-ui:
-  stage:                           test
-  <<:                              *docker-env
-  before_script:
-    # Install the latest HEAD of canvas-ui master here.
-    # We don't do this in the Dockerfile, since caching might interfere and
-    # we might not always have the latest master here.
-    - git clone --depth 1 https://github.com/paritytech/canvas-ui.git
-
-    - cd canvas-ui
-    - yarn install
-    - yarn start > /tmp/canvas-ui.log 2>&1 &
-    - cd ..
-
-    # Loop until Canvas UI is ready
-    - until $(curl --output /dev/null --silent --head --fail http://localhost:3000); do
-        printf '.';
-        sleep 1;
-      done
-
-    - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
-
-    - git clone --depth 1 https://github.com/paritytech/ink.git
-  variables:
-    INK_EXAMPLES_PATH:                "./ink/examples/"
-    CANVAS_UI_URL:                    "http://localhost:3000"
-  script:
-    - cargo test --features headless -- --nocapture
-  after_script:
-    - pkill -f canvas
-
 test-with-published-canvas-ui:
   stage:                           test
   <<:                              *docker-env
