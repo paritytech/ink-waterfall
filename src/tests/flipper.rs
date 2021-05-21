@@ -59,7 +59,6 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
 }
 
 #[waterfall_test]
-#[ignore] // ignore until https://github.com/paritytech/canvas-ui/issues/102 is fixed
 async fn default_constructor(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
