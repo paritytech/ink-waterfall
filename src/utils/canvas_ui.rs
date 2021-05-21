@@ -874,7 +874,7 @@ impl Upload {
             initial_values: Vec::new(),
             endowment: "1000".to_string(),
             endowment_unit: "Unit".to_string(),
-            max_allowed_gas: "2500".to_string(),
+            max_allowed_gas: "5000".to_string(),
             constructor: None,
             caller: None,
         }
