@@ -447,13 +447,14 @@ impl CanvasUi {
         // possibly set max gas
         if let Some(max_gas) = call.max_gas_allowed {
             // click checkbox
-            log::info!("unset 'use estimated gas' checkbox");
+            log::info!("unset 'use estimated gas' checkbox if it exists");
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
-            self.client
-                .find(Locator::XPath(path))
-                .await?
-                .click()
-                .await?;
+            let checkbox = self.client.find(Locator::XPath(path)).await;
+
+            if let Ok(checkbox) = checkbox {
+                log::info!("unsetting 'use estimated gas' checkbox - it exists");
+                checkbox.click().await?;
+            }
 
             log::info!("{}", &format!("entering max gas {:?}", max_gas));
             let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
