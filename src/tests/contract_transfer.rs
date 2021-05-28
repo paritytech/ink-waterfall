@@ -28,7 +28,7 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-#[ignore] // until https://github.com/polkadot-js/apps/issues/5316 is fixed
+#[ignore] // TODO ignore until https://github.com/polkadot-js/apps/issues/5316 is fixed
 async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
@@ -54,7 +54,7 @@ async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Resu
 }
 
 #[waterfall_test]
-#[ignore] // until https://github.com/polkadot-js/apps/issues/5316 is fixed
+#[ignore] // TODO ignore until https://github.com/polkadot-js/apps/issues/5316 is fixed
 async fn transfer_exactly_ten_to_contract(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
