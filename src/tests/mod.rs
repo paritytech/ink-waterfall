@@ -19,3 +19,5 @@ mod erc20;
 mod flipper;
 mod incrementer;
 mod rand_extension;
+mod trait_erc20;
+mod trait_flipper;
