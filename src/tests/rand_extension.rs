@@ -45,7 +45,7 @@ async fn rand_extension(mut canvas_ui: CanvasUi) -> Result<()> {
         canvas_ui
             .execute_rpc(Call::new(&contract_addr, "get"))
             .await
-            .expect("failed to execute transaction"),
+            .expect("failed to execute rpc"),
         "0x000000…00000000"
     );
     let _events = canvas_ui
@@ -58,7 +58,7 @@ async fn rand_extension(mut canvas_ui: CanvasUi) -> Result<()> {
         canvas_ui
             .execute_rpc(Call::new(&contract_addr, "get"))
             .await
-            .expect("failed to execute transaction"),
+            .expect("failed to execute rpc"),
         "0x000000…00000000"
     );
     Ok(())
