@@ -28,7 +28,6 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-#[ignore] // TODO ignore until https://github.com/polkadot-js/apps/issues/5316 is fixed
 async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
