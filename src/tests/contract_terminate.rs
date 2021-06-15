@@ -53,7 +53,7 @@ async fn contract_terminate_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .expect_err("successfully executed transaction, but expected it to_fail");
     match err {
         Error::ExtrinsicFailed(events) => {
-            assert!(events.contains("contracts.NotCallable"))
+            assert!(events.contains("contracts.ContractNotFound"))
         }
         err => panic!("encountered unexpected {:?}", err),
     }
