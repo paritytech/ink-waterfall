@@ -115,7 +115,7 @@ impl CanvasUi {
         &mut self,
         upload_input: Upload,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        log::info!("opening {:?}", url("/#/upload"));
+        log::info!("opening url for upload: {:?}", url("/#/upload"));
         self.client.goto(&url("/#/upload")).await?;
 
         // We wait until the settings are visible to make sure the page is ready
@@ -140,7 +140,7 @@ impl CanvasUi {
         } else {
             // The "Skip Intro" button is not always there, e.g. if multiple contracts
             // are deployed subsequently in the same browser session by one test.
-            eprintln!("did not find 'Skip Intro' button, ignoring it.");
+            log::info!("did not find 'Skip Intro' button, ignoring it.");
         }
 
         log::info!("click settings");
@@ -278,7 +278,23 @@ impl CanvasUi {
                 key
             );
             let mut input = self.client.find(Locator::XPath(&path)).await?;
-            // we need to clear the default `0x000...` input from the field
+            // we need to clear a possible default input from the field
+            input.clear().await?;
+            input.send_keys(&value).await?;
+        }
+
+        for (key, value) in upload_input.items.iter() {
+            log::info!("adding item '{}' for '{}'", value, key);
+            let add_item = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
+            self.client
+                .find(Locator::XPath(&add_item))
+                .await?
+                .click()
+                .await?;
+
+            let last_item = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
+            let mut input = self.client.find(Locator::XPath(&last_item)).await?;
+            // we need to clear a possible default input from the field
             input.clear().await?;
             input.send_keys(&value).await?;
         }
@@ -405,12 +421,21 @@ impl CanvasUi {
         call: Call,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
+        log::info!("opening url for rpc: {:?}", url);
+        self.client.goto(url.as_str()).await?;
+
+        // hack to get around a failure of the ui for the multisig tests.
+        // the ui fails displaying the flipper contract execution page, but
+        // it strangely works if tried again after some time.
+        log::info!("sleep for {}", url);
+        std::thread::sleep(std::time::Duration::from_secs(3));
+        self.client.refresh().await?;
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
         log::info!("click listbox");
         self.client
-            .find(Locator::XPath(
+            .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
             ))
             .await?
@@ -513,6 +538,7 @@ impl CanvasUi {
     /// the method is invoked. It must e.g. open the upload page right at the start.
     pub async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
+        log::info!("opening url for transaction: {:?}", url);
         self.client.goto(url.as_str()).await?;
         self.client.refresh().await?;
 
@@ -854,6 +880,8 @@ pub struct Upload {
     contract_path: PathBuf,
     /// Values to instantiate the contract with.
     initial_values: Vec<(String, String)>,
+    /// Items to add as instantiatiation values.
+    items: Vec<(String, String)>,
     /// Initial endowment of the contract.
     endowment: String,
     /// Unit for initial endowment of the contract.
@@ -873,6 +901,7 @@ impl Upload {
         Self {
             contract_path,
             initial_values: Vec::new(),
+            items: Vec::new(),
             endowment: "1000".to_string(),
             endowment_unit: "Unit".to_string(),
             max_allowed_gas: "5000".to_string(),
@@ -884,6 +913,12 @@ impl Upload {
     /// Adds an initial value.
     pub fn push_initial_value(mut self, key: &str, val: &str) -> Self {
         self.initial_values.push((key.to_string(), val.to_string()));
+        self
+    }
+
+    /// Adds an item.
+    pub fn add_item(mut self, key: &str, val: &str) -> Self {
+        self.items.push((key.to_string(), val.to_string()));
         self
     }
 

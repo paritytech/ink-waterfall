@@ -1,0 +1,123 @@
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//! Tests for the `multisig_plain `example.
+
+use crate::utils::{
+    self,
+    canvas_ui::{
+        Call,
+        CanvasUi,
+        Upload,
+    },
+    cargo_contract,
+};
+use lang_macro::waterfall_test;
+
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+pub struct Transaction {
+    /// The AccountId of the contract that is called in this transaction.
+    pub callee: u64, // AccountId
+    /// The selector bytes that identifies the function of the callee that should be called.
+    pub selector: [u8; 4],
+    /// The SCALE encoded parameters that are passed to the called function.
+    pub input: Vec<u8>,
+    /// The amount of chain balance that is transferred to the callee.
+    pub transferred_value: u128, // Balance
+    /// Gas limit for the execution of the call.
+    pub gas_limit: u64,
+}
+
+#[waterfall_test]
+async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
+    // given
+    let manifest_path = utils::example_path("flipper/Cargo.toml");
+    let contract_file =
+        cargo_contract::build(&manifest_path).expect("contract build failed");
+    let flipper_contract_addr =
+        canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+
+    let manifest_path = utils::example_path("multisig_plain/Cargo.toml");
+    let contract_file =
+        cargo_contract::build(&manifest_path).expect("contract build failed");
+
+    let contract_addr = canvas_ui
+        .execute_upload(
+            Upload::new(contract_file)
+                .push_initial_value("requirement", "2")
+                .add_item("owner", "ALICE")
+                .add_item("owner", "BOB")
+                .add_item("owner", "EVE"),
+        )
+        .await?;
+
+    canvas_ui
+        .execute_transaction(
+            Call::new(&contract_addr, "submit_transaction")
+                .caller("ALICE")
+                .push_value("callee", &flipper_contract_addr)
+                .push_value("selector", "0x00000000")
+                .push_value("input", "0x00")
+                .push_value("transferred_value", "0")
+                .push_value("gas_limit", "9999999000")
+                .max_gas("1199999"),
+        )
+        .await
+        .expect("failed to execute `transfer` to BOB transaction");
+    let id = "0";
+    canvas_ui
+        .execute_transaction(
+            Call::new(&contract_addr, "confirm_transaction")
+                .caller("ALICE")
+                .push_value("transId", id)
+                .max_gas("60000"),
+        )
+        .await
+        .expect("failed to execute `transfer` to BOB transaction");
+
+    canvas_ui
+        .execute_transaction(
+            Call::new(&contract_addr, "confirm_transaction")
+                .caller("BOB")
+                .push_value("transId", id)
+                .max_gas("60000"),
+        )
+        .await
+        .expect("failed to execute `transfer` to BOB transaction");
+
+    assert_eq!(
+        canvas_ui
+            .execute_rpc(Call::new(&flipper_contract_addr, "get"))
+            .await?,
+        "false"
+    );
+    canvas_ui
+        .execute_transaction(
+            Call::new(&contract_addr, "invoke_transaction")
+                .caller("ALICE")
+                .push_value("transId", id)
+                .max_gas("90000"),
+        )
+        .await
+        .expect("failed to execute `transfer` to BOB transaction");
+    assert_eq!(
+        canvas_ui
+            .execute_rpc(Call::new(&flipper_contract_addr, "get"))
+            .await?,
+        "true"
+    );
+
+    Ok(())
+}
