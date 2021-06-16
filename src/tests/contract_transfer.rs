@@ -41,6 +41,7 @@ async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Resu
         .execute_transaction(
             Call::new(&contract_addr, "give_me")
                 .push_value("value", "100")
+                .max_gas("25000")
                 .caller("BOB"),
         )
         .await
@@ -53,7 +54,6 @@ async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Resu
 }
 
 #[waterfall_test]
-#[ignore] // TODO ignore until https://github.com/polkadot-js/apps/issues/5316 is fixed
 async fn transfer_exactly_ten_to_contract(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
@@ -64,7 +64,9 @@ async fn transfer_exactly_ten_to_contract(mut canvas_ui: CanvasUi) -> Result<()>
     // when
     let result = canvas_ui
         .execute_transaction(
-            Call::new(&contract_addr, "was_it_ten").payment("10", "pico"),
+            Call::new(&contract_addr, "was_it_ten")
+                .payment("10", "pico")
+                .max_gas("25000"),
         )
         .await;
 
