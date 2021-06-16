@@ -27,21 +27,8 @@ use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-pub struct Transaction {
-    /// The AccountId of the contract that is called in this transaction.
-    pub callee: u64, // AccountId
-    /// The selector bytes that identifies the function of the callee that should be called.
-    pub selector: [u8; 4],
-    /// The SCALE encoded parameters that are passed to the called function.
-    pub input: Vec<u8>,
-    /// The amount of chain balance that is transferred to the callee.
-    pub transferred_value: u128, // Balance
-    /// Gas limit for the execution of the call.
-    pub gas_limit: u64,
-}
-
 #[waterfall_test]
-async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn multisig_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let contract_file =
@@ -68,7 +55,7 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
             Call::new(&contract_addr, "submit_transaction")
                 .caller("ALICE")
                 .push_value("callee", &flipper_contract_addr)
-                .push_value("selector", "0x00000000")
+                .push_value("selector", "0x633aa551")
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "0")
                 .push_value("gas_limit", "9999999000")
