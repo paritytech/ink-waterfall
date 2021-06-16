@@ -53,7 +53,7 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
                 .caller("ALICE")
                 .push_value("name", name)
                 .push_value("newAddress", address)
-                .max_gas("25000")
+                .max_gas("25000"),
         )
         .await
         .expect("failed to execute `set_address` transaction");
@@ -91,7 +91,7 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
                 .caller("ALICE")
                 .push_value("name", name)
                 .push_value("to", "BOB")
-                .max_gas("25000")
+                .max_gas("25000"),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -101,7 +101,7 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
                 .caller("BOB")
                 .push_value("name", name)
                 .push_value("newAddress", address2)
-                .max_gas("25000")
+                .max_gas("25000"),
         )
         .await
         .expect("failed to execute `set_address` transaction from BOB");
