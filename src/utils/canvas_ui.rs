@@ -345,7 +345,7 @@ impl CanvasUi {
         self.client.wait_for_find(Locator::XPath(&path)).await?;
 
         log::info!("Check 'Unique Instantiation Salt' checkbox");
-        let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class, 'ui--Toggle')]/div";
+        let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class, 'ui--Toggle')]/div/label";
         self.client
             .find(Locator::XPath(path))
             .await?
