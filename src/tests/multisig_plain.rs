@@ -143,7 +143,7 @@ async fn multisig_works_with_payable_transaction(mut canvas_ui: CanvasUi) -> Res
                 .push_value("callee", &contract_transfer_addr)
                 .push_value("selector", "0xcafebabe") // `was_it_ten`
                 .push_value("input", "0x00")
-                .push_value("transferred_value", "123")
+                .push_value("transferred_value", "10")
                 .push_value("gas_limit", "9999999000")
                 .max_gas("1199999"),
         )
@@ -176,14 +176,14 @@ async fn multisig_works_with_payable_transaction(mut canvas_ui: CanvasUi) -> Res
             Call::new(&contract_addr, "invoke_transaction")
                 .caller("ALICE")
                 .push_value("transId", id)
-                .payment("123", "pico")
+                .payment("10", "pico")
                 .max_gas("90000"),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
 
     // then
-    assert!(utils::canvas_log_contains("received payment: 10"));
+    assert!(utils::canvas_log_contains("received payment: 10\n"));
 
     Ok(())
 }
