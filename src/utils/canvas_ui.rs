@@ -344,13 +344,48 @@ impl CanvasUi {
         );
         self.client.wait_for_find(Locator::XPath(&path)).await?;
 
-        log::info!("Check 'Unique Instantiation Salt' checkbox");
-        let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class, 'ui--Toggle')]/div/label";
-        self.client
-            .find(Locator::XPath(path))
+        log::info!("finding out if 'Unique Instantiation Salt' is already set");
+        let salt_value_path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//input[@type = 'text']";
+        let salt = self
+            .client
+            .find(Locator::XPath(salt_value_path))
             .await?
-            .click()
-            .await?;
+            .attr("value")
+            .await?
+            .expect("`value` must exist");
+
+        log::info!("found salt '{:?}'", salt);
+        if salt.starts_with("0x") {
+            log::info!("salt is already set!");
+        } else {
+            log::info!("salt is not yet set!");
+
+            // the react toggle button cannot be clicked if it is not in view
+            self.client
+                .execute(
+                    "$(':contains(\"Unique Instantiation Salt\")')[0].scrollIntoView();",
+                    Vec::new(),
+                )
+                .await?;
+            std::thread::sleep(std::time::Duration::from_secs(1));
+
+            log::info!("check 'Unique Instantiation Salt' checkbox");
+            let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]/div";
+            self.client
+                .find(Locator::XPath(path))
+                .await?
+                .click()
+                .await?;
+
+            let salt = self
+                .client
+                .find(Locator::XPath(salt_path))
+                .await?
+                .attr("value")
+                .await?
+                .expect("`value` must exist");
+            assert!(salt.starts_with("0x"), "failed to set unique salt!");
+        }
 
         log::info!("click instantiate");
         self.client
