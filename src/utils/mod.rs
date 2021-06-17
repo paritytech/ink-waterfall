@@ -20,6 +20,7 @@ use std::{
     fs::File,
     io::BufReader,
     path::PathBuf,
+    process::Command,
 };
 
 /// Returns the full path to the ink! example directory for `example`.
@@ -44,4 +45,18 @@ pub fn extract_hash_from_contract_bundle(path: &PathBuf) -> String {
         .to_string()
         .trim_matches('"')
         .to_string()
+}
+
+/// Returns true if the `canvas-node` log under `/tmp/canvas.log` contains `msg`.
+pub fn canvas_log_contains(msg: &str) -> bool {
+    let output = Command::new("grep")
+        .arg("-q")
+        .arg(msg)
+        .arg("/tmp/canvas.log")
+        .spawn()
+        .map_err(|err| format!("ERROR while executing `grep` with {:?}: {:?}", msg, err))
+        .expect("failed to execute process")
+        .wait_with_output()
+        .expect("failed to receive output");
+    output.status.success()
 }

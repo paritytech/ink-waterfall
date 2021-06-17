@@ -63,7 +63,7 @@ test-with-published-canvas-ui:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - canvas --tmp --dev > /tmp/canvas.log 2>&1 &
+    - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
