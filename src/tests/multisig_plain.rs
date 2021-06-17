@@ -28,7 +28,7 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn multisig_works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn multisig_works_with_flipper_transaction(mut canvas_ui: CanvasUi) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let contract_file =
@@ -55,7 +55,7 @@ async fn multisig_works(mut canvas_ui: CanvasUi) -> Result<()> {
             Call::new(&contract_addr, "submit_transaction")
                 .caller("ALICE")
                 .push_value("callee", &flipper_contract_addr)
-                .push_value("selector", "0x633aa551")
+                .push_value("selector", "0x633aa551") // `flip`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "0")
                 .push_value("gas_limit", "9999999000")
@@ -90,6 +90,8 @@ async fn multisig_works(mut canvas_ui: CanvasUi) -> Result<()> {
             .await?,
         "false"
     );
+
+    // when
     canvas_ui
         .execute_transaction(
             Call::new(&contract_addr, "invoke_transaction")
@@ -99,6 +101,8 @@ async fn multisig_works(mut canvas_ui: CanvasUi) -> Result<()> {
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
+
+    // then
     assert_eq!(
         canvas_ui
             .execute_rpc(Call::new(&flipper_contract_addr, "get"))
