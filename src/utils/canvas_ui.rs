@@ -379,7 +379,7 @@ impl CanvasUi {
 
             let salt = self
                 .client
-                .find(Locator::XPath(salt_path))
+                .find(Locator::XPath(salt_value_path))
                 .await?
                 .attr("value")
                 .await?
