@@ -17,6 +17,7 @@ mod contract_transfer;
 mod delegator;
 mod dns;
 mod erc20;
+mod erc721;
 mod flipper;
 mod incrementer;
 mod multisig_plain;
