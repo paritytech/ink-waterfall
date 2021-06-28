@@ -68,43 +68,37 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .await?;
 
     // then
-    // this should work without having to set the `max_gas_allowed` explicitly here!
-    // can be removed once https://github.com/paritytech/canvas-ui/issues/95 has been fixed.
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+            .execute_rpc(Call::new(&delegator_addr, "get"))
             .await?,
         "0"
     );
     canvas_ui
         .execute_transaction(
-            Call::new(&delegator_addr, "change")
-                .push_value("by: i32", "13")
-                .max_gas("5000"),
+            Call::new(&delegator_addr, "change").push_value("by: i32", "13"),
         )
         .await
         .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+            .execute_rpc(Call::new(&delegator_addr, "get"))
             .await?,
         "13"
     );
     canvas_ui
-        .execute_transaction(Call::new(&delegator_addr, "switch").max_gas("5000"))
+        .execute_transaction(Call::new(&delegator_addr, "switch"))
         .await
         .expect("failed to execute transaction");
     canvas_ui
         .execute_transaction(
-            Call::new(&delegator_addr, "change")
-                .push_value("by: i32", "3")
-                .max_gas("5000"),
+            Call::new(&delegator_addr, "change").push_value("by: i32", "3"),
         )
         .await
         .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+            .execute_rpc(Call::new(&delegator_addr, "get"))
             .await?,
         "10"
     );

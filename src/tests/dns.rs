@@ -52,8 +52,7 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
             Call::new(&contract_addr, "set_address")
                 .caller("ALICE")
                 .push_value("name", name)
-                .push_value("newAddress", address)
-                .max_gas("25000"),
+                .push_value("newAddress", address),
         )
         .await
         .expect("failed to execute `set_address` transaction");
@@ -65,7 +64,6 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
                 Call::new(&contract_addr, "get_address")
                     .caller("EVE")
                     .push_value("name", name)
-                    .max_gas("5000")
             )
             .await?,
         address
@@ -79,7 +77,6 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
                 .caller("BOB")
                 .push_value("name", name)
                 .push_value("new_address", address2)
-                .max_gas("25000")
         )
         .await
         .is_err());
@@ -90,8 +87,7 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
             Call::new(&contract_addr, "transfer")
                 .caller("ALICE")
                 .push_value("name", name)
-                .push_value("to", "BOB")
-                .max_gas("25000"),
+                .push_value("to", "BOB"),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -100,8 +96,7 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
             Call::new(&contract_addr, "set_address")
                 .caller("BOB")
                 .push_value("name", name)
-                .push_value("newAddress", address2)
-                .max_gas("25000"),
+                .push_value("newAddress", address2),
         )
         .await
         .expect("failed to execute `set_address` transaction from BOB");
@@ -111,7 +106,6 @@ async fn dns_works(mut canvas_ui: CanvasUi) -> Result<()> {
                 Call::new(&contract_addr, "get_address")
                     .caller("EVE")
                     .push_value("name", name)
-                    .max_gas("5000")
             )
             .await?,
         address2

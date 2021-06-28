@@ -38,7 +38,7 @@ async fn contract_terminate_works(mut canvas_ui: CanvasUi) -> Result<()> {
 
     // when
     let events = canvas_ui
-        .execute_transaction(Call::new(&contract_addr, "terminate_me").max_gas("5000"))
+        .execute_transaction(Call::new(&contract_addr, "terminate_me"))
         .await
         .expect("failed to execute transaction");
     assert!(events.contains("system.KilledAccount"));
@@ -48,7 +48,7 @@ async fn contract_terminate_works(mut canvas_ui: CanvasUi) -> Result<()> {
 
     // then
     let err = canvas_ui
-        .execute_transaction(Call::new(&contract_addr, "terminate_me").max_gas("5000"))
+        .execute_transaction(Call::new(&contract_addr, "terminate_me"))
         .await
         .expect_err("successfully executed transaction, but expected it to_fail");
     match err {

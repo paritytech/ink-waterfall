@@ -41,7 +41,6 @@ async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Resu
         .execute_transaction(
             Call::new(&contract_addr, "give_me")
                 .push_value("value", "100")
-                .max_gas("25000")
                 .caller("BOB"),
         )
         .await
@@ -67,9 +66,7 @@ async fn transfer_exactly_ten_to_contract(mut canvas_ui: CanvasUi) -> Result<()>
     // when
     let result = canvas_ui
         .execute_transaction(
-            Call::new(&contract_addr, "was_it_ten")
-                .payment("10", "pico")
-                .max_gas("25000"),
+            Call::new(&contract_addr, "was_it_ten").payment("10", "pico"),
         )
         .await;
 

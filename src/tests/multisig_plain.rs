@@ -58,8 +58,7 @@ async fn multisig_works_with_flipper_transaction(mut canvas_ui: CanvasUi) -> Res
                 .push_value("selector", "0x633aa551") // `flip`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "0")
-                .push_value("gas_limit", "9999999000")
-                .max_gas("1199999"),
+                .push_value("gas_limit", "9999999000"),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -68,8 +67,7 @@ async fn multisig_works_with_flipper_transaction(mut canvas_ui: CanvasUi) -> Res
         .execute_transaction(
             Call::new(&contract_addr, "confirm_transaction")
                 .caller("ALICE")
-                .push_value("transId", id)
-                .max_gas("60000"),
+                .push_value("transId", id),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -78,8 +76,7 @@ async fn multisig_works_with_flipper_transaction(mut canvas_ui: CanvasUi) -> Res
         .execute_transaction(
             Call::new(&contract_addr, "confirm_transaction")
                 .caller("BOB")
-                .push_value("transId", id)
-                .max_gas("60000"),
+                .push_value("transId", id),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -96,8 +93,7 @@ async fn multisig_works_with_flipper_transaction(mut canvas_ui: CanvasUi) -> Res
         .execute_transaction(
             Call::new(&contract_addr, "invoke_transaction")
                 .caller("ALICE")
-                .push_value("transId", id)
-                .max_gas("90000"),
+                .push_value("transId", id),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -144,8 +140,7 @@ async fn multisig_works_with_payable_transaction(mut canvas_ui: CanvasUi) -> Res
                 .push_value("selector", "0xcafebabe") // `was_it_ten`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "10")
-                .push_value("gas_limit", "9999999000")
-                .max_gas("1199999"),
+                .push_value("gas_limit", "9999999000"),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -154,8 +149,7 @@ async fn multisig_works_with_payable_transaction(mut canvas_ui: CanvasUi) -> Res
         .execute_transaction(
             Call::new(&contract_addr, "confirm_transaction")
                 .caller("ALICE")
-                .push_value("transId", id)
-                .max_gas("60000"),
+                .push_value("transId", id),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -164,8 +158,7 @@ async fn multisig_works_with_payable_transaction(mut canvas_ui: CanvasUi) -> Res
         .execute_transaction(
             Call::new(&contract_addr, "confirm_transaction")
                 .caller("BOB")
-                .push_value("transId", id)
-                .max_gas("60000"),
+                .push_value("transId", id),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
@@ -176,8 +169,7 @@ async fn multisig_works_with_payable_transaction(mut canvas_ui: CanvasUi) -> Res
             Call::new(&contract_addr, "invoke_transaction")
                 .caller("ALICE")
                 .push_value("transId", id)
-                .payment("10", "pico")
-                .max_gas("90000"),
+                .payment("10", "pico"),
         )
         .await
         .expect("failed to execute `transfer` to BOB transaction");
