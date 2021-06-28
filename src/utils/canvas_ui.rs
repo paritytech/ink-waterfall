@@ -453,7 +453,7 @@ impl CanvasUi {
 
         // click `method`
         log::info!("choose {:?}", call.method);
-        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", call.method);
+        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[text() = '{}']", call.method);
         self.client
             .find(Locator::XPath(&path))
             .await?
@@ -563,7 +563,7 @@ impl CanvasUi {
 
         // click `method`
         log::info!("choose {:?}", call.method);
-        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[contains(text(),'{}')]", call.method);
+        let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[text() = '{}']", call.method);
         self.client
             .find(Locator::XPath(&path))
             .await?
@@ -601,7 +601,7 @@ impl CanvasUi {
 
             // choose caller
             log::info!("choose {:?}", caller);
-            let path = format!("//div[@name = '{}']", caller.to_lowercase());
+            let path = format!("//*[contains(text(),'Call from Account')]/ancestor::div[1]//div[@name = '{}']", caller.to_lowercase());
             self.client
                 .find(Locator::XPath(&path))
                 .await?
@@ -674,7 +674,7 @@ impl CanvasUi {
         for (key, value) in call.values {
             log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
-                "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                "//*[contains(text(),'Message to Send')]/ancestor::div[1]/following-sibling::div[1]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                 key
             );
             self.client
