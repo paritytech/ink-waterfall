@@ -22,8 +22,8 @@ use quote::quote;
 ///
 /// ```no_compile
 /// #[waterfall_test]
-/// async fn works(mut canvas_ui: CanvasUi) -> Result<()> {
-///     let _contract_addr = canvas_ui.upload(contract_file).await?;
+/// async fn works(mut ui: Ui) -> Result<()> {
+///     let _contract_addr = ui.upload(contract_file).await?;
 ///     Ok(())
 /// }
 /// ```
@@ -78,11 +78,12 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 );
             });
 
-            let mut canvas_ui = CanvasUi::new().await?;
+            use crate::uis::ContractsUi;
+            let mut ui = Ui::new().await?;
             let __ret = {
                 #block
             };
-            canvas_ui.shutdown().await?;
+            ui.shutdown().await?;
             __ret
         }
     };

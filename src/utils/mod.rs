@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod canvas_ui;
 pub mod cargo_contract;
 
+use psutil::process::processes;
 use serde_json;
 use std::{
     fs::File,
@@ -45,6 +45,22 @@ pub fn extract_hash_from_contract_bundle(path: &PathBuf) -> String {
         .to_string()
         .trim_matches('"')
         .to_string()
+}
+
+/// Asserts that the `canvas` process is running.
+pub fn assert_canvas_node_running() {
+    let processes = processes().expect("can't get processes");
+    let canvas_node_running = processes
+        .into_iter()
+        .filter_map(|pr| pr.ok())
+        .map(|p| p.cmdline())
+        .filter_map(|cmdline| cmdline.ok())
+        .filter_map(|opt| opt)
+        .any(|str| str.contains("canvas ") || str.contains("canvas-rand-extension "));
+    assert!(
+        canvas_node_running,
+        "ERROR: The canvas node is not running!"
+    );
 }
 
 /// Returns true if the `canvas-node` log under `/tmp/canvas.log` contains `msg`.

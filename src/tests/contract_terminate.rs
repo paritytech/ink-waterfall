@@ -14,30 +14,32 @@
 
 //! Tests for the `contract-terminate `example.
 
-use crate::utils::{
-    self,
-    canvas_ui::{
+use crate::{
+    uis::{
         Call,
-        CanvasUi,
         Error,
+        Ui,
         Upload,
     },
-    cargo_contract,
+    utils::{
+        self,
+        cargo_contract,
+    },
 };
 use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn contract_terminate_works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn contract_terminate_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-terminate/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
     // when
-    let events = canvas_ui
+    let events = ui
         .execute_transaction(Call::new(&contract_addr, "terminate_me"))
         .await
         .expect("failed to execute transaction");
@@ -47,7 +49,7 @@ async fn contract_terminate_works(mut canvas_ui: CanvasUi) -> Result<()> {
     assert!(events.contains("contracts.Terminated"));
 
     // then
-    let err = canvas_ui
+    let err = ui
         .execute_transaction(Call::new(&contract_addr, "terminate_me"))
         .await
         .expect_err("successfully executed transaction, but expected it to_fail");

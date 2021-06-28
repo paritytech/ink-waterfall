@@ -14,22 +14,24 @@
 
 //! Tests for the `delegator `example.
 
-use crate::utils::{
-    self,
-    canvas_ui::{
+use crate::{
+    uis::{
         Call,
-        CanvasUi,
+        Ui,
         Upload,
     },
-    cargo_contract,
-    extract_hash_from_contract_bundle,
+    utils::{
+        self,
+        cargo_contract,
+        extract_hash_from_contract_bundle,
+    },
 };
 use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn delegator_works(mut ui: Ui) -> Result<()> {
     // given
     let accumulator_path =
         cargo_contract::build(&utils::example_path("delegator/accumulator/Cargo.toml"))
@@ -50,14 +52,12 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         cargo_contract::build(&utils::example_path("delegator/Cargo.toml"))
             .expect("delegator build failed");
 
-    let _accumulator_addr = canvas_ui
-        .execute_upload(Upload::new(accumulator_path))
-        .await?;
-    let _adder_addr = canvas_ui.execute_upload(Upload::new(adder_path)).await?;
-    let _subber_addr = canvas_ui.execute_upload(Upload::new(subber_path)).await?;
+    let _accumulator_addr = ui.execute_upload(Upload::new(accumulator_path)).await?;
+    let _adder_addr = ui.execute_upload(Upload::new(adder_path)).await?;
+    let _subber_addr = ui.execute_upload(Upload::new(subber_path)).await?;
 
     // when
-    let delegator_addr = canvas_ui
+    let delegator_addr = ui
         .execute_upload(
             Upload::new(delegator_path)
                 .endowment("100000", "Unit")
@@ -71,40 +71,34 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // this should work without having to set the `max_gas_allowed` explicitly here!
     // can be removed once https://github.com/paritytech/canvas-ui/issues/95 has been fixed.
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+        ui.execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
             .await?,
         "0"
     );
-    canvas_ui
-        .execute_transaction(
-            Call::new(&delegator_addr, "change")
-                .push_value("by: i32", "13")
-                .max_gas("5000"),
-        )
-        .await
-        .expect("failed to execute transaction");
+    ui.execute_transaction(
+        Call::new(&delegator_addr, "change")
+            .push_value("by: i32", "13")
+            .max_gas("5000"),
+    )
+    .await
+    .expect("failed to execute transaction");
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+        ui.execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
             .await?,
         "13"
     );
-    canvas_ui
-        .execute_transaction(Call::new(&delegator_addr, "switch").max_gas("5000"))
+    ui.execute_transaction(Call::new(&delegator_addr, "switch").max_gas("5000"))
         .await
         .expect("failed to execute transaction");
-    canvas_ui
-        .execute_transaction(
-            Call::new(&delegator_addr, "change")
-                .push_value("by: i32", "3")
-                .max_gas("5000"),
-        )
-        .await
-        .expect("failed to execute transaction");
+    ui.execute_transaction(
+        Call::new(&delegator_addr, "change")
+            .push_value("by: i32", "3")
+            .max_gas("5000"),
+    )
+    .await
+    .expect("failed to execute transaction");
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+        ui.execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
             .await?,
         "10"
     );

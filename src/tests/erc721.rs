@@ -14,44 +14,44 @@
 
 //! Tests for the `ERC-721 `example.
 
-use crate::utils::{
-    self,
-    canvas_ui::{
+use crate::{
+    uis::{
         Call,
-        CanvasUi,
+        Ui,
         Upload,
     },
-    cargo_contract,
+    utils::{
+        self,
+        cargo_contract,
+    },
 };
 use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn erc721(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc721/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
-    canvas_ui
-        .execute_transaction(
-            Call::new(&contract_addr, "mint")
-                .caller("ALICE")
-                .push_value("id", "123"),
-        )
-        .await
-        .expect("`mint` must succeed");
+    ui.execute_transaction(
+        Call::new(&contract_addr, "mint")
+            .caller("ALICE")
+            .push_value("id", "123"),
+    )
+    .await
+    .expect("`mint` must succeed");
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of")
-                    .push_value("owner", "ALICE")
-                    .caller("ALICE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of")
+                .push_value("owner", "ALICE")
+                .caller("ALICE")
+        )
+        .await?,
         "1"
     );
 
@@ -65,123 +65,109 @@ async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
     // "ALICE"
     // );
 
-    canvas_ui
-        .execute_transaction(
-            Call::new(&contract_addr, "transfer")
-                .caller("ALICE")
-                .push_value("destination", "BOB")
-                .push_value("id", "123"),
-        )
-        .await
-        .expect("`transfer` must succeed");
+    ui.execute_transaction(
+        Call::new(&contract_addr, "transfer")
+            .caller("ALICE")
+            .push_value("destination", "BOB")
+            .push_value("id", "123"),
+    )
+    .await
+    .expect("`transfer` must succeed");
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
+        )
+        .await?,
         "0"
     );
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
+        )
+        .await?,
         "1"
     );
-    canvas_ui
-        .execute_transaction(
-            Call::new(&contract_addr, "approve")
-                .caller("BOB")
-                .push_value("to", "CHARLIE")
-                .push_value("id", "123"),
-        )
-        .await
-        .expect("`approve` must succeed");
+    ui.execute_transaction(
+        Call::new(&contract_addr, "approve")
+            .caller("BOB")
+            .push_value("to", "CHARLIE")
+            .push_value("id", "123"),
+    )
+    .await
+    .expect("`approve` must succeed");
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
+        )
+        .await?,
         "0"
     );
 
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
+        )
+        .await?,
         "1"
     );
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "CHARLIE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "CHARLIE")
+        )
+        .await?,
         "0"
     );
 
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "DAVE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "DAVE")
+        )
+        .await?,
         "0"
     );
 
-    canvas_ui
-        .execute_transaction(
-            Call::new(&contract_addr, "transfer_from")
-                .caller("CHARLIE")
-                .push_value("from", "BOB")
-                .push_value("to", "DAVE")
-                .push_value("id", "123"),
+    ui.execute_transaction(
+        Call::new(&contract_addr, "transfer_from")
+            .caller("CHARLIE")
+            .push_value("from", "BOB")
+            .push_value("to", "DAVE")
+            .push_value("id", "123"),
+    )
+    .await
+    .expect("`transfer_from` must succeed");
+    assert_eq!(
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
         )
-        .await
-        .expect("`transfer_from` must succeed");
-    assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
-            )
-            .await?,
+        .await?,
         "0"
     );
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "CHARLIE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "CHARLIE")
+        )
+        .await?,
         "0"
     );
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "DAVE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "DAVE")
+        )
+        .await?,
         "1"
     );
-    canvas_ui
-        .execute_transaction(
-            Call::new(&contract_addr, "burn")
-                .caller("DAVE")
-                .push_value("id", "123"),
-        )
-        .await
-        .expect("`burn` must succeed");
+    ui.execute_transaction(
+        Call::new(&contract_addr, "burn")
+            .caller("DAVE")
+            .push_value("id", "123"),
+    )
+    .await
+    .expect("`burn` must succeed");
     assert_eq!(
-        canvas_ui
-            .execute_rpc(
-                Call::new(&contract_addr, "balance_of").push_value("owner", "DAVE")
-            )
-            .await?,
+        ui.execute_rpc(
+            Call::new(&contract_addr, "balance_of").push_value("owner", "DAVE")
+        )
+        .await?,
         "0"
     );
 

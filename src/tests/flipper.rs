@@ -14,67 +14,62 @@
 
 //! Tests for the `flipper `example.
 
-use crate::utils::{
-    self,
-    canvas_ui::{
+use crate::{
+    uis::{
         Call,
-        CanvasUi,
+        Ui,
         Upload,
     },
-    cargo_contract,
+    utils::{
+        self,
+        cargo_contract,
+    },
 };
 use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn flipper_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
-            .await?,
+        ui.execute_rpc(Call::new(&contract_addr, "get")).await?,
         "false"
     );
 
     // when
-    canvas_ui
-        .execute_transaction(Call::new(&contract_addr, "flip"))
+    ui.execute_transaction(Call::new(&contract_addr, "flip"))
         .await
         .expect("failed to execute transaction");
 
     // then
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
-            .await?,
+        ui.execute_rpc(Call::new(&contract_addr, "get")).await?,
         "true"
     );
     Ok(())
 }
 
 #[waterfall_test]
-async fn default_constructor(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn default_constructor(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
     // when
-    let contract_addr = canvas_ui
+    let contract_addr = ui
         .execute_upload(Upload::new(contract_file).constructor("default"))
         .await?;
 
     // then
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
-            .await?,
+        ui.execute_rpc(Call::new(&contract_addr, "get")).await?,
         "false"
     );
     Ok(())

@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #[cfg(test)]
+mod uis;
+
+#[cfg(test)]
 mod utils;
 
 #[cfg(test)]

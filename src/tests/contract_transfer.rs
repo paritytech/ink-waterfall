@@ -14,30 +14,32 @@
 
 //! Tests for the `contract-transfer `example.
 
-use crate::utils::{
-    self,
-    canvas_ui::{
+use crate::{
+    uis::{
         Call,
-        CanvasUi,
+        Ui,
         Upload,
     },
-    cargo_contract,
+    utils::{
+        self,
+        cargo_contract,
+    },
 };
 use lang_macro::waterfall_test;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
-    let balance_before = canvas_ui.balance_postfix("BOB".to_string()).await?;
+    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
+    let balance_before = ui.balance_postfix("BOB".to_string()).await?;
 
     // when
-    let _events = canvas_ui
+    let _events = ui
         .execute_transaction(
             Call::new(&contract_addr, "give_me")
                 .push_value("value", "100")
@@ -47,7 +49,7 @@ async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Resu
         .expect("failed to execute transaction");
 
     // then
-    let balance_after = canvas_ui.balance_postfix("BOB".to_string()).await?;
+    let balance_after = ui.balance_postfix("BOB".to_string()).await?;
     assert_eq!(balance_after - balance_before, 1);
     assert!(utils::canvas_log_contains(
         "requested value: 100000000000000\n"
@@ -56,15 +58,15 @@ async fn contract_must_transfer_value_to_sender(mut canvas_ui: CanvasUi) -> Resu
 }
 
 #[waterfall_test]
-async fn transfer_exactly_ten_to_contract(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
     // when
-    let result = canvas_ui
+    let result = ui
         .execute_transaction(
             Call::new(&contract_addr, "was_it_ten").payment("10", "pico"),
         )

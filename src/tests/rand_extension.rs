@@ -14,14 +14,16 @@
 
 //! Tests for the `rand-extension `example.
 
-use crate::utils::{
-    self,
-    canvas_ui::{
+use crate::{
+    uis::{
         Call,
-        CanvasUi,
+        Ui,
         Upload,
     },
-    cargo_contract,
+    utils::{
+        self,
+        cargo_contract,
+    },
 };
 use lang_macro::waterfall_test;
 
@@ -29,12 +31,12 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
 #[ignore]
-async fn rand_extension(mut canvas_ui: CanvasUi) -> Result<()> {
+async fn rand_extension(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("rand-extension/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let contract_addr = canvas_ui
+    let contract_addr = ui
         .execute_upload(
             Upload::new(contract_file).push_initial_value("initValue", "0x00"),
         )
@@ -42,21 +44,19 @@ async fn rand_extension(mut canvas_ui: CanvasUi) -> Result<()> {
 
     // when
     assert_eq!(
-        canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
+        ui.execute_rpc(Call::new(&contract_addr, "get"))
             .await
             .expect("failed to execute rpc"),
         "0x000000…00000000"
     );
-    let _events = canvas_ui
+    let _events = ui
         .execute_transaction(Call::new(&contract_addr, "update"))
         .await
         .expect("failed to execute transaction");
 
     // then
     assert_ne!(
-        canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
+        ui.execute_rpc(Call::new(&contract_addr, "get"))
             .await
             .expect("failed to execute rpc"),
         "0x000000…00000000"
