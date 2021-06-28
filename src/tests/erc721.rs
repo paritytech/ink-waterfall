@@ -43,7 +43,7 @@ async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
                 .push_value("id", "123"),
         )
         .await
-        .expect("second `transfer_from` must succeed");
+        .expect("`mint` must succeed");
     assert_eq!(
         canvas_ui
             .execute_rpc(
@@ -73,7 +73,7 @@ async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
                 .push_value("id", "123"),
         )
         .await
-        .expect("second `transfer_from` must succeed");
+        .expect("`transfer` must succeed");
     assert_eq!(
         canvas_ui
             .execute_rpc(
@@ -98,7 +98,7 @@ async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
                 .push_value("id", "123"),
         )
         .await
-        .expect("second `transfer_from` must succeed");
+        .expect("`approve` must succeed");
     assert_eq!(
         canvas_ui
             .execute_rpc(
@@ -143,7 +143,7 @@ async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
                 .push_value("id", "123"),
         )
         .await
-        .expect("second `transfer_from` must succeed");
+        .expect("`transfer_from` must succeed");
     assert_eq!(
         canvas_ui
             .execute_rpc(
@@ -175,7 +175,7 @@ async fn erc721(mut canvas_ui: CanvasUi) -> Result<()> {
                 .push_value("id", "123"),
         )
         .await
-        .expect("second `transfer_from` must succeed");
+        .expect("`burn` must succeed");
     assert_eq!(
         canvas_ui
             .execute_rpc(
