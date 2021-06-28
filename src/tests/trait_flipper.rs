@@ -37,21 +37,21 @@ async fn flipper_works(mut canvas_ui: CanvasUi) -> Result<()> {
     let contract_addr = canvas_ui.execute_upload(Upload::new(contract_file)).await?;
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
+            .execute_rpc(Call::new(&contract_addr, "Flip,get"))
             .await?,
         "false"
     );
 
     // when
     canvas_ui
-        .execute_transaction(Call::new(&contract_addr, "flip"))
+        .execute_transaction(Call::new(&contract_addr, "Flip,flip"))
         .await
         .expect("failed to execute transaction");
 
     // then
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
+            .execute_rpc(Call::new(&contract_addr, "Flip,get"))
             .await?,
         "true"
     );
@@ -73,7 +73,7 @@ async fn default_constructor(mut canvas_ui: CanvasUi) -> Result<()> {
     // then
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&contract_addr, "get"))
+            .execute_rpc(Call::new(&contract_addr, "Flip,get"))
             .await?,
         "false"
     );
