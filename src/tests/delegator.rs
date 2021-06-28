@@ -72,7 +72,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
     // can be removed once https://github.com/paritytech/canvas-ui/issues/95 has been fixed.
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get"))
+            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
             .await?,
         "0"
     );
@@ -86,7 +86,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get"))
+            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
             .await?,
         "13"
     );
@@ -104,7 +104,7 @@ async fn delegator_works(mut canvas_ui: CanvasUi) -> Result<()> {
         .expect("failed to execute transaction");
     assert_eq!(
         canvas_ui
-            .execute_rpc(Call::new(&delegator_addr, "get"))
+            .execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
             .await?,
         "10"
     );
