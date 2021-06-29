@@ -149,7 +149,8 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "confirm_transaction")
             .caller("BOB")
-            .push_value("transId", id),
+            .push_value("transId", id)
+            .max_gas("60000"),
     )
     .await
     .expect("failed to `confirm_transaction`");
