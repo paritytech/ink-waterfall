@@ -765,7 +765,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             log::info!("{}", &format!("entering payment {:?}", payment.payment));
-            let path = "//*[contains(text(),'Payment')]/ancestor::div[1]/div//input[@type = 'text']";
+            let path = "//*[contains(text(),'value')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
                 .find(Locator::XPath(path))
                 .await?
