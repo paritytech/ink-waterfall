@@ -15,7 +15,7 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
-  RUST_TEST_THREADS:               "2"
+  RUST_TEST_THREADS:               "1"
   INK_EXAMPLES_PATH:                "./ink/examples/"
 
 workflow:
@@ -59,7 +59,7 @@ workflow:
   tags:
     - linux-docker
 
-test-with-published-canvas-ui:
+ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
@@ -68,11 +68,13 @@ test-with-published-canvas-ui:
   variables:
   script:
     - canvas --version
-    - cargo test --features headless --jobs 2
+    - cargo test --features headless --jobs 1
+    - echo "" > /tmp/canvas.log
+    - cargo test --features headless,polkadot-js-ui --jobs 1
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
-test-rand-extension-with-published-canvas-ui:
+ink-rand-extension-example:
   stage:                           test
   <<:                              *docker-env
   before_script:
@@ -80,28 +82,7 @@ test-rand-extension-with-published-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   script:
     - cargo test --features headless -- --ignored rand_extension
-  after_script:
-    - pkill -f -x "canvas-rand-extension --tmp --dev"
-
-test-with-published-polkadot-js-ui:
-  stage:                           test
-  <<:                              *docker-env
-  before_script:
-    - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-    - git clone --depth 1 https://github.com/paritytech/ink.git
-  script:
-    - canvas --version
-    - cargo test --features headless,polkadot-js-ui --jobs 2
-  after_script:
-    - pkill -f -x "canvas --tmp --dev"
-
-test-rand-extension-with-published-polkadot-js-ui:
-  stage:                           test
-  <<:                              *docker-env
-  before_script:
-    - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
-    - git clone --depth 1 https://github.com/paritytech/ink.git
-  script:
+    - echo "" > /tmp/canvas-rand-extension.log
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - pkill -f -x "canvas-rand-extension --tmp --dev"
