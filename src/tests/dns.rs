@@ -58,6 +58,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
     .expect("failed to execute `set_address` transaction");
 
     // then the name must resolve to the address
+    #[cfg(not(feature = "polkadot-js-ui"))]
     assert_eq!(
         ui.execute_rpc(
             Call::new(&contract_addr, "get_address")
