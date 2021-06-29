@@ -43,18 +43,14 @@ async fn erc20(mut ui: Ui) -> Result<()> {
                 .push_initial_value("initialSupply", "1000"),
         )
         .await?;
-    assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "total_supply"))
-            .await?,
-        "1000000000000000"
-    );
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "bob")
-        )
-        .await?,
-        "1000000000000000"
-    );
+    let total_supply = ui
+        .execute_rpc(Call::new(&contract_addr, "total_supply"))
+        .await?;
+    assert!(total_supply == "1000000000000000" || total_supply == "1.0000 kUnit");
+    let balance = ui
+        .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "bob"))
+        .await?;
+    assert!(balance == "1000000000000000" || balance == "1.0000 kUnit");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "transfer")
@@ -65,13 +61,10 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     .await
     .expect("failed to execute transaction");
 
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
-        )
-        .await?,
-        "500000000000000"
-    );
+    let balance = ui
+        .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE"))
+        .await?;
+    assert!(balance == "500000000000000" || balance == "500.0000 Unit");
 
     Ok(())
 }

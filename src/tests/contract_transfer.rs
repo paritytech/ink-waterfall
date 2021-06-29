@@ -43,7 +43,8 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
         .execute_transaction(
             Call::new(&contract_addr, "give_me")
                 .push_value("value", "100")
-                .caller("BOB"),
+                .caller("BOB")
+                .max_gas("25000"),
         )
         .await
         .expect("failed to execute transaction");
@@ -68,7 +69,9 @@ async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
     // when
     let result = ui
         .execute_transaction(
-            Call::new(&contract_addr, "was_it_ten").payment("10", "pico"),
+            Call::new(&contract_addr, "was_it_ten")
+                .payment("10", "pico")
+                .max_gas("25000"),
         )
         .await;
 
