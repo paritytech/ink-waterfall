@@ -16,7 +16,7 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
   RUST_TEST_THREADS:               "1"
-  WATERFALL_TIMEOUT_SECS_PER_TEST: "10000"
+  WATERFALL_TIMEOUT_SECS_PER_TEST: "360" # six minutes
 
 workflow:
   rules:
