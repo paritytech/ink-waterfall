@@ -68,6 +68,7 @@ test-with-published-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
   script:
+    - canvas --version
     - cargo test --features headless
   after_script:
     - pkill -f -x "canvas --tmp --dev"
@@ -90,6 +91,7 @@ test-with-published-polkadot-js-ui:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
   script:
+    - canvas --version
     - cargo test --features headless,polkadot-js-ui
   after_script:
     - pkill -f -x "canvas --tmp --dev"
