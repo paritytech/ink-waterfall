@@ -69,7 +69,8 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer")
             .caller("ALICE")
             .push_value("destination", "BOB")
-            .push_value("id", "123"),
+            .push_value("id", "123")
+            .max_gas("25000"),
     )
     .await
     .expect("`transfer` must succeed");
@@ -91,7 +92,8 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "approve")
             .caller("BOB")
             .push_value("to", "CHARLIE")
-            .push_value("id", "123"),
+            .push_value("id", "123")
+            .max_gas("25000"),
     )
     .await
     .expect("`approve` must succeed");
@@ -131,7 +133,8 @@ async fn erc721(mut ui: Ui) -> Result<()> {
             .caller("CHARLIE")
             .push_value("from", "BOB")
             .push_value("to", "DAVE")
-            .push_value("id", "123"),
+            .push_value("id", "123")
+            .max_gas("25000"),
     )
     .await
     .expect("`transfer_from` must succeed");
@@ -159,7 +162,8 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "burn")
             .caller("DAVE")
-            .push_value("id", "123"),
+            .push_value("id", "123")
+            .max_gas("25000"),
     )
     .await
     .expect("`burn` must succeed");
