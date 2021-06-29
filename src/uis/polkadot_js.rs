@@ -63,7 +63,7 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("opening url for upload: {:?}", url());
         self.client.goto(&url()).await?;
 
-        // firefox might not load if the website at that address is already open, hence we refresh
+        // Firefox might not load if the website at that address is already open, hence we refresh
         // just to be sure that it's a clean, freshly loaded page in front of us.
         self.client.refresh().await?;
 
@@ -310,21 +310,6 @@ impl ContractsUi for crate::uis::Ui {
         );
         self.client.wait_for_find(Locator::XPath(&path)).await?;
 
-        // log::info!("click next");
-        // self.client
-        // .find(Locator::XPath("//button[contains(text(), 'Next')]"))
-        // .await?
-        // .click()
-        // .await?;
-        //
-        // log::info!("check 'Unique Instantiation Salt' checkbox");
-        // let path = "// *[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]/div";
-        // self.client
-        // .find(Locator::XPath(path))
-        // .await?
-        // .click()
-        // .await?;
-
         log::info!("click deploy");
         self.client
             .find(Locator::XPath("//button[contains(text(),'Deploy')]"))
@@ -346,7 +331,6 @@ impl ContractsUi for crate::uis::Ui {
             Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed')]")
         ).await?;
 
-        // extract all status messages
         log::info!("extracting status messages");
         let statuses = self
             .client
@@ -438,7 +422,7 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("opening url for rpc: {:?}", url);
         self.client.goto(url.as_str()).await?;
 
-        // firefox might not load if the website at that address is already open, hence we refresh
+        // Firefox might not load if the website at that address is already open, hence we refresh
         // just to be sure that it's a clean, freshly loaded page in front of us.
         self.client.refresh().await?;
 
@@ -600,7 +584,7 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("opening url for executing transaction: {:?}", url);
         self.client.goto(url.as_str()).await?;
 
-        // firefox might not load if the website at that address is already open, hence we refresh
+        // Firefox might not load if the website at that address is already open, hence we refresh
         // just to be sure that it's a clean, freshly loaded page in front of us.
         self.client.refresh().await?;
 
@@ -722,22 +706,10 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .send_keys(&format!("{}\n", caller))
                 .await?;
-
-            /*
-            // choose caller
-            log::info!("choose {:?}", caller);
-            let path = format!("// *[contains(text(),'call from account')]/ancestor::div[1]//div[@name = '{}']", caller.to_lowercase());
-            self.client
-                .find(Locator::XPath(&path))
-                .await?
-                .click()
-                .await?;
-             */
         }
 
         // Possibly add payment
         if let Some(payment) = call.payment {
-            // Open listbox
             log::info!("open listbox for payment units");
             let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
             self.client
@@ -818,7 +790,6 @@ impl ContractsUi for crate::uis::Ui {
 
         std::thread::sleep(std::time::Duration::from_secs(2));
 
-        // click execute
         log::info!("click execute");
         self.client
             .find(Locator::XPath("//button[contains(text(),'Execute')]"))
@@ -840,7 +811,6 @@ impl ContractsUi for crate::uis::Ui {
             Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed')]")
         ).await?;
 
-        // extract all status messages
         log::info!("extracting status messages");
         let statuses = self
             .client

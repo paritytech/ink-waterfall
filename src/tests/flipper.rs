@@ -43,7 +43,11 @@ async fn flipper_works(mut ui: Ui) -> Result<()> {
     );
 
     // when
-    ui.execute_transaction(Call::new(&contract_addr, "flip").caller("BOB"))
+    ui.execute_transaction(
+        Call::new(&contract_addr, "flip")
+            // anybody must be able to `flip`
+            .caller("BOB")
+         )
         .await
         .expect("failed to execute transaction");
 

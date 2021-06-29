@@ -67,9 +67,6 @@ test-with-published-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
-
-    # run the tests with the published `canvas-ui` (at the `gh-pages` branch)
-    UI_URL:                    "https://paritytech.github.io/canvas-ui/"
   script:
     - cargo test --features headless
   after_script:
@@ -83,9 +80,6 @@ test-rand-extension-with-published-canvas-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
-
-    # run the tests with the published `canvas-ui` (at the `gh-pages` branch)
-    UI_URL:                    "https://paritytech.github.io/canvas-ui/"
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:

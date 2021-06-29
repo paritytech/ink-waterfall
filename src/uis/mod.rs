@@ -201,6 +201,7 @@ impl Call {
     pub fn new(contract_address: &str, method: &str) -> Self {
         let method = method.to_string();
 
+        // the `polkadot-js` ui displays method names in camel-case
         #[cfg(feature = "polkadot-js-ui")]
         let method = method.to_case(Case::Camel);
 

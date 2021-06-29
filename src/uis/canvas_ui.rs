@@ -648,7 +648,6 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        // maybe assert?
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
             Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed'))]")

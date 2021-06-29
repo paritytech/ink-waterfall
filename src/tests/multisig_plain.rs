@@ -58,8 +58,6 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
                 .push_value("selector", "0x633aa551") // `flip`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "0")
-                //.push_value("gas_limit", "9999999000"),
-                //.push_value("gas_limit", "20000"),
     )
     .await
     .expect("failed to `submit_transaction`");
@@ -134,7 +132,6 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
                 .push_value("selector", "0xcafebabe") // `was_it_ten`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "10")
-                .push_value("gas_limit", "9999999000"),
     )
     .await
     .expect("failed to `submit_transaction`");
