@@ -15,7 +15,7 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
-  RUST_TEST_THREADS:               "1"
+  RUST_TEST_THREADS:               "2"
   INK_EXAMPLES_PATH:                "./ink/examples/"
 
 workflow:
@@ -68,7 +68,7 @@ test-with-published-canvas-ui:
   variables:
   script:
     - canvas --version
-    - cargo test --features headless --jobs 1
+    - cargo test --features headless --jobs 2
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
@@ -91,7 +91,7 @@ test-with-published-polkadot-js-ui:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   script:
     - canvas --version
-    - cargo test --features headless,polkadot-js-ui --jobs 1
+    - cargo test --features headless,polkadot-js-ui --jobs 2
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
