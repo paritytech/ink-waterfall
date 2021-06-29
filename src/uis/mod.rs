@@ -116,6 +116,7 @@ impl Ui {
             );
             return Ok(())
         }
+        log::info!("closing client");
         self.client.close().await?;
         Ok(())
     }
@@ -133,6 +134,7 @@ impl Drop for Ui {
         // The reason is that if a test fails (e.g. due to an assertion), then the test
         // will be interrupted and the shutdown method at the end of a test will not
         // be reached, but this drop will.
+        log::info!("killing geckodriver");
         self.geckodriver
             .kill()
             .expect("unable to kill geckodriver, it probably wasn't running");
