@@ -17,6 +17,7 @@ variables:
   RUST_LOG:                        "info"
   RUST_TEST_THREADS:               "1"
   WATERFALL_TIMEOUT_SECS_PER_TEST: "360" # six minutes
+  INK_EXAMPLES_PATH:                "./ink/examples/"
 
 workflow:
   rules:
@@ -66,7 +67,6 @@ test-with-published-canvas-ui:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
-    INK_EXAMPLES_PATH:                "./ink/examples/"
   script:
     - cargo test --features headless
   after_script:
@@ -78,8 +78,6 @@ test-rand-extension-with-published-canvas-ui:
   before_script:
     - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
-  variables:
-    INK_EXAMPLES_PATH:                "./ink/examples/"
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
@@ -91,8 +89,6 @@ test-with-published-polkadot-js-ui:
   before_script:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
-  variables:
-    INK_EXAMPLES_PATH:                "./ink/examples/"
   script:
     - cargo test --features headless,polkadot-js-ui
   after_script:
@@ -104,8 +100,6 @@ test-rand-extension-with-published-polkadot-js-ui:
   before_script:
     - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
-  variables:
-    INK_EXAMPLES_PATH:                "./ink/examples/"
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
