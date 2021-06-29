@@ -100,7 +100,7 @@ test-with-published-polkadot-js-ui:
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
   script:
-    - cargo test --features headless, polkadot-js-ui
+    - cargo test --features headless,polkadot-js-ui
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
@@ -113,6 +113,6 @@ test-rand-extension-with-published-polkadot-js-ui:
   variables:
     INK_EXAMPLES_PATH:                "./ink/examples/"
   script:
-    - cargo test --features headless, polkadot-js-ui -- --ignored rand_extension
+    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - pkill -f -x "canvas-rand-extension --tmp --dev"
