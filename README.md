@@ -87,9 +87,6 @@ cargo test
 
 * `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder.
 * `UI_URL` ‒ URL of the UI to use.
-* `WATERFALL_TIMEOUT_SECS_PER_TEST` ‒ The number of seconds each test is allowed to take.
-  This is necessary so that the CI fails early and doesn't wait for e.g. the Gitlab timeout,
-  just because some UI element has changed its name.
 * `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder.
