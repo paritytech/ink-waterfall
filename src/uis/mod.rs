@@ -12,8 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "canvas-ui")]
+#[cfg(not(feature = "polkadot-js-ui"))]
 pub mod canvas_ui;
+
+#[cfg(feature = "polkadot-js-ui")]
+pub mod polkadot_js;
+
+#[cfg(feature = "polkadot-js-ui")]
+use convert_case::{
+    Case,
+    Casing,
+};
 
 use async_trait::async_trait;
 use fantoccini::{
@@ -190,9 +199,14 @@ pub struct Call {
 impl Call {
     /// Creates a new `Transaction` instance.
     pub fn new(contract_address: &str, method: &str) -> Self {
+        let method = method.to_string();
+
+        #[cfg(feature = "polkadot-js-ui")]
+        let method = method.to_case(Case::Camel);
+
         Self {
             contract_address: contract_address.to_string(),
-            method: method.to_string(),
+            method,
             max_gas_allowed: None,
             values: Vec::new(),
             payment: None,
@@ -201,6 +215,8 @@ impl Call {
     }
 
     /// Adds an initial value.
+    ///
+    /// TODO: Make `val` an enum of `Boolean` and `String`.
     pub fn push_value(mut self, key: &str, val: &str) -> Self {
         self.values.push((key.to_string(), val.to_string()));
         self
@@ -264,6 +280,8 @@ impl Upload {
     }
 
     /// Adds an initial value.
+    ///
+    /// TODO: Make `val` an enum of `Boolean` and `String`.
     pub fn push_initial_value(mut self, key: &str, val: &str) -> Self {
         self.initial_values.push((key.to_string(), val.to_string()));
         self

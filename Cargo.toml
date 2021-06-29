@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 async-trait = "0.1.50"
+convert_case = "0.4.0"
 futures-core = "0.3.0"
 futures-util = "0.3.0"
 tokio = { version = "1", features = [ "full" ] }
@@ -23,7 +24,5 @@ portpicker = "0.1.1"
 lang_macro = { path = "./lang_macro"}
 
 [features]
-default = ["canvas-ui"]
 headless = []
-canvas-ui = []
 polkadot-js-ui = []

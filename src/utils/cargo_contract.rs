@@ -22,6 +22,38 @@ use std::{
 ///
 /// If successful, returns the path to the `.contract` file.
 pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
+    let skip_build: String =
+        std::env::var("WATERFALL_SKIP_CONTRACT_BUILD").unwrap_or(String::from("false"));
+    if skip_build == "true" {
+        let mut manifest_path = manifest_path.clone();
+        manifest_path.pop();
+        let name = manifest_path
+            .iter()
+            .last()
+            .expect("last must exist")
+            .to_str()
+            .expect("to_str must work")
+            .replace("-", "_");
+
+        let name = match name.as_str() {
+            "accumulator" => {
+                manifest_path.pop();
+                "accumulator/accumulator"
+            }
+            "subber" => {
+                manifest_path.pop();
+                "subber/subber"
+            }
+            "adder" => {
+                manifest_path.pop();
+                "adder/adder"
+            }
+            _ => name.as_str(),
+        };
+        manifest_path.push(format!("target/ink/{}.contract", name));
+        return Ok(manifest_path.clone())
+    }
+
     assert_wasm_opt_available();
 
     let mut dir = manifest_path.clone();

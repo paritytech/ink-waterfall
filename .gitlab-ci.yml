@@ -69,7 +69,7 @@ test-with-published-canvas-ui:
     INK_EXAMPLES_PATH:                "./ink/examples/"
 
     # run the tests with the published `canvas-ui` (at the `gh-pages` branch)
-    CANVAS_UI_URL:                    "https://paritytech.github.io/canvas-ui/"
+    UI_URL:                    "https://paritytech.github.io/canvas-ui/"
   script:
     - cargo test --features headless
   after_script:
@@ -85,8 +85,34 @@ test-rand-extension-with-published-canvas-ui:
     INK_EXAMPLES_PATH:                "./ink/examples/"
 
     # run the tests with the published `canvas-ui` (at the `gh-pages` branch)
-    CANVAS_UI_URL:                    "https://paritytech.github.io/canvas-ui/"
+    UI_URL:                    "https://paritytech.github.io/canvas-ui/"
   script:
     - cargo test --features headless -- --ignored rand_extension
+  after_script:
+    - pkill -f -x "canvas-rand-extension --tmp --dev"
+
+test-with-published-polkadot-js-ui:
+  stage:                           test
+  <<:                              *docker-env
+  before_script:
+    - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
+    - git clone --depth 1 https://github.com/paritytech/ink.git
+  variables:
+    INK_EXAMPLES_PATH:                "./ink/examples/"
+  script:
+    - cargo test --features headless, polkadot-js-ui
+  after_script:
+    - pkill -f -x "canvas --tmp --dev"
+
+test-rand-extension-with-published-polkadot-js-ui:
+  stage:                           test
+  <<:                              *docker-env
+  before_script:
+    - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
+    - git clone --depth 1 https://github.com/paritytech/ink.git
+  variables:
+    INK_EXAMPLES_PATH:                "./ink/examples/"
+  script:
+    - cargo test --features headless, polkadot-js-ui -- --ignored rand_extension
   after_script:
     - pkill -f -x "canvas-rand-extension --tmp --dev"

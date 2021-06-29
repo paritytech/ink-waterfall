@@ -701,7 +701,7 @@ impl ContractsUi for crate::uis::Ui {
 ///
 /// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
 fn url(path: &str) -> String {
-    let base_url: String = std::env::var("CANVAS_UI_URL")
+    let base_url: String = std::env::var("UI_URL")
         .unwrap_or(String::from("https://paritytech.github.io/canvas-ui"));
 
     // strip a possibly ending `/` from he URL, since a URL like `http://foo//bar`

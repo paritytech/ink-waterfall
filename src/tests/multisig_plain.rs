@@ -45,9 +45,9 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
         .execute_upload(
             Upload::new(contract_file)
                 .push_initial_value("requirement", "2")
-                .add_item("owner", "ALICE")
-                .add_item("owner", "BOB")
-                .add_item("owner", "EVE"),
+                .add_item("owners", "ALICE")
+                .add_item("owners", "BOB")
+                .add_item("owners", "EVE"),
         )
         .await?;
 
@@ -58,10 +58,11 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
                 .push_value("selector", "0x633aa551") // `flip`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "0")
-                .push_value("gas_limit", "9999999000"),
+                //.push_value("gas_limit", "9999999000"),
+                //.push_value("gas_limit", "20000"),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `submit_transaction`");
     let id = "0";
     ui.execute_transaction(
         Call::new(&contract_addr, "confirm_transaction")
@@ -69,7 +70,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
             .push_value("transId", id),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `confirm_transaction`");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "confirm_transaction")
@@ -77,7 +78,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
             .push_value("transId", id),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `confirm_transaction`");
 
     assert_eq!(
         ui.execute_rpc(Call::new(&flipper_contract_addr, "get"))
@@ -92,7 +93,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
             .push_value("transId", id),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `invoke_transaction`");
 
     // then
     assert_eq!(
@@ -120,9 +121,9 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
         .execute_upload(
             Upload::new(contract_file)
                 .push_initial_value("requirement", "2")
-                .add_item("owner", "ALICE")
-                .add_item("owner", "BOB")
-                .add_item("owner", "EVE"),
+                .add_item("owners", "ALICE")
+                .add_item("owners", "BOB")
+                .add_item("owners", "EVE"),
         )
         .await?;
 
@@ -136,7 +137,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
                 .push_value("gas_limit", "9999999000"),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `submit_transaction`");
     let id = "0";
     ui.execute_transaction(
         Call::new(&contract_addr, "confirm_transaction")
@@ -144,7 +145,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
             .push_value("transId", id),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `confirm_transaction`");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "confirm_transaction")
@@ -152,7 +153,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
             .push_value("transId", id),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `confirm_transaction`");
 
     // when
     ui.execute_transaction(
@@ -162,7 +163,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
             .payment("10", "pico"),
     )
     .await
-    .expect("failed to execute `transfer` to BOB transaction");
+    .expect("failed to `invoke_transaction`");
 
     // then
     assert!(utils::canvas_log_contains("received payment: 10\n"));
