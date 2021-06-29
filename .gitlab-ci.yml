@@ -5,7 +5,8 @@
 # pipelines can be triggered manually in the web
 
 stages:
-  - test
+  - canvas-ui
+  - polkadot-js
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -61,7 +62,7 @@ workflow:
     - linux-docker
 
 test-with-published-canvas-ui:
-  stage:                           test
+  stage:                           canvas-ui
   <<:                              *docker-env
   before_script:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
@@ -74,7 +75,7 @@ test-with-published-canvas-ui:
     - pkill -f -x "canvas --tmp --dev"
 
 test-rand-extension-with-published-canvas-ui:
-  stage:                           test
+  stage:                           canvas-ui
   <<:                              *docker-env
   before_script:
     - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
@@ -85,7 +86,7 @@ test-rand-extension-with-published-canvas-ui:
     - pkill -f -x "canvas-rand-extension --tmp --dev"
 
 test-with-published-polkadot-js-ui:
-  stage:                           test
+  stage:                           polkadot-js
   <<:                              *docker-env
   needs:
     - job: test-with-published-canvas-ui
@@ -100,7 +101,7 @@ test-with-published-polkadot-js-ui:
     - pkill -f -x "canvas --tmp --dev"
 
 test-rand-extension-with-published-polkadot-js-ui:
-  stage:                           test
+  stage:                           polkadot-js
   <<:                              *docker-env
   needs:
     - job: test-rand-extension-with-published-canvas-ui
