@@ -45,7 +45,7 @@ async fn rand_extension(mut ui: Ui) -> Result<()> {
         ui.execute_rpc(Call::new(&contract_addr, "get"))
             .await
             .expect("failed to execute rpc"),
-        "0x000000…00000000"
+        "<empty>"
     );
     let _events = ui
         .execute_transaction(Call::new(&contract_addr, "update"))
@@ -57,7 +57,7 @@ async fn rand_extension(mut ui: Ui) -> Result<()> {
         ui.execute_rpc(Call::new(&contract_addr, "get"))
             .await
             .expect("failed to execute rpc"),
-        "0x000000…00000000"
+        "<empty>"
     );
     Ok(())
 }

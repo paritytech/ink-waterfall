@@ -348,19 +348,15 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .split("\n")
                 .for_each(|status| {
-                    let mut split = status.split(".");
-                    let header = split.next().expect("header must exist");
-                    let status = split.next().expect("status must exist");
-                    assert_eq!(split.next(), None);
-                    log::info!("found status message {:?} with {:?}", header, status);
+                    log::info!("found status message {:?}", status);
                     statuses_processed.push(Event {
-                        header: header.to_string(),
+                        header: String::from(""),
                         status: status.to_string(),
                     });
                 });
         }
         let events = Events::new(statuses_processed);
-        assert!(events.contains("ExtrinsicSuccess"));
+        assert!(events.contains("system.ExtrinsicSuccess"));
 
         log::info!("click dismiss");
         self.client
@@ -822,20 +818,27 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("found {:?} status messages", statuses.len());
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            // the switch of status vs. header is intentional here
+            el.find(Locator::XPath("div[@class = 'status']"))
+                .await?
+                .text()
+                .await?
+                .split("\n")
+                .for_each(|status| {
+                    log::info!("found status message {:?}", status);
+                    statuses_processed.push(Event {
+                        header: String::from(""),
+                        status: status.to_string(),
+                    });
+                });
             el.find(Locator::XPath("div[@class = 'header']"))
                 .await?
                 .text()
                 .await?
                 .split("\n")
                 .for_each(|status| {
-                    let mut split = status.split(".");
-                    let header = split.next().expect("header must exist");
-                    let status = split.next().expect("status must exist");
-                    assert_eq!(split.next(), None);
-                    log::info!("found status message {:?} with {:?}", header, status);
+                    log::info!("found status message {:?}", status);
                     statuses_processed.push(Event {
-                        header: header.to_string(),
+                        header: String::from(""),
                         status: status.to_string(),
                     });
                 });
@@ -851,8 +854,8 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        let success = events.contains("ExtrinsicSuccess");
-        let failure = events.contains("ExtrinsicFailed");
+        let success = events.contains("system.ExtrinsicSuccess");
+        let failure = events.contains("system.ExtrinsicFailed");
         match (success, failure) {
             (true, false) => Ok(events),
             (false, true) => Err(Error::ExtrinsicFailed(events)),

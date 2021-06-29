@@ -470,8 +470,11 @@ impl ContractsUi for crate::uis::Ui {
 
         // wait for outcomes
         let mut el = self.client.wait_for_find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await?;
-        let txt = el.text().await?;
+        let mut txt = el.text().await?;
         log::info!("outcomes value {:?}", txt);
+        if txt == "0x000000…00000000" {
+            txt = String::from("<empty>");
+        }
         Ok(txt)
     }
 
