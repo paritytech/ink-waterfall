@@ -68,9 +68,7 @@ async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
     // when
     let result = ui
         .execute_transaction(
-            Call::new(&contract_addr, "was_it_ten")
-                .payment("10", "pico")
-                .max_gas("25000"),
+            Call::new(&contract_addr, "was_it_ten").payment("10", "pico"),
         )
         .await;
 

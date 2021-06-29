@@ -30,7 +30,8 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-#[ignore] // TODO until https://github.com/paritytech/canvas-ui/issues/105 is fixed
+// TODO ignore until https://github.com/paritytech/canvas-ui/issues/105 is fixed
+#[cfg_attr(not(feature = "polkadot-js-ui"), ignore)]
 async fn erc20(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-erc20/Cargo.toml");
@@ -44,21 +45,19 @@ async fn erc20(mut ui: Ui) -> Result<()> {
                 .push_initial_value("initialSupply", "1000"),
         )
         .await?;
-    assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "total_supply"))
-            .await?,
-        "1000000000000000"
-    );
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "bob")
+    let total_supply = ui
+        .execute_rpc(Call::new(&contract_addr, "baseErc20,total_supply"))
+        .await?;
+    assert!(total_supply == "1000000000000000" || total_supply == "1.0000 kUnit");
+    let balance = ui
+        .execute_rpc(
+            Call::new(&contract_addr, "baseErc20,balance_of").push_value("owner", "bob"),
         )
-        .await?,
-        "1000000000000000"
-    );
+        .await?;
+    assert!(balance == "1000000000000000" || balance == "1.0000 kUnit");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "transfer")
+        Call::new(&contract_addr, "baseErc20,transfer")
             .caller("BOB")
             .push_value("to", "ALICE")
             .push_value("value", "500"),
@@ -66,19 +65,20 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     .await
     .expect("failed to execute transaction");
 
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
+    let balance = ui
+        .execute_rpc(
+            Call::new(&contract_addr, "baseErc20,balance_of")
+                .push_value("owner", "ALICE"),
         )
-        .await?,
-        "500000000000000"
-    );
+        .await?;
+    assert!(balance == "500000000000000" || balance == "500.0000 Unit");
 
     Ok(())
 }
 
 #[waterfall_test]
-#[ignore] // TODO until https://github.com/paritytech/canvas-ui/issues/105 is fixed
+// TODO ignore until https://github.com/paritytech/canvas-ui/issues/105 is fixed
+#[cfg_attr(not(feature = "polkadot-js-ui"), ignore)]
 async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-erc20/Cargo.toml");
@@ -100,7 +100,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     assert!(
         true || ui
             .execute_transaction(
-                Call::new(&contract_addr, "transfer_from")
+                Call::new(&contract_addr, "baseErc20,transfer_from")
                     .caller("ALICE")
                     .push_value("from: AccountId", "BOB")
                     .push_value("to: AccountId", "ALICE")
@@ -112,26 +112,25 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
 
     // Bob approves Alice being able to withdraw up the `value` amount on his behalf.
     ui.execute_transaction(
-        Call::new(&contract_addr, "approve")
+        Call::new(&contract_addr, "baseErc20,approve")
             .caller("BOB")
             .push_value("spender", "ALICE")
             .push_value("value", "600"),
     )
     .await
     .expect("`approve` must succeed");
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "allowance")
+    let allowance = ui
+        .execute_rpc(
+            Call::new(&contract_addr, "baseErc20,allowance")
                 .push_value("owner", "BOB")
-                .push_value("spender", "ALICE")
+                .push_value("spender", "ALICE"),
         )
-        .await?,
-        "600000000000000"
-    );
+        .await?;
+    assert!(allowance == "600000000000000" || allowance == "600.0000 Unit");
 
     // Alice tries again to transfer tokens on behalf ob Bob
     ui.execute_transaction(
-        Call::new(&contract_addr, "transfer_from")
+        Call::new(&contract_addr, "baseErc20,transfer_from")
             .caller("ALICE")
             .push_value("from: AccountId", "BOB")
             .push_value("to: AccountId", "ALICE")
@@ -139,20 +138,19 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     )
     .await
     .expect("second `transfer_from` must succeed");
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
+    let balance = ui
+        .execute_rpc(
+            Call::new(&contract_addr, "baseErc20,balance_of")
+                .push_value("owner", "ALICE"),
         )
-        .await?,
-        "400000000000000"
-    );
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
+        .await?;
+    assert!(balance == "400000000000000" || balance == "400.0000 Unit");
+    let balance = ui
+        .execute_rpc(
+            Call::new(&contract_addr, "baseErc20,balance_of").push_value("owner", "BOB"),
         )
-        .await?,
-        "600000000000000"
-    );
+        .await?;
+    assert!(balance == "600000000000000" || balance == "600.0000 Unit");
 
     // Alice tries to transfer even more tokens on behalf ob Bob, this time exhausting the allowance
     // TODO
@@ -161,7 +159,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     assert!(
         true || ui
             .execute_transaction(
-                Call::new(&contract_addr, "transfer_from")
+                Call::new(&contract_addr, "baseErc20,transfer_from")
                     .caller("ALICE")
                     .push_value("from: AccountId", "BOB")
                     .push_value("to: AccountId", "ALICE")
@@ -172,13 +170,12 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     );
 
     // Balance of Bob must have stayed the same
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
+    let balance = ui
+        .execute_rpc(
+            Call::new(&contract_addr, "baseErc20,balance_of").push_value("owner", "BOB"),
         )
-        .await?,
-        "600000000000000"
-    );
+        .await?;
+    assert!(balance == "600000000000000" || balance == "600.0000 Unit");
 
     Ok(())
 }
