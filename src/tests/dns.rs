@@ -39,7 +39,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
     let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
     // when registering and setting an address and name
-    let name = "0xCAFEBABE";
+    let name = "0xCAFEBAB";
     let address = "EVE";
     ui.execute_transaction(
         Call::new(&contract_addr, "register")

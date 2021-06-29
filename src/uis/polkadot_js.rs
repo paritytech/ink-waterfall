@@ -693,9 +693,10 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             // enter the caller
-            log::info!("enter {:?} into listbox", caller);
-            //log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
-            let path = format!("//*[contains(text(),'call from account')]/ancestor::div[1]//input");
+            log::info!("entering {:?} into listbox", caller);
+            let path = format!(
+                "//*[contains(text(),'call from account')]/ancestor::div[1]//input"
+            );
             self.client
                 .find(Locator::XPath(&path))
                 .await?
