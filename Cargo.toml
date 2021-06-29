@@ -23,4 +23,7 @@ portpicker = "0.1.1"
 lang_macro = { path = "./lang_macro"}
 
 [features]
+default = ["canvas-ui"]
 headless = []
+canvas-ui = []
+polkadot-js-ui = []
