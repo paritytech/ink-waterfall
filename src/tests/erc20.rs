@@ -117,15 +117,14 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     )
     .await
     .expect("`approve` must succeed");
-    assert_eq!(
-        ui.execute_rpc(
+    let allowance = ui
+        .execute_rpc(
             Call::new(&contract_addr, "allowance")
                 .push_value("owner", "BOB")
-                .push_value("spender", "ALICE")
+                .push_value("spender", "ALICE"),
         )
-        .await?,
-        "600000000000000"
-    );
+        .await?;
+    assert!(allowance == "600000000000000" || allowance == "600.0000 Unit");
 
     // Alice tries again to transfer tokens on behalf ob Bob
     ui.execute_transaction(
@@ -137,20 +136,14 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     )
     .await
     .expect("second `transfer_from` must succeed");
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
-        )
-        .await?,
-        "400000000000000"
-    );
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
-        )
-        .await?,
-        "600000000000000"
-    );
+    let balance = ui
+        .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE"))
+        .await?;
+    assert!(balance == "400000000000000" || balance == "400.0000 Unit");
+    let balance = ui
+        .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "BOB"))
+        .await?;
+    assert!(balance == "600000000000000" || balance == "600.0000 Unit");
 
     // Alice tries to transfer even more tokens on behalf ob Bob, this time exhausting the allowance
     // TODO
@@ -170,13 +163,10 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     );
 
     // Balance of Bob must have stayed the same
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "BOB")
-        )
-        .await?,
-        "600000000000000"
-    );
+    let balance = ui
+        .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "BOB"))
+        .await?;
+    assert!(balance == "600000000000000" || balance == "600.0000 Unit");
 
     Ok(())
 }
