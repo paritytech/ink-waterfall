@@ -48,35 +48,6 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 env_logger::init();
             });
 
-            // hack to get a timeout for async tests running.
-            // this is necessary so that the ci doesn't wait forever to fail, thus
-            // enabling faster feedback cycles.
-            let __orig_hook = std::panic::take_hook();
-            std::panic::set_hook(Box::new(move |panic_info| {
-                // invoke the default handler and exit the process
-                __orig_hook(panic_info);
-            }));
-            std::thread::spawn(|| {
-                let timeout: String = std::env::var("WATERFALL_TIMEOUT_SECS_PER_TEST")
-                    .unwrap_or(String::from("300")); // 5 * 60 = five minutes
-                let timeout: u64 = timeout.parse::<u64>()
-                    .expect("unable to parse WATERFALL_TEST_TIMEOUT into u64");
-                let timeout: u64 = 1;
-
-                std::thread::sleep(std::time::Duration::from_secs(timeout));
-                std::process::Command::new("pkill")
-                    .args(&["-9", "-f", "geckodriver"])
-                    .output()
-                    .expect("can not execute pkill");
-
-                panic!(
-                    "The test '{}' didn't finish in time and was killed.\n\n\
-                    If this is no failure of UI-interaction you should consider\
-                    increasing `WATERFALL_TIMEOUT_SECS_PER_TEST`",
-                    stringify!(#fn_name)
-                );
-            });
-
             use crate::uis::ContractsUi;
             let mut ui = Ui::new().await?;
             let __ret = {
