@@ -61,6 +61,7 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     .unwrap_or(String::from("300")); // 5 * 60 = five minutes
                 let timeout: u64 = timeout.parse::<u64>()
                     .expect("unable to parse WATERFALL_TEST_TIMEOUT into u64");
+                let timeout: u64 = 1;
 
                 std::thread::sleep(std::time::Duration::from_secs(timeout));
                 std::process::Command::new("pkill")
@@ -82,6 +83,7 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 #block
             };
             ui.shutdown().await?;
+            log::info!("shutdown for {} complete", stringify!(#fn_name));
             __ret
         }
     };
