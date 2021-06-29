@@ -88,9 +88,6 @@ test-rand-extension-with-published-canvas-ui:
 test-with-published-polkadot-js-ui:
   stage:                           polkadot-js
   <<:                              *docker-env
-  needs:
-    - job: test-with-published-canvas-ui
-      artifacts: false
   before_script:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
@@ -103,9 +100,6 @@ test-with-published-polkadot-js-ui:
 test-rand-extension-with-published-polkadot-js-ui:
   stage:                           polkadot-js
   <<:                              *docker-env
-  needs:
-    - job: test-rand-extension-with-published-canvas-ui
-      artifacts: false
   before_script:
     - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
     - git clone --depth 1 https://github.com/paritytech/ink.git
