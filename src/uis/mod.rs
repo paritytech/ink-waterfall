@@ -42,6 +42,12 @@ use std::{
 
 #[async_trait]
 pub trait ContractsUi {
+    /// Returns the address for a given `name`.
+    async fn name_to_address(
+        &mut self,
+        name: &str,
+    ) -> Result<String, Box<dyn std::error::Error>>;
+
     /// Returns the balance postfix numbers.
     async fn balance_postfix(
         &mut self,

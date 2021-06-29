@@ -26,6 +26,39 @@ use regex::Regex;
 
 #[async_trait]
 impl ContractsUi for crate::uis::Ui {
+    /// Returns the address for a given `name`.
+    async fn name_to_address(
+        &mut self,
+        name: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        self.client
+            .goto(
+                // TODO doesn't work with differen URI!
+                "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
+            )
+            .await?;
+
+        // TODO
+        std::thread::sleep(std::time::Duration::from_secs(3));
+
+        log::info!("checking account {:?}", name);
+        self.client
+            .find(Locator::XPath(&format!("//div[text() = '{}']", name)))
+            .await?
+            .click()
+            .await?;
+
+        log::info!("getting address");
+        let addr = self
+            .client
+            .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
+            .await?
+            .text()
+            .await?;
+        log::info!("got address {}", addr);
+        Ok(addr)
+    }
+
     /// Returns the balance postfix numbers.
     async fn balance_postfix(
         &mut self,
@@ -33,6 +66,7 @@ impl ContractsUi for crate::uis::Ui {
     ) -> Result<u128, Box<dyn std::error::Error>> {
         self.client
             .goto(
+                // TODO doesn't work with differen URI!
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
             )
             .await?;
