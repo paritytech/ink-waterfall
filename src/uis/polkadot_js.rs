@@ -449,7 +449,7 @@ impl ContractsUi for crate::uis::Ui {
         call: Call,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let url = format!("{}", url());
-        log::info!("opening url for rpc: {:?}", url);
+        log::info!("opening url for rpc {:?}: {:?}", call.method, url);
         self.client.goto(url.as_str()).await?;
 
         // Firefox might not load if the website at that address is already open, hence we refresh
@@ -611,7 +611,11 @@ impl ContractsUi for crate::uis::Ui {
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
         let url = format!("{}", url());
-        log::info!("opening url for executing transaction: {:?}", url);
+        log::info!(
+            "opening url for executing transaction {:?}: {:?}",
+            call.method,
+            url
+        );
         self.client.goto(url.as_str()).await?;
 
         // Firefox might not load if the website at that address is already open, hence we refresh
@@ -803,7 +807,7 @@ impl ContractsUi for crate::uis::Ui {
         for (key, mut value) in call.values {
             log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
-                "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                "//div[contains(@class, 'ui--Params')]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                 key
             );
             self.client

@@ -400,7 +400,7 @@ impl ContractsUi for crate::uis::Ui {
         call: Call,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
-        log::info!("opening url for rpc: {:?}", url);
+        log::info!("opening url for rpc {:?}: {:?}", call.method, url);
         self.client.goto(url.as_str()).await?;
 
         // hack to get around a failure of the ui for the multisig tests.
@@ -520,7 +520,11 @@ impl ContractsUi for crate::uis::Ui {
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
-        log::info!("opening url for transaction: {:?}", url);
+        log::info!(
+            "opening url for executing transaction {:?}: {:?}",
+            call.method,
+            url
+        );
         self.client.goto(url.as_str()).await?;
         self.client.refresh().await?;
 
