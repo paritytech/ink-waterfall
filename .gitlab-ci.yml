@@ -15,7 +15,7 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
-  RUST_TEST_THREADS:               "3"
+  RUST_TEST_THREADS:               "1"
   INK_EXAMPLES_PATH:                "./ink/examples/"
 
 workflow:
@@ -68,9 +68,9 @@ ink-examples:
   variables:
   script:
     - canvas --version
-    - cargo test --features headless --jobs 3
+    - cargo test --features headless --jobs 1
     - echo "" > /tmp/canvas.log
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui --jobs 3
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui --jobs 1
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
