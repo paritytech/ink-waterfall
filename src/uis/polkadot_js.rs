@@ -461,6 +461,8 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
         // iterate through the list and see which of the entries has the correct address
         let contracts_in_list = self
             .client
