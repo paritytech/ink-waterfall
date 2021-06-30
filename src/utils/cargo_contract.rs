@@ -25,6 +25,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     let skip_build: String =
         std::env::var("WATERFALL_SKIP_CONTRACT_BUILD").unwrap_or(String::from("false"));
     if skip_build == "true" {
+        log::info!("skipping contract build");
         let mut manifest_path = manifest_path.clone();
         manifest_path.pop();
         let name = manifest_path
