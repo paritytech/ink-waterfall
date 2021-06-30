@@ -28,7 +28,9 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
         log::info!("skipping contract build");
         let mut manifest_path = manifest_path.clone();
         manifest_path.pop();
-        let name = manifest_path
+
+        // extract example name from manifest path
+        let example_name = manifest_path
             .iter()
             .last()
             .expect("last must exist")
@@ -36,7 +38,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
             .expect("to_str must work")
             .replace("-", "_");
 
-        let name = match name.as_str() {
+        let name = match example_name.as_str() {
             "accumulator" => {
                 manifest_path.pop();
                 "accumulator/accumulator"
@@ -49,10 +51,22 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
                 manifest_path.pop();
                 "adder/adder"
             }
-            _ => name.as_str(),
+            _ => example_name.as_str(),
         };
-        manifest_path.push(format!("target/ink/{}.contract", name));
-        return Ok(manifest_path.clone())
+        let possibly_target_dir = std::env::var("CARGO_TARGET_DIR");
+        let artifact_path = match possibly_target_dir {
+            Ok(target_dir) => {
+                let mut path = PathBuf::from(target_dir);
+                path.push(format!("ink/{}.contract", name));
+                path
+            }
+            Err(_) => {
+                manifest_path.push(format!("target/ink/{}.contract", name));
+                manifest_path.clone()
+            }
+        };
+        log::info!("using artifact path {:?}", artifact_path);
+        return Ok(artifact_path)
     }
 
     assert_wasm_opt_available();
