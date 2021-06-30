@@ -16,7 +16,7 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   RUST_LOG:                        "info"
   INK_EXAMPLES_PATH:                "./ink/examples/"
-  RUST_TEST_THREADS:               "2"
+  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
 
 workflow:
   rules:
@@ -68,7 +68,13 @@ ink-examples:
   variables:
   script:
     - canvas --version
-    - cargo test --features headless
+    - for example in ${INK_EXAMPLES_PATH}/*/; do
+        cargo +nightly contract build --manifest-path=${example}/Cargo.toml;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo +nightly contract build --manifest-path=${example}/delegator/${contract}/Cargo.toml;
+      done
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless
     - echo "" > /tmp/canvas.log
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui
   after_script:
