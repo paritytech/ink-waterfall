@@ -25,7 +25,12 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     let skip_build: String =
         std::env::var("WATERFALL_SKIP_CONTRACT_BUILD").unwrap_or(String::from("false"));
     // TODO remove `trait_erc20` dependency after that test is enabled everywhere
-    if skip_build == "true" && !manifest_path.to_str()?.contains("trait_erc20") {
+    if skip_build == "true"
+        && !manifest_path
+            .to_str()
+            .expect("conversion must work")
+            .contains("trait_erc20")
+    {
         log::info!("skipping contract build");
         let mut manifest_path = manifest_path.clone();
         manifest_path.pop();
