@@ -29,7 +29,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
         && !manifest_path
             .to_str()
             .expect("conversion must work")
-            .contains("trait_erc20")
+            .contains("trait-erc20")
     {
         log::info!("skipping contract build");
         let mut manifest_path = manifest_path.clone();
