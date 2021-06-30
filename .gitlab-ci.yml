@@ -17,6 +17,7 @@ variables:
   RUST_LOG:                        "info"
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  RUST_TEST_THREADS:               "2"
 
 workflow:
   rules:
