@@ -400,15 +400,6 @@ impl ContractsUi for crate::uis::Ui {
         }
         let events = Events::new(statuses_processed);
 
-        // log::info!("click dismiss {:?}", foo);
-        // self.client
-        // .wait_for_find(Locator::XPath(
-        // "// *[contains(text(),'Dismiss all notifications')]",
-        // ))
-        // .await?
-        // .click()
-        // .await?;
-
         if events.contains("Priority is too low") {
             log::info!(
                 "found priority too low during upload of {:?}! trying again!",
@@ -790,14 +781,6 @@ impl ContractsUi for crate::uis::Ui {
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
-
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Dismiss all notifications')]",
-            ))
-            .await?
-            .click()
-            .await?;
 
         if events.contains("Priority is too low") {
             log::info!(
