@@ -187,7 +187,7 @@ impl Events {
     pub fn contains(&self, event: &str) -> bool {
         self.events
             .iter()
-            .any(|evt| evt.header == event || evt.status == event)
+            .any(|evt| evt.header.contains(event) || evt.status.contains(event))
     }
 }
 
