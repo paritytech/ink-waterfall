@@ -379,19 +379,19 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("waiting for either success or failure notification");
+        log::info!("upload: waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')]")
+            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[(contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')) and not(contains(text(),'ready'))]")
         ).await?;
 
-        log::info!("extracting status messages");
+        log::info!("upload: extracting status messages");
         let statuses = self
             .client
             .find_all(Locator::XPath(
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!("found {:?} status messages", statuses.len());
+        log::info!("upload: found {:?} status messages", statuses.len());
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             // the switch of status vs. header is intentional here
@@ -896,19 +896,19 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("waiting for either success or failure notification");
+        log::info!("transaction: waiting for either success or failure notification");
         self.client.wait_for_find(
             Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')]")
         ).await?;
 
-        log::info!("extracting status messages");
+        log::info!("transaction: extracting status messages");
         let statuses = self
             .client
             .find_all(Locator::XPath(
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!("found {:?} status messages", statuses.len());
+        log::info!("transaction: found {:?} status messages", statuses.len());
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             el.find(Locator::XPath("div[@class = 'status']"))
