@@ -30,6 +30,7 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
+#[ignore]
 async fn erc20(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-erc20/Cargo.toml");
@@ -75,6 +76,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
 }
 
 #[waterfall_test]
+#[ignore]
 async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-erc20/Cargo.toml");
