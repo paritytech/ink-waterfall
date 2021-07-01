@@ -31,6 +31,7 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
+#[ignore]
 async fn contract_terminate_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-terminate/Cargo.toml");

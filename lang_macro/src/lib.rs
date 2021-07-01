@@ -42,7 +42,7 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
     };
     let res = quote! {
         #( #attrs )*
-        #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+        #[tokio::test]
         async #vis fn #fn_name () #ret {
             crate::INIT.call_once(|| {
                 env_logger::init();
