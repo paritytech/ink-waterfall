@@ -37,8 +37,14 @@ impl ContractsUi for crate::uis::Ui {
             )
             .await?;
 
-        // TODO
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        // Firefox might not load if the website at that address is already open, hence we refresh
+        // just to be sure that it's a clean, freshly loaded page in front of us.
+        self.client.refresh().await?;
+
+        log::info!("waiting for page to become visible");
+        self.client
+            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
+            .await?;
 
         log::info!("checking account {:?}", name);
         self.client
@@ -69,7 +75,15 @@ impl ContractsUi for crate::uis::Ui {
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
             )
             .await?;
-        std::thread::sleep(std::time::Duration::from_secs(3));
+
+        // Firefox might not load if the website at that address is already open, hence we refresh
+        // just to be sure that it's a clean, freshly loaded page in front of us.
+        self.client.refresh().await?;
+
+        log::info!("waiting for page to become visible");
+        self.client
+            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
+            .await?;
 
         let path = format!(
             "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
@@ -790,6 +804,19 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .click()
                 .await?;
+
+            /*
+            let possibly_slider = self.client.find(Locator::XPath(path)).await;
+            let slider = match possibly_slider {
+                Ok(slider) => slider,
+                Err(_) => {
+                    let path =
+                        "// *[contains(text(),'max read gas')]/ancestor::div[1]/div";
+                    self.client.find(Locator::XPath(path)).await?
+                }
+            };
+            slider.click().await?;
+            */
 
             log::info!("{}", &format!("entering max gas {:?}", max_gas));
             let path = "//*[contains(text(),'max gas allowed')]/ancestor::div[1]/div//input[@type = 'text']";
