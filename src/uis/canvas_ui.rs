@@ -22,7 +22,6 @@ use crate::uis::{
 };
 use async_trait::async_trait;
 use fantoccini::Locator;
-use rand::Rng;
 use regex::Regex;
 
 #[async_trait]
@@ -111,13 +110,6 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         upload_input: Upload,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        {
-            let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(0..15_000);
-            log::info!("sleeping for rand {:?}", rand);
-            std::thread::sleep(std::time::Duration::from_millis(rand));
-        }
-
         log::info!("opening url for upload: {:?}", url("/#/upload"));
         self.client.goto(&url("/#/upload")).await?;
 
@@ -130,7 +122,7 @@ impl ContractsUi for crate::uis::Ui {
         // We should get rid of this `sleep`. The problem is that the "Skip Intro" button
         // sometimes appears after a bit of time and sometimes it doesn't (if it was already
         // clicked away during the session).
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        std::thread::sleep(std::time::Duration::from_secs(2));
 
         log::info!("click skip intro button, if it is available");
         if let Ok(skip_button) = self
@@ -461,7 +453,8 @@ impl ContractsUi for crate::uis::Ui {
         // the ui fails displaying the flipper contract execution page, but
         // it strangely works if tried again after some time.
         log::info!("sleep for {}", url);
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        std::thread::sleep(std::time::Duration::from_secs(2));
+
         self.client.refresh().await?;
         self.client.goto(url.as_str()).await?;
 
@@ -573,13 +566,6 @@ impl ContractsUi for crate::uis::Ui {
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
-        {
-            let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(0..10_000);
-            log::info!("sleeping for rand {:?}", rand);
-            std::thread::sleep(std::time::Duration::from_millis(rand));
-        }
-
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
         log::info!(
             "opening url for executing transaction {:?}: {:?}",
