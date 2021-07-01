@@ -412,8 +412,16 @@ impl ContractsUi for crate::uis::Ui {
                 upload_input.contract_path
             );
             return self.execute_upload(upload_input.clone()).await
+        } else {
+            log::info!(
+                "did not find priority too low in {:?} status messages",
+                events.events.len()
+            );
         }
-        assert!(events.contains("system.ExtrinsicSuccess"));
+        assert!(
+            events.contains("system.ExtrinsicSuccess"),
+            "upload must have succeeded!"
+        );
 
         log::info!("click dismiss");
         self.client
@@ -936,6 +944,11 @@ impl ContractsUi for crate::uis::Ui {
                 call.method
             );
             return self.execute_transaction(call.clone()).await
+        } else {
+            log::info!(
+                "did not find priority too low in {:?} status messages",
+                events.events.len()
+            );
         }
 
         let success = events.contains("system.ExtrinsicSuccess");
