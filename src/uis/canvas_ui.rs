@@ -154,9 +154,11 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
+        std::thread::sleep(std::time::Duration::from_secs(3));
+
         log::info!("click upload {:?}", foo);
         self.client
-            .wait_for_find(Locator::XPath(
+            .find(Locator::XPath(
                 "//*[contains(text(),'Upload & Instantiate Contract')]",
             ))
             .await?
