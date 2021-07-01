@@ -11,7 +11,7 @@ futures-core = "0.3.15"
 futures-util = "0.3.15"
 tokio = { version = "1.7.1", features = [ "full" ] }
 webdriver = { version = "0.43.1", default-features = false }
-fantoccini = { version = "0.17.4" }
+fantoccini = "0.17.4"
 serde = "1.0"
 serde_json = "1.0"
 regex = "1.4"
