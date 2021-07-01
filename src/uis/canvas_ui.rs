@@ -216,12 +216,6 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .click()
             .await?;
-        log::info!("click settings");
-        self.client
-            .find(Locator::Css(".app--SideBar-settings"))
-            .await?
-            .click()
-            .await?;
 
         // We should get rid of this `sleep`
         std::thread::sleep(std::time::Duration::from_secs(1));
