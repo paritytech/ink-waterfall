@@ -399,14 +399,6 @@ impl ContractsUi for crate::uis::Ui {
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
-        if events.contains("Priority is too low") {
-            log::info!("found priority too low during upload! trying again!");
-            return self.execute_upload(upload_input.clone()).await
-        }
-        assert!(
-            events.contains("system.ExtrinsicSuccess"),
-            "uploading contract must succeed"
-        );
 
         log::info!("click dismiss {:?}", foo);
         self.client
@@ -416,6 +408,18 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .click()
             .await?;
+
+        if events.contains("Priority is too low") {
+            log::info!(
+                "found priority too low during upload of {:?}! trying again!",
+                upload_input.contract_path
+            );
+            return self.execute_upload(upload_input.clone()).await
+        }
+        assert!(
+            events.contains("system.ExtrinsicSuccess"),
+            "uploading contract must succeed"
+        );
 
         // wait for disappearance animation to finish instead
         // otherwise the notifications might occlude buttons
@@ -782,13 +786,6 @@ impl ContractsUi for crate::uis::Ui {
         }
         let events = Events::new(statuses_processed);
 
-        if events.contains("Priority is too low") {
-            log::info!(
-                "foun priority too low during transaction execution! trying again!"
-            );
-            return self.execute_transaction(call.clone()).await
-        }
-
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Dismiss all notifications')]",
@@ -796,6 +793,14 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .click()
             .await?;
+
+        if events.contains("Priority is too low") {
+            log::info!(
+                "found priority too low during transaction execution of {:?}! trying again!",
+                call.method
+            );
+            return self.execute_transaction(call.clone()).await
+        }
 
         let success = events.contains("system.ExtrinsicSuccess");
         let failure = events.contains("system.ExtrinsicFailed");

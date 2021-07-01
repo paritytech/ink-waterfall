@@ -406,6 +406,13 @@ impl ContractsUi for crate::uis::Ui {
                 });
         }
         let events = Events::new(statuses_processed);
+        if events.contains("Priority is too low") {
+            log::info!(
+                "found priority too low during upload of {:?}! trying again!",
+                upload_input.contract_path
+            );
+            return self.execute_upload(upload_input.clone()).await
+        }
         assert!(events.contains("system.ExtrinsicSuccess"));
 
         log::info!("click dismiss");
@@ -922,6 +929,14 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .click()
             .await?;
+
+        if events.contains("Priority is too low") {
+            log::info!(
+                "found priority too low during transaction execution of {:?}! trying again!",
+                call.method
+            );
+            return self.execute_transaction(call.clone()).await
+        }
 
         let success = events.contains("system.ExtrinsicSuccess");
         let failure = events.contains("system.ExtrinsicFailed");
