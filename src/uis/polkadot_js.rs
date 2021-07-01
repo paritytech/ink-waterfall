@@ -46,6 +46,8 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
         log::info!("checking account {:?}", name);
         self.client
             .find(Locator::XPath(&format!("//div[text() = '{}']", name)))

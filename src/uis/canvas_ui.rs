@@ -113,7 +113,7 @@ impl ContractsUi for crate::uis::Ui {
     ) -> Result<String, Box<dyn std::error::Error>> {
         {
             let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(0..20_000);
+            let rand = rng.gen_range(0..15_000);
             log::info!("sleeping for rand {:?}", rand);
             std::thread::sleep(std::time::Duration::from_millis(rand));
         }
@@ -577,7 +577,7 @@ impl ContractsUi for crate::uis::Ui {
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
         {
             let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(0..20_000);
+            let rand = rng.gen_range(0..10_000);
             log::info!("sleeping for rand {:?}", rand);
             std::thread::sleep(std::time::Duration::from_millis(rand));
         }
