@@ -118,6 +118,7 @@ impl Ui {
         }
         log::info!("closing client");
         self.client.close().await?;
+        log::info!("closed client");
         Ok(())
     }
 }
@@ -138,6 +139,7 @@ impl Drop for Ui {
         self.geckodriver
             .kill()
             .expect("unable to kill geckodriver, it probably wasn't running");
+        log::info!("killed geckodriver");
     }
 }
 
