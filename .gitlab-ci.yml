@@ -69,10 +69,10 @@ canvas-ui-ink-examples:
   variables:
   script:
     - for example in ${INK_EXAMPLES_PATH}/*/; do
-        echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
+        echo "sleep $[ ( $RANDOM % 10 )  + 1 ]s && cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
+        echo "sleep $[ ( $RANDOM % 10 )  + 1 ]s && cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
       done
     - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless --jobs 4

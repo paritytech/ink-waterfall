@@ -224,7 +224,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("click details {:?}", foo);
         self.client
-            .wait_for_find(Locator::XPath(
+            .find(Locator::XPath(
                 "//*[contains(text(),'Constructor Details')]",
             ))
             .await?
@@ -358,7 +358,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!(
-            "waiting for either success or failure notification {:?}",
+            "upload: waiting for either success or failure notification {:?}",
             foo
         );
         self.client
@@ -754,7 +754,7 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("waiting for either success or failure notification");
+        log::info!("transaction: waiting for either success or failure notification");
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Dismiss') or contains(text(),'usurped')]",

@@ -253,14 +253,17 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
         }
 
-        log::info!("wait for upload to be finished");
+        log::info!(
+            "wait for upload of {:?} to be finished",
+            upload_input.contract_path
+        );
         self.client
             .wait_for_find(Locator::XPath(
                 "//label[contains(text(), 'code bundle name')]",
             ))
             .await?;
 
-        log::info!("click next");
+        log::info!("click next on {:?}", upload_input.contract_path);
         self.client
             .find(Locator::XPath(
                 "//div[@class = 'actions']//button[contains(text(), 'Next')]",
