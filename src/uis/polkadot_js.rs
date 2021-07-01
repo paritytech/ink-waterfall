@@ -383,9 +383,33 @@ impl ContractsUi for crate::uis::Ui {
             "upload: waiting for either success or failure notification {:?}",
             upload_input.contract_path
         );
-        self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready'))]")
-        ).await?;
+
+        let mut res;
+        for retry in 0..21 {
+            std::thread::sleep(std::time::Duration::from_secs(2));
+            res = self.client.find(
+                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready'))]")
+            ).await;
+            if res.is_ok() {
+                log::info!(
+                    "upload: success on try {} for {:?}",
+                    retry,
+                    upload_input.contract_path
+                );
+                break
+            } else {
+                log::info!(
+                    "upload: try {} - waiting for either success or failure notification {:?}",
+                    retry,
+                    upload_input.contract_path
+                );
+                assert!(
+                    retry < 20,
+                    "timed out on waiting for {:?} upload!",
+                    upload_input.contract_path
+                );
+            }
+        }
 
         log::info!(
             "upload: extracting status messages {:?}",
