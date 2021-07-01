@@ -379,12 +379,18 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("upload: waiting for either success or failure notification");
+        log::info!(
+            "upload: waiting for either success or failure notification {:?}",
+            upload_input.contract_path
+        );
         self.client.wait_for_find(
             Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[(contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')) and not(contains(text(),'ready'))]")
         ).await?;
 
-        log::info!("upload: extracting status messages");
+        log::info!(
+            "upload: extracting status messages {:?}",
+            upload_input.contract_path
+        );
         let statuses = self
             .client
             .find_all(Locator::XPath(
