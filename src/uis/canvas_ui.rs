@@ -22,6 +22,7 @@ use crate::uis::{
 };
 use async_trait::async_trait;
 use fantoccini::Locator;
+use rand::Rng;
 use regex::Regex;
 
 #[async_trait]
@@ -348,12 +349,26 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
+        {
+            let mut rng = rand::thread_rng();
+            let rand = rng.gen_range(1000..5000);
+            log::info!("sleeping for rand {:?}", rand);
+            std::thread::sleep(std::time::Duration::from_millis(rand));
+        }
+
         log::info!("click instantiate {:?}", foo);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Instantiate')]"))
             .await?
             .click()
             .await?;
+
+        {
+            let mut rng = rand::thread_rng();
+            let rand = rng.gen_range(1000..5000);
+            log::info!("sleeping for rand {:?}", rand);
+            std::thread::sleep(std::time::Duration::from_millis(rand));
+        }
 
         log::info!("click sign and submit {:?}", foo);
         self.client
@@ -364,7 +379,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed'))]")
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'contracts.'))]")
         ).await?;
 
         // extract all status messages
@@ -735,7 +750,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed'))]")
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'contracts.')]")
         ).await?;
 
         // extract all status messages

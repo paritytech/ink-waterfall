@@ -376,7 +376,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed')]")
+            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'contracts.')]")
         ).await?;
 
         log::info!("extracting status messages");
@@ -872,7 +872,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed')]")
+            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'contracts.']")
         ).await?;
 
         log::info!("extracting status messages");
