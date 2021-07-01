@@ -118,12 +118,11 @@ impl ContractsUi for crate::uis::Ui {
             std::thread::sleep(std::time::Duration::from_millis(rand));
         }
 
-        let foo = upload_input.contract_path.clone();
-        log::info!("opening url for upload: {:?} {:?}", url("/#/upload"), foo);
+        log::info!("opening url for upload: {:?}", url("/#/upload"));
         self.client.goto(&url("/#/upload")).await?;
 
         // We wait until the settings are visible to make sure the page is ready
-        log::info!("waiting for settings to become visible {:?}", foo);
+        log::info!("waiting for settings to become visible");
         self.client
             .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?;
@@ -133,35 +132,35 @@ impl ContractsUi for crate::uis::Ui {
         // clicked away during the session).
         std::thread::sleep(std::time::Duration::from_secs(3));
 
-        log::info!("click skip intro button, if it is available {:?}", foo);
+        log::info!("click skip intro button, if it is available");
         if let Ok(skip_button) = self
             .client
             .find(Locator::XPath("//button[contains(text(),'Skip Intro')]"))
             .await
         {
-            log::info!("found skip button {:?}", foo);
+            log::info!("found skip button");
             skip_button.click().await?;
         } else {
             // The "Skip Intro" button is not always there, e.g. if multiple contracts
             // are deployed subsequently in the same browser session by one test.
-            log::info!("did not find 'Skip Intro' button, ignoring it. {:?}", foo);
+            log::info!("did not find 'Skip Intro' button, ignoring it.");
         }
 
-        log::info!("click settings 1 {:?}", foo);
+        log::info!("click settings");
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
             .click()
             .await?;
 
-        log::info!("click local node {:?}", foo);
+        log::info!("click local node");
         self.client
             .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?
             .click()
             .await?;
 
-        log::info!("click upload {:?}", foo);
+        log::info!("click upload");
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Upload & Instantiate Contract')]",
@@ -170,7 +169,7 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("injecting jquery {:?}", foo);
+        log::info!("injecting jquery");
         let inject = String::from(
             "(function (){\
                     var d = document;\
@@ -192,17 +191,17 @@ impl ContractsUi for crate::uis::Ui {
         );
         self.client.execute(&*inject, Vec::new()).await?;
 
-        log::info!("waiting for jquery {:?}", foo);
+        log::info!("waiting for jquery");
         self.client
             .wait_for_find(Locator::Css("#jquery-ready"))
             .await?;
 
-        log::info!("click combobox {:?}", foo);
+        log::info!("click combobox");
         self.client
             .execute("$('[role=combobox]').click()", Vec::new())
             .await?;
 
-        log::info!("click alice {:?}", foo);
+        log::info!("click alice");
         self.client
             .execute("$('[name=alice]').click()", Vec::new())
             .await?;
@@ -219,13 +218,13 @@ impl ContractsUi for crate::uis::Ui {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        log::info!("click settings 2 {:?}", foo);
+        log::info!("click settings");
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
             .click()
             .await?;
-        log::info!("click settings 3 {:?}", foo);
+        log::info!("click settings");
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
@@ -235,7 +234,7 @@ impl ContractsUi for crate::uis::Ui {
         // We should get rid of this `sleep`
         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        log::info!("click details {:?}", foo);
+        log::info!("click details");
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Constructor Details')]",
@@ -246,7 +245,7 @@ impl ContractsUi for crate::uis::Ui {
 
         if let Some(caller) = &upload_input.caller {
             // open listbox for accounts
-            log::info!("click listbox for accounts {:?}", foo);
+            log::info!("click listbox for accounts");
             self.client
                 .wait_for_find(Locator::XPath(
                     "//*[contains(text(),'instantiation account')]/ancestor::div[1]/div",
@@ -256,7 +255,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             // choose caller
-            log::info!("choose {:?} {:?}", caller, foo);
+            log::info!("choose {:?}", caller);
             let path = format!("//div[@name = '{}']", caller.to_lowercase());
             self.client
                 .find(Locator::XPath(&path))
@@ -266,7 +265,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         for (key, value) in upload_input.initial_values.iter() {
-            log::info!("inserting '{}' into input field '{}' {:?}", value, key, foo);
+            log::info!("inserting '{}' into input field '{}'", value, key);
             let path = format!(
                 "//label/*[contains(text(),'{}')]/ancestor::div[1]//*/input",
                 key
@@ -278,7 +277,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         for (key, value) in upload_input.items.iter() {
-            log::info!("adding item '{}' for '{}' {:?}", value, key, foo);
+            log::info!("adding item '{}' for '{}'", value, key);
             let add_item = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
             self.client
                 .find(Locator::XPath(&add_item))
@@ -294,14 +293,14 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         if let Some(ref constructor) = upload_input.constructor {
-            log::info!("click constructor list box {:?}", foo);
+            log::info!("click constructor list box");
             self.client
                 .wait_for_find(Locator::XPath(
                     "//label/*[contains(text(),'Instantiation Constructor')]/ancestor::div[1]//*/div[@role='listbox']"
                 ))
                 .await?.click().await?;
 
-            log::info!("click constructor option {} {:?}", constructor, foo);
+            log::info!("click constructor option {}", constructor);
             let path = format!(
                 "//span[@class = 'ui--MessageSignature-name' and contains(text(),'{}')]",
                 constructor
@@ -313,7 +312,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
         }
 
-        log::info!("set endowment to {} {:?}", upload_input.endowment, foo);
+        log::info!("set endowment to {}", upload_input.endowment);
         let mut input = self
             .client
             .find(Locator::XPath(
@@ -323,15 +322,14 @@ impl ContractsUi for crate::uis::Ui {
         input.clear().await?;
         input.send_keys(&upload_input.endowment).await?;
 
-        log::info!("click endowment list box {:?}", foo);
+        log::info!("click endowment list box");
         self.client
             .wait_for_find(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/div[@role='listbox']"))
             .await?;
 
         log::info!(
-            "click endowment unit option {} {:?}",
-            upload_input.endowment_unit,
-            foo
+            "click endowment unit option {}",
+            upload_input.endowment_unit
         );
         let path = format!(
             "//div[@role='option']/span[contains(text(),'{}')]",
@@ -348,7 +346,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        log::info!("check 'Unique Instantiation Salt' checkbox {:?}", foo);
+        log::info!("check 'Unique Instantiation Salt' checkbox");
         let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]/div";
         self.client
             .find(Locator::XPath(path))
@@ -356,14 +354,14 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("click instantiate {:?}", foo);
+        log::info!("click instantiate");
         self.client
             .find(Locator::XPath("//button[contains(text(),'Instantiate')]"))
             .await?
             .click()
             .await?;
 
-        log::info!("click sign and submit {:?}", foo);
+        log::info!("click sign and submit");
         self.client
             .wait_for_find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
             .await?
@@ -419,12 +417,12 @@ impl ContractsUi for crate::uis::Ui {
 
         // wait for disappearance animation to finish instead
         // otherwise the notifications might occlude buttons
-        log::info!("wait for animation to finish {:?}", foo);
+        log::info!("wait for animation to finish");
         self.client
             .execute("$('.ui--Status').hide()", Vec::new())
             .await?;
 
-        log::info!("click execute {:?}", foo);
+        log::info!("click execute");
         self.client
             .find(Locator::XPath(
                 "//button[contains(text(),'Execute Contract')]",
@@ -441,7 +439,7 @@ impl ContractsUi for crate::uis::Ui {
             .captures(curr_client_url.as_str())
             .expect("contract address cannot be extracted from website");
         let addr = captures.get(1).expect("no capture group").as_str();
-        log::info!("contract address {:?} {:?}", addr, foo);
+        log::info!("contract address {:?}", addr);
         Ok(String::from(addr))
     }
 
