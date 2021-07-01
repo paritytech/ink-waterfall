@@ -400,14 +400,14 @@ impl ContractsUi for crate::uis::Ui {
         }
         let events = Events::new(statuses_processed);
 
-        log::info!("click dismiss {:?}", foo);
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Dismiss all notifications')]",
-            ))
-            .await?
-            .click()
-            .await?;
+        // log::info!("click dismiss {:?}", foo);
+        // self.client
+        // .wait_for_find(Locator::XPath(
+        // "// *[contains(text(),'Dismiss all notifications')]",
+        // ))
+        // .await?
+        // .click()
+        // .await?;
 
         if events.contains("Priority is too low") {
             log::info!(
@@ -415,6 +415,11 @@ impl ContractsUi for crate::uis::Ui {
                 upload_input.contract_path
             );
             return self.execute_upload(upload_input.clone()).await
+        } else {
+            log::info!(
+                "did not find priority too low in {:?} status messages",
+                events.events.len()
+            );
         }
         assert!(
             events.contains("system.ExtrinsicSuccess"),
@@ -800,6 +805,11 @@ impl ContractsUi for crate::uis::Ui {
                 call.method
             );
             return self.execute_transaction(call.clone()).await
+        } else {
+            log::info!(
+                "did not find priority too low in {:?} status messages",
+                events.events.len()
+            );
         }
 
         let success = events.contains("system.ExtrinsicSuccess");
