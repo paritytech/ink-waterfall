@@ -363,7 +363,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         self.client
             .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Dismiss') or contains(text(),'usurped')]",
+                "//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]",
             ))
             .await?;
 
@@ -757,7 +757,7 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("transaction: waiting for either success or failure notification");
         self.client
             .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Dismiss') or contains(text(),'usurped')]",
+                "//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]",
             ))
             .await?;
 

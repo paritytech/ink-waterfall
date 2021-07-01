@@ -381,7 +381,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low')]")
+            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')]")
         ).await?;
 
         log::info!("extracting status messages");
@@ -412,6 +412,12 @@ impl ContractsUi for crate::uis::Ui {
         if events.contains("Priority is too low") {
             log::info!(
                 "found priority too low during upload of {:?}! trying again!",
+                upload_input.contract_path
+            );
+            return self.execute_upload(upload_input.clone()).await
+        } else if events.contains("usurped") {
+            log::info!(
+                "found usurped for upload of {:?}! trying again!",
                 upload_input.contract_path
             );
             return self.execute_upload(upload_input.clone()).await
@@ -892,7 +898,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low')]")
+            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')]")
         ).await?;
 
         log::info!("extracting status messages");
@@ -944,6 +950,12 @@ impl ContractsUi for crate::uis::Ui {
         if events.contains("Priority is too low") {
             log::info!(
                 "found priority too low during transaction execution of {:?}! trying again!",
+                call.method
+            );
+            return self.execute_transaction(call.clone()).await
+        } else if events.contains("usurped") {
+            log::info!(
+                "found usurped for transaction of {:?}! trying again!",
                 call.method
             );
             return self.execute_transaction(call.clone()).await
