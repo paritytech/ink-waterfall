@@ -17,7 +17,7 @@ variables:
   RUST_LOG:                        "info"
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  RUST_TEST_THREADS:               "2"
+  RUST_TEST_THREADS:               "4"
 
 workflow:
   rules:
@@ -60,7 +60,7 @@ workflow:
   tags:
     - linux-docker
 
-ink-examples:
+canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
@@ -69,19 +69,36 @@ ink-examples:
   variables:
   script:
     - for example in ${INK_EXAMPLES_PATH}/*/; do
-        echo "cargo +nightly contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
+        echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        echo "cargo +nightly contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
+        echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
       done
     - cat /tmp/cmds | xargs -P 3
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless --jobs 2
-    - echo "" > /tmp/canvas.log
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui --jobs 2
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless --jobs 4
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
-ink-rand-extension-example:
+polkadot-js-ui-ink-examples:
+  stage:                           test
+  <<:                              *docker-env
+  before_script:
+    - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
+    - git clone --depth 1 https://github.com/paritytech/ink.git
+  variables:
+  script:
+    - for example in ${INK_EXAMPLES_PATH}/*/; do
+      echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
+      done
+    - cat /tmp/cmds | xargs -P 3
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui --jobs 4
+  after_script:
+    - pkill -f -x "canvas --tmp --dev"
+
+canvas-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
@@ -89,7 +106,16 @@ ink-rand-extension-example:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   script:
     - cargo test --features headless -- --ignored rand_extension
-    - echo "" > /tmp/canvas-rand-extension.log
+  after_script:
+    - pkill -f -x "canvas-rand-extension --tmp --dev"
+
+polkadot-js-ui-rand-extension:
+  stage:                           test
+  <<:                              *docker-env
+  before_script:
+    - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
+    - git clone --depth 1 https://github.com/paritytech/ink.git
+  script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - pkill -f -x "canvas-rand-extension --tmp --dev"

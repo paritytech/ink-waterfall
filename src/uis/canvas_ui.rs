@@ -362,7 +362,9 @@ impl ContractsUi for crate::uis::Ui {
             foo
         );
         self.client
-            .wait_for_find(Locator::XPath("//*[contains(text(),'Dismiss')]"))
+            .wait_for_find(Locator::XPath(
+                "//*[contains(text(),'Dismiss') or contains(text(),'usurped')]",
+            ))
             .await?;
 
         // extract all status messages
@@ -403,6 +405,12 @@ impl ContractsUi for crate::uis::Ui {
         if events.contains("Priority is too low") {
             log::info!(
                 "found priority too low during upload of {:?}! trying again!",
+                upload_input.contract_path
+            );
+            return self.execute_upload(upload_input.clone()).await
+        } else if events.contains("usurped") {
+            log::info!(
+                "found usurped for upload of {:?}! trying again!",
                 upload_input.contract_path
             );
             return self.execute_upload(upload_input.clone()).await
@@ -748,7 +756,9 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client
-            .wait_for_find(Locator::XPath("//*[contains(text(),'Dismiss')]"))
+            .wait_for_find(Locator::XPath(
+                "//*[contains(text(),'Dismiss') or contains(text(),'usurped')]",
+            ))
             .await?;
 
         // extract all status messages
@@ -779,6 +789,12 @@ impl ContractsUi for crate::uis::Ui {
         if events.contains("Priority is too low") {
             log::info!(
                 "found priority too low during transaction execution of {:?}! trying again!",
+                call.method
+            );
+            return self.execute_transaction(call.clone()).await
+        } else if events.contains("usurped") {
+            log::info!(
+                "found usurped for transaction {:?}! trying again!",
                 call.method
             );
             return self.execute_transaction(call.clone()).await
