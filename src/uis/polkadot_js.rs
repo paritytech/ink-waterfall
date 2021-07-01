@@ -229,7 +229,7 @@ impl ContractsUi for crate::uis::Ui {
             .execute("$(\"input[type = 'file']\").trigger('change')", Vec::new())
             .await?;
 
-        if let Some(caller) = upload_input.caller {
+        if let Some(caller) = &upload_input.caller {
             let caller = caller.to_lowercase();
             // open listbox for accounts
             log::info!("click listbox for accounts");
@@ -269,7 +269,7 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        if let Some(constructor) = upload_input.constructor {
+        if let Some(constructor) = &upload_input.constructor {
             log::info!("click constructor list box");
             self.client
                 .wait_for_find(Locator::XPath(
@@ -748,7 +748,7 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//h1[text() = 'Call a contract']"))
             .await?;
 
-        if let Some(caller) = call.caller {
+        if let Some(caller) = &call.caller {
             // open listbox for accounts
             log::info!("click listbox for accounts");
             self.client
@@ -777,7 +777,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // Possibly add payment
-        if let Some(payment) = call.payment {
+        if let Some(payment) = &call.payment {
             log::info!("open listbox for payment units");
             let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
             self.client
@@ -812,7 +812,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // possibly set max gas
-        if let Some(max_gas) = call.max_gas_allowed {
+        if let Some(max_gas) = &call.max_gas_allowed {
             // click checkbox
             log::info!("unset 'use estimated gas' checkbox");
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
