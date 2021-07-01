@@ -384,7 +384,7 @@ impl ContractsUi for crate::uis::Ui {
             upload_input.contract_path
         );
         self.client.wait_for_find(
-            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[(contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low') or contains(text(), 'usurped')) and not(contains(text(),'ready'))]")
+            Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready'))]")
         ).await?;
 
         log::info!(
