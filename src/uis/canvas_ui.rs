@@ -357,10 +357,13 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("waiting for either success or failure notification");
-        self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low')]")
-        ).await?;
+        log::info!(
+            "waiting for either success or failure notification {:?}",
+            foo
+        );
+        self.client
+            .wait_for_find(Locator::XPath("//*[contains(text(),'Dismiss')]"))
+            .await?;
 
         // extract all status messages
         let statuses = self
@@ -744,9 +747,9 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("waiting for either success or failure notification");
-        self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low')]")
-        ).await?;
+        self.client
+            .wait_for_find(Locator::XPath("//*[contains(text(),'Dismiss')]"))
+            .await?;
 
         // extract all status messages
         let statuses = self

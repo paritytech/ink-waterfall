@@ -850,7 +850,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // possibly set values
-        for (key, mut value) in &call.values {
+        for (key, mut value) in call.values.clone() {
             log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
                 "//div[contains(@class, 'ui--Params')]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
