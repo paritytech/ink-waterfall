@@ -244,7 +244,7 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        if let Some(caller) = upload_input.caller {
+        if let Some(caller) = &upload_input.caller {
             // open listbox for accounts
             log::info!("click listbox for accounts {:?}", foo);
             self.client
@@ -293,7 +293,7 @@ impl ContractsUi for crate::uis::Ui {
             input.send_keys(&value).await?;
         }
 
-        if let Some(constructor) = upload_input.constructor {
+        if let Some(ref constructor) = upload_input.constructor {
             log::info!("click constructor list box {:?}", foo);
             self.client
                 .wait_for_find(Locator::XPath(
@@ -399,10 +399,10 @@ impl ContractsUi for crate::uis::Ui {
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
-        assert!(
-            !events.contains("Priority is too low"),
-            "Priority is too low!"
-        );
+        if events.contains("Priority is too low") {
+            log::info!("found priority too low during upload! trying again!");
+            return self.execute_upload(upload_input.clone()).await
+        }
         assert!(
             events.contains("system.ExtrinsicSuccess"),
             "uploading contract must succeed"
@@ -628,7 +628,7 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        if let Some(caller) = call.caller {
+        if let Some(caller) = &call.caller {
             // open listbox for accounts
             log::info!("click listbox for accounts");
             self.client
@@ -650,7 +650,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // Possibly add payment
-        if let Some(payment) = call.payment {
+        if let Some(payment) = &call.payment {
             // Open listbox
             log::info!("open listbox for payment units");
             let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
@@ -686,7 +686,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // possibly set max gas
-        if let Some(max_gas) = call.max_gas_allowed {
+        if let Some(max_gas) = &call.max_gas_allowed {
             // click checkbox
             log::info!("unset 'use estimated gas' checkbox");
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
@@ -711,7 +711,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // possibly add values
-        for (key, value) in call.values {
+        for (key, value) in &call.values {
             log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
             let path = format!(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/following-sibling::div[1]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
@@ -781,10 +781,13 @@ impl ContractsUi for crate::uis::Ui {
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
-        assert!(
-            !events.contains("Priority is too low"),
-            "Priority is too low!"
-        );
+
+        if events.contains("Priority is too low") {
+            log::info!(
+                "foun priority too low during transaction execution! trying again!"
+            );
+            return self.execute_transaction(call.clone()).await
+        }
 
         self.client
             .wait_for_find(Locator::XPath(

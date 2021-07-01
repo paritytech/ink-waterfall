@@ -155,7 +155,7 @@ impl From<CmdError> for Error {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Payment {
     /// The payment.
     payment: String,
@@ -191,6 +191,7 @@ impl Events {
     }
 }
 
+#[derive(Clone)]
 pub struct Call {
     /// Address of the contract.
     contract_address: String,
@@ -255,6 +256,7 @@ impl Call {
     }
 }
 
+#[derive(Clone)]
 pub struct Upload {
     /// Path to the contract which should be uploaded.
     contract_path: PathBuf,
