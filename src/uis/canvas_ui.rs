@@ -113,7 +113,7 @@ impl ContractsUi for crate::uis::Ui {
     ) -> Result<String, Box<dyn std::error::Error>> {
         {
             let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(0..10000);
+            let rand = rng.gen_range(0..10_000);
             log::info!("sleeping for rand {:?}", rand);
             std::thread::sleep(std::time::Duration::from_millis(rand));
         }
@@ -372,7 +372,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low'))]")
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low')]")
         ).await?;
 
         // extract all status messages
@@ -577,7 +577,7 @@ impl ContractsUi for crate::uis::Ui {
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
         {
             let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(0..10000);
+            let rand = rng.gen_range(0..10_000);
             log::info!("sleeping for rand {:?}", rand);
             std::thread::sleep(std::time::Duration::from_millis(rand));
         }
@@ -754,7 +754,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low'))]")
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low')]")
         ).await?;
 
         // extract all status messages
