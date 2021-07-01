@@ -111,6 +111,13 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         upload_input: Upload,
     ) -> Result<String, Box<dyn std::error::Error>> {
+        {
+            let mut rng = rand::thread_rng();
+            let rand = rng.gen_range(0..10000);
+            log::info!("sleeping for rand {:?}", rand);
+            std::thread::sleep(std::time::Duration::from_millis(rand));
+        }
+
         let foo = upload_input.contract_path.clone();
         log::info!("opening url for upload: {:?} {:?}", url("/#/upload"), foo);
         self.client.goto(&url("/#/upload")).await?;
@@ -349,26 +356,12 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        {
-            let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(1000..5000);
-            log::info!("sleeping for rand {:?}", rand);
-            std::thread::sleep(std::time::Duration::from_millis(rand));
-        }
-
         log::info!("click instantiate {:?}", foo);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Instantiate')]"))
             .await?
             .click()
             .await?;
-
-        {
-            let mut rng = rand::thread_rng();
-            let rand = rng.gen_range(1000..5000);
-            log::info!("sleeping for rand {:?}", rand);
-            std::thread::sleep(std::time::Duration::from_millis(rand));
-        }
 
         log::info!("click sign and submit {:?}", foo);
         self.client
@@ -379,7 +372,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'contracts.'))]")
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low'))]")
         ).await?;
 
         // extract all status messages
@@ -406,6 +399,10 @@ impl ContractsUi for crate::uis::Ui {
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
+        assert!(
+            !events.contains("Priority is too low"),
+            "Priority is too low!"
+        );
         assert!(
             events.contains("system.ExtrinsicSuccess"),
             "uploading contract must succeed"
@@ -578,6 +575,13 @@ impl ContractsUi for crate::uis::Ui {
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
+        {
+            let mut rng = rand::thread_rng();
+            let rand = rng.gen_range(0..10000);
+            log::info!("sleeping for rand {:?}", rand);
+            std::thread::sleep(std::time::Duration::from_millis(rand));
+        }
+
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
         log::info!(
             "opening url for executing transaction {:?}: {:?}",
@@ -750,7 +754,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("waiting for either success or failure notification");
         self.client.wait_for_find(
-            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'contracts.')]")
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed') or contains(text(), 'Priority is too low'))]")
         ).await?;
 
         // extract all status messages
@@ -777,6 +781,10 @@ impl ContractsUi for crate::uis::Ui {
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
+        assert!(
+            !events.contains("Priority is too low"),
+            "Priority is too low!"
+        );
 
         self.client
             .wait_for_find(Locator::XPath(
