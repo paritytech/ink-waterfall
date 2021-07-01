@@ -379,6 +379,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
+            log::info!("text {:?}", el.text().await?);
             let header = el
                 .find(Locator::XPath("div[@class = 'header']"))
                 .await?
@@ -416,11 +417,10 @@ impl ContractsUi for crate::uis::Ui {
             "uploading contract must succeed"
         );
 
-        // wait for disappearance animation to finish instead
-        // otherwise the notifications might occlude buttons
-        log::info!("wait for animation to finish");
         self.client
-            .execute("$('.ui--Status').hide()", Vec::new())
+            .wait_for_find(Locator::XPath("//*[contains(text(),'Dismiss')]"))
+            .await?
+            .click()
             .await?;
 
         log::info!("click execute");
