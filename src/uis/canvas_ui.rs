@@ -372,7 +372,11 @@ impl ContractsUi for crate::uis::Ui {
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!("found {:?} status messages", statuses.len());
+        log::info!(
+            "found {:?} status messages for {:?}",
+            statuses.len(),
+            upload_input.contract_path
+        );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             let header = el
@@ -385,7 +389,12 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .text()
                 .await?;
-            log::info!("found status message {:?} with {:?}", header, status);
+            log::info!(
+                "found status message {:?} with {:?} for {:?}",
+                header,
+                status,
+                upload_input.contract_path
+            );
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
