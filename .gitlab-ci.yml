@@ -68,6 +68,7 @@ canvas-ui-ink-examples:
     - git clone --depth 1 https://github.com/paritytech/ink.git
   variables:
   script:
+    - cargo +nightly contract build --manifest-path=${INK_EXAMPLES_PATH}/flipper/Cargo.toml
     - for example in ${INK_EXAMPLES_PATH}/*/; do
         echo "cargo +nightly contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
       done
