@@ -362,12 +362,39 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        // h1: Contract successfully instantiated
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Contract successfully instantiated')]",
+        log::info!("waiting for either success or failure notification");
+        self.client.wait_for_find(
+            Locator::XPath("//div[@class = 'status']/ancestor::div/div[@class = 'header' and (contains(text(), 'ExtrinsicSuccess') or contains(text(), 'ExtrinsicFailed'))]")
+        ).await?;
+
+        // extract all status messages
+        let statuses = self
+            .client
+            .find_all(Locator::XPath(
+                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
+        log::info!("found {:?} status messages", statuses.len());
+        let mut statuses_processed = Vec::new();
+        for mut el in statuses {
+            let header = el
+                .find(Locator::XPath("div[@class = 'header']"))
+                .await?
+                .text()
+                .await?;
+            let status = el
+                .find(Locator::XPath("div[@class = 'status']"))
+                .await?
+                .text()
+                .await?;
+            log::info!("found status message {:?} with {:?}", header, status);
+            statuses_processed.push(Event { header, status });
+        }
+        let events = Events::new(statuses_processed);
+        assert!(
+            events.contains("system.ExtrinsicSuccess"),
+            "uploading contract must succeed"
+        );
 
         log::info!("click dismiss {:?}", foo);
         self.client
