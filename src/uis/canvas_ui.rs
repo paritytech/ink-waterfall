@@ -70,6 +70,7 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         account: String,
     ) -> Result<u128, Box<dyn std::error::Error>> {
+        log::info!("getting balance_postfix for {:?}", account);
         self.client
             .goto(
                 // TODO doesn't work with differen URI!
@@ -92,7 +93,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let txt = self
             .client
-            .find(Locator::XPath(&path))
+            .wait_for_find(Locator::XPath(&path))
             .await?
             .text()
             .await?;
@@ -138,7 +139,7 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("did not find 'Skip Intro' button, ignoring it. {:?}", foo);
         }
 
-        log::info!("click settings {:?}", foo);
+        log::info!("click settings 1 {:?}", foo);
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
@@ -210,13 +211,13 @@ impl ContractsUi for crate::uis::Ui {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        log::info!("click settings {:?}", foo);
+        log::info!("click settings 2 {:?}", foo);
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
             .click()
             .await?;
-        log::info!("click settings {:?}", foo);
+        log::info!("click settings 3 {:?}", foo);
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
