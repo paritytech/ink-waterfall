@@ -91,7 +91,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let txt = self
             .client
-            .find(Locator::XPath(&path))
+            .wait_for_find(Locator::XPath(&path))
             .await?
             .text()
             .await?;
