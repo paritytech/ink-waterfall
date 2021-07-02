@@ -953,14 +953,17 @@ impl ContractsUi for crate::uis::Ui {
 
         // possibly set max gas
         if let Some(max_gas) = &call.max_gas_allowed {
-            // click checkbox
-            log::info!("[{}] unset 'use estimated gas' checkbox", log_id);
+            // the box shows only up if the rpc can determine the gas costs (not if the rpc
+            // e.g. results in `ContractTrapped`).
+            log::info!("[{}] possibly unset 'use estimated gas' checkbox", log_id);
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
-            self.client
-                .wait_for_find(Locator::XPath(path))
-                .await?
-                .click()
-                .await?;
+            let possibly_estimated_gas = self.client.find(Locator::XPath(path)).await;
+            if let Ok(el) = possibly_estimated_gas {
+                log::info!("[{}] unsetting 'use estimated gas' checkbox", log_id);
+                el.click().await?;
+            } else {
+                log::info!("[{}] no 'use estimated gas' checkbox found", log_id);
+            }
 
             log::info!("[{}] entering max gas {:?}", log_id, max_gas);
             let path = "//*[contains(text(),'max gas allowed')]/ancestor::div[1]/div//input[@type = 'text']";
