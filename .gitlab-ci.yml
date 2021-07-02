@@ -18,7 +18,7 @@ variables:
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   RUST_TEST_THREADS:               "4"
-  INK_BRANCH:                      ${UPSTREAM_BRANCH:-master}
+  INK_BRANCH:
 
 workflow:
   rules:
@@ -66,7 +66,7 @@ canvas-ui-ink-examples:
   <<:                              *docker-env
   before_script:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-    - git clone --branch ${INK_BRANCH} --depth 1 https://github.com/paritytech/ink.git
+    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
   variables:
   script:
     - for example in ${INK_EXAMPLES_PATH}/*/; do
@@ -85,7 +85,7 @@ polkadot-js-ui-ink-examples:
   <<:                              *docker-env
   before_script:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-    - git clone --depth 1 https://github.com/paritytech/ink.git
+    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
   variables:
   script:
     - for example in ${INK_EXAMPLES_PATH}/*/; do
@@ -104,7 +104,7 @@ canvas-ui-rand-extension:
   <<:                              *docker-env
   before_script:
     - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
-    - git clone --depth 1 https://github.com/paritytech/ink.git
+    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
@@ -115,7 +115,7 @@ polkadot-js-ui-rand-extension:
   <<:                              *docker-env
   before_script:
     - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
-    - git clone --depth 1 https://github.com/paritytech/ink.git
+    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
