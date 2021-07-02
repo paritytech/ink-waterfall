@@ -2,7 +2,7 @@
 
 [![ci-result][a1]][a2]
 
-[a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.png
+[a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.svg
 [a2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines
 
 This project contains end-to-end tests for this pipeline:
@@ -14,17 +14,21 @@ ink! ➜
                                  canvas-node
 ```
 
+
 ## How the tests in this repository work
 
-* They build the ink! examples using `cargo-contract`.
-* The resulting `.contract` file is deployed on a local `canvas-node` instance
-  using either the `canvas-ui` or `polkadot-js`.
+* They build [the ink! examples](https://github.com/paritytech/ink/tree/master/examples)
+  using [`cargo-contract`](https://github.com/paritytech/cargo-contract).
+* The resulting `.contract` file is deployed on a local blockchain instance of
+  [`canvas-node`](https://github.com/paritytech/canvas-node).
+* The deployment is done using either the [`canvas-ui`](https://github.com/paritytech/canvas-ui)
+  or [`polkadot-js`](https://github.com/polkadot-js/apps).
 * This is done by emulating browser interactions in Firefox (such as clicking,
   uploading files, …).
 * After successful deployment more browser interactions with the contract are
   executed, in order to assert that the contract behaves as expected.
 * The `master` branch of all these components is used.
-  
+
 
 ## Required dependencies
 
@@ -37,8 +41,11 @@ ink! ➜
 * [The ink! repository](https://github.com/paritytech/ink)
 * Firefox
 
-The [`canvas-ui`](https://github.com/paritytech/canvas-ui) is an optional requirement, by default
-the [published version](https://paritytech.github.io/canvas-ui) is used.
+For the UI either the [`canvas-ui`](https://github.com/paritytech/canvas-ui) 
+or the [`polkadot-js`](https://github.com/polkadot-js/apps) UI is an optional
+requirement. By default the published versions of those projects are used
+([https://paritytech.github.io/canvas-ui](https://polkadot.js.org/apps/#/), 
+[https://polkadot.js.org/apps/#/](https://polkadot.js.org/apps/#/)).
 
 
 ## Run it locally
@@ -82,6 +89,7 @@ cargo test
 
 If you want to use the `polkadot-js` UI instead you need to
 supply `--features polkadot-js-ui` to `cargo test`.
+
 
 ## Environment variables
 
