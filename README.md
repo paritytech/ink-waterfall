@@ -23,10 +23,9 @@ ink! ➜
   [`canvas-node`](https://github.com/paritytech/canvas-node).
 * The deployment is done using either the [`canvas-ui`](https://github.com/paritytech/canvas-ui)
   or [`polkadot-js`](https://github.com/polkadot-js/apps).
-* This is done by emulating browser interactions in Firefox (such as clicking,
-  uploading files, …).
+* This is done by emulating browser interactions in Firefox (clicking, uploading, …).
 * After successful deployment more browser interactions with the contract are
-  executed, in order to assert that the contract behaves as expected.
+  conducted, in order to assert that the contract behaves as expected.
 * The `master` branch of all these components is used.
 
 
@@ -98,4 +97,4 @@ supply `--features polkadot-js-ui` to `cargo test`.
 * `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder.
-* `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on the test progress.
+* `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
