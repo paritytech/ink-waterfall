@@ -18,6 +18,7 @@ variables:
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   RUST_TEST_THREADS:               "4"
+  INK_BRANCH:                      ${UPSTREAM_BRANCH:-master}
 
 workflow:
   rules:
@@ -65,7 +66,7 @@ canvas-ui-ink-examples:
   <<:                              *docker-env
   before_script:
     - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-    - git clone --depth 1 https://github.com/paritytech/ink.git
+    - git clone --branch ${INK_BRANCH} --depth 1 https://github.com/paritytech/ink.git
   variables:
   script:
     - for example in ${INK_EXAMPLES_PATH}/*/; do
