@@ -88,13 +88,17 @@ impl Ui {
         // https://github.com/rust-lang/rust/issues/35136
         let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
         log::info!("picked free port {:?} for geckodriver instance", port);
+
+        // TODO add this port to a global variable and check that no other
+        // thread has yet chosen this port.
+
         let geckodriver = process::Command::new("geckodriver")
             .args(&["--port", &port, "--log", "fatal"])
             .stdout(std::process::Stdio::piped())
             .spawn()
             .expect("geckodriver can not be spawned");
 
-        // connect to webdriver instance that is listening on port 4444
+        // connect to webdriver instance that is listening on that port
         let client = ClientBuilder::native()
             .capabilities(get_capabilities())
             .connect(&format!("http://localhost:{}", port))
