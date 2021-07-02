@@ -419,6 +419,20 @@ impl ContractsUi for crate::uis::Ui {
             ).await;
             if res.is_ok() {
                 log::info!(
+                    "[{}] upload: status contains {:?}",
+                    log_id,
+                    self.client
+                        .find(Locator::XPath("//div[contains(@class, 'ui--Status')]"))
+                        .await?
+                        .text()
+                        .await?
+                );
+                log::info!(
+                    "[{}] upload: found status {:?}",
+                    log_id,
+                    res.expect("res must exist here").text().await?
+                );
+                log::info!(
                     "[{}] upload: success on try {} for {:?}",
                     log_id,
                     retry,
