@@ -54,7 +54,7 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 #block
             };
             ui.shutdown().await?;
-            log::info!("shutdown for {} complete", stringify!(#fn_name));
+            log::debug!("shutdown for {} complete", stringify!(#fn_name));
             __ret
         }
     };
