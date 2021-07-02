@@ -2,31 +2,28 @@
 
 [![ci-result][a1]][a2]
 
-[a1]: https://gitlab.parity.io/parity/ink/badges/master/pipeline.svg
-[a2]: https://gitlab.parity.io/parity/ink/pipelines?ref=master
+[a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.svg
+[a2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines?ref=master
 
-The idea of this project is to have proper end-to-end tests for this pipeline:
+This project contains end-to-end tests for this pipeline:
+
 ```
 ink! ➜
    cargo-contract ➜
-                canvas-ui ➜
-                         canvas-node
+             canvas-ui || polkadot-js ➜
+                                  canvas-node
 ```
 
-This way we want to ensure that these components always work properly together.
-The CI for this project currently tests this pipeline for ink!'s `flipper` example.
+## How the tests in this repository work
 
-
-## How it Works
-
-* The tests in this repository use the `HEAD` of the `master` branch of all these components.
+* the `HEAD` of the `master` branch of all these components.
 * They build the ink! examples using `cargo-contract`.
-* The resulting `.contract` file is deployed on a local `canvas-node` instance using
-  the `canvas-ui`.
-* This is done by emulating browser interactions in Firefox with the `canvas-ui` (such as
-  clicking, uploading files, …).
-* After successful deployment some more browser interactions with the contract are emulated,
-  in order to assert that the contract behaves as expected.
+* The resulting `.contract` file is deployed on a local `canvas-node` instance
+  using either the `canvas-ui` or `polkadot-js`.
+* This is done by emulating browser interactions in Firefox (such as clicking,
+  uploading files, …).
+* After successful deployment more browser interactions with the contract are
+  executed, in order to assert that the contract behaves as expected.
   
 
 ## Required dependencies
