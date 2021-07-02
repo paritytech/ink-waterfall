@@ -87,7 +87,7 @@ impl Ui {
         // https://users.rust-lang.org/t/cargo-test-printing-println-output-from-child-threads/11627
         // https://github.com/rust-lang/rust/issues/35136
         let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
-        log::info!("Picked free port {:?} for geckodriver instance", port);
+        log::info!("picked free port {:?} for geckodriver instance", port);
         let geckodriver = process::Command::new("geckodriver")
             .args(&["--port", &port, "--log", "fatal"])
             .stdout(std::process::Stdio::piped())
@@ -116,9 +116,9 @@ impl Ui {
             );
             return Ok(())
         }
-        log::info!("closing client");
+        log::debug!("closing client");
         self.client.close().await?;
-        log::info!("closed client");
+        log::debug!("closed client");
         Ok(())
     }
 }
@@ -135,11 +135,11 @@ impl Drop for Ui {
         // The reason is that if a test fails (e.g. due to an assertion), then the test
         // will be interrupted and the shutdown method at the end of a test will not
         // be reached, but this drop will.
-        log::info!("killing geckodriver");
+        log::debug!("killing geckodriver");
         self.geckodriver
             .kill()
             .expect("unable to kill geckodriver, it probably wasn't running");
-        log::info!("killed geckodriver");
+        log::debug!("killed geckodriver");
     }
 }
 

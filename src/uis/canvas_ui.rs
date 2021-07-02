@@ -31,6 +31,7 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         name: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
+        let log_id = name.clone();
         self.client
             .goto(
                 // TODO doesn't work with differen URI!
@@ -42,28 +43,28 @@ impl ContractsUi for crate::uis::Ui {
         // just to be sure that it's a clean, freshly loaded page in front of us.
         self.client.refresh().await?;
 
-        log::info!("waiting for page to become visible");
+        log::info!("[{}] waiting for page to become visible", log_id);
         self.client
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
         std::thread::sleep(std::time::Duration::from_secs(2));
 
-        log::info!("checking account {:?}", name);
+        log::info!("[{}] checking account {:?}", log_id, name);
         self.client
             .find(Locator::XPath(&format!("//div[text() = '{}']", name)))
             .await?
             .click()
             .await?;
 
-        log::info!("getting address");
+        log::info!("[{}] getting address", log_id);
         let addr = self
             .client
             .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
             .await?
             .text()
             .await?;
-        log::info!("got address {}", addr);
+        log::info!("[{}] got address {}", log_id, addr);
         Ok(addr)
     }
 
@@ -72,7 +73,8 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         account: String,
     ) -> Result<u128, Box<dyn std::error::Error>> {
-        log::info!("getting balance_postfix for {:?}", account);
+        let log_id = account.clone();
+        log::info!("[{}] getting balance_postfix for {:?}", log_id, account);
         self.client
             .goto(
                 // TODO doesn't work with differen URI!
@@ -84,7 +86,7 @@ impl ContractsUi for crate::uis::Ui {
         // just to be sure that it's a clean, freshly loaded page in front of us.
         self.client.refresh().await?;
 
-        log::info!("waiting for page to become visible");
+        log::info!("[{}] waiting for page to become visible", log_id);
         self.client
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
@@ -95,13 +97,14 @@ impl ContractsUi for crate::uis::Ui {
             "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
             account
         );
-        let txt = self
+        let balance = self
             .client
             .wait_for_find(Locator::XPath(&path))
             .await?
             .text()
             .await?;
-        Ok(txt.parse::<u128>().expect("failed parsing"))
+        log::info!("[{}] extracted balance {:?}", log_id, balance);
+        Ok(balance.parse::<u128>().expect("failed parsing"))
     }
 
     /// Uploads the contract behind `contract_path`.
@@ -114,13 +117,25 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         upload_input: Upload,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let foo = upload_input.contract_path.clone();
-        log::info!("opening url for upload: {:?} {:?}", url("/#/upload"), foo);
+        let log_id = format!(
+            "{}",
+            upload_input
+                .contract_path
+                .file_name()
+                .expect("file name must exist")
+                .to_str()
+                .expect("conversion must work")
+        );
+        log::info!(
+            "[{}] opening url for upload: {:?}",
+            log_id,
+            url("/#/upload")
+        );
 
         self.client.goto(&url("/#/upload")).await?;
 
         // We wait until the settings are visible to make sure the page is ready
-        log::info!("waiting for settings to become visible {:?}", foo);
+        log::info!("[{}] waiting for settings to become visible", log_id);
         self.client
             .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?;
@@ -130,28 +145,31 @@ impl ContractsUi for crate::uis::Ui {
         // clicked away during the session).
         std::thread::sleep(std::time::Duration::from_secs(2));
 
-        log::info!("click skip intro button, if it is available {:?}", foo);
+        log::info!("[{}] click skip intro button, if it is available", log_id);
         if let Ok(skip_button) = self
             .client
             .find(Locator::XPath("//button[contains(text(),'Skip Intro')]"))
             .await
         {
-            log::info!("found skip button {:?}", foo);
+            log::info!("[{}] found skip button", log_id);
             skip_button.click().await?;
         } else {
             // The "Skip Intro" button is not always there, e.g. if multiple contracts
             // are deployed subsequently in the same browser session by one test.
-            log::info!("did not find 'Skip Intro' button, ignoring it. {:?}", foo);
+            log::info!(
+                "[{}] did not find 'Skip Intro' button, ignoring it.",
+                log_id
+            );
         }
 
-        log::info!("click settings 1 {:?}", foo);
+        log::info!("[{}] click settings first time", log_id);
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
             .click()
             .await?;
 
-        log::info!("click local node {:?}", foo);
+        log::info!("[{}] click local node", log_id);
         self.client
             .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
             .await?
@@ -160,7 +178,7 @@ impl ContractsUi for crate::uis::Ui {
 
         std::thread::sleep(std::time::Duration::from_secs(3));
 
-        log::info!("click upload {:?}", foo);
+        log::info!("[{}] click upload", log_id);
         self.client
             .find(Locator::XPath(
                 "//*[contains(text(),'Upload & Instantiate Contract')]",
@@ -169,7 +187,7 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("injecting jquery {:?}", foo);
+        log::info!("[{}] injecting jquery", log_id);
         let inject = String::from(
             "(function (){\
                     var d = document;\
@@ -191,22 +209,22 @@ impl ContractsUi for crate::uis::Ui {
         );
         self.client.execute(&*inject, Vec::new()).await?;
 
-        log::info!("waiting for jquery {:?}", foo);
+        log::info!("[{}] waiting for jquery", log_id);
         self.client
             .wait_for_find(Locator::Css("#jquery-ready"))
             .await?;
 
-        log::info!("click combobox {:?}", foo);
+        log::info!("[{}] click combobox", log_id);
         self.client
             .execute("$('[role=combobox]').click()", Vec::new())
             .await?;
 
-        log::info!("click alice {:?}", foo);
+        log::info!("[{}] click alice", log_id);
         self.client
             .execute("$('[name=alice]').click()", Vec::new())
             .await?;
 
-        log::info!("uploading {:?}", upload_input.contract_path);
+        log::info!("[{}] set input {:?}", log_id, upload_input.contract_path);
         let mut upload = self
             .client
             .find(Locator::Css(".ui--InputFile input"))
@@ -218,7 +236,7 @@ impl ContractsUi for crate::uis::Ui {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        log::info!("click settings 2 {:?}", foo);
+        log::info!("[{}] click settings second time", log_id);
         self.client
             .find(Locator::Css(".app--SideBar-settings"))
             .await?
@@ -228,7 +246,7 @@ impl ContractsUi for crate::uis::Ui {
         // We should get rid of this `sleep`
         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        log::info!("click details {:?}", foo);
+        log::info!("[{}] click details", log_id);
         self.client
             .find(Locator::XPath(
                 "//*[contains(text(),'Constructor Details')]",
@@ -239,7 +257,7 @@ impl ContractsUi for crate::uis::Ui {
 
         if let Some(caller) = &upload_input.caller {
             // open listbox for accounts
-            log::info!("click listbox for accounts {:?}", foo);
+            log::info!("[{}] click listbox for accounts", log_id);
             self.client
                 .wait_for_find(Locator::XPath(
                     "//*[contains(text(),'instantiation account')]/ancestor::div[1]/div",
@@ -249,7 +267,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             // choose caller
-            log::info!("choose {:?} {:?}", caller, foo);
+            log::info!("[{}] choose {:?}", log_id, caller);
             let path = format!("//div[@name = '{}']", caller.to_lowercase());
             self.client
                 .find(Locator::XPath(&path))
@@ -259,7 +277,12 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         for (key, value) in upload_input.initial_values.iter() {
-            log::info!("inserting '{}' into input field '{}' {:?}", value, key, foo);
+            log::info!(
+                "[{}] inserting '{}' into input field '{}'",
+                log_id,
+                value,
+                key
+            );
             let path = format!(
                 "//label/*[contains(text(),'{}')]/ancestor::div[1]//*/input",
                 key
@@ -271,7 +294,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         for (key, value) in upload_input.items.iter() {
-            log::info!("adding item '{}' for '{}' {:?}", value, key, foo);
+            log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
             let add_item = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
             self.client
                 .find(Locator::XPath(&add_item))
@@ -287,14 +310,14 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         if let Some(ref constructor) = upload_input.constructor {
-            log::info!("click constructor list box {:?}", foo);
+            log::info!("[{}] click constructor list box", log_id);
             self.client
                 .wait_for_find(Locator::XPath(
                     "//label/*[contains(text(),'Instantiation Constructor')]/ancestor::div[1]//*/div[@role='listbox']"
                 ))
                 .await?.click().await?;
 
-            log::info!("click constructor option {} {:?}", constructor, foo);
+            log::info!("[{}] click constructor option {}", log_id, constructor);
             let path = format!(
                 "//span[@class = 'ui--MessageSignature-name' and contains(text(),'{}')]",
                 constructor
@@ -306,7 +329,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
         }
 
-        log::info!("set endowment to {} {:?}", upload_input.endowment, foo);
+        log::info!("[{}] set endowment to {}", log_id, upload_input.endowment);
         let mut input = self
             .client
             .find(Locator::XPath(
@@ -316,15 +339,15 @@ impl ContractsUi for crate::uis::Ui {
         input.clear().await?;
         input.send_keys(&upload_input.endowment).await?;
 
-        log::info!("click endowment list box {:?}", foo);
+        log::info!("[{}] click endowment list box", log_id);
         self.client
             .wait_for_find(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/div[@role='listbox']"))
             .await?;
 
         log::info!(
-            "click endowment unit option {} {:?}",
+            "[{}] click endowment unit option {}",
+            log_id,
             upload_input.endowment_unit,
-            foo
         );
         let path = format!(
             "//div[@role='option']/span[contains(text(),'{}')]",
@@ -341,7 +364,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        log::info!("check 'Unique Instantiation Salt' checkbox {:?}", foo);
+        log::info!("[{}] check 'Unique Instantiation Salt' checkbox", log_id);
         let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]/div";
         self.client
             .find(Locator::XPath(path))
@@ -349,14 +372,14 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        log::info!("click instantiate {:?}", foo);
+        log::info!("[{}] click instantiate", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Instantiate')]"))
             .await?
             .click()
             .await?;
 
-        log::info!("click sign and submit {:?}", foo);
+        log::info!("[{}] click sign and submit", log_id);
         self.client
             .wait_for_find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
             .await?
@@ -364,8 +387,8 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!(
-            "upload: waiting for either success or failure notification {:?}",
-            foo
+            "[{}] upload: waiting for either success or failure notification",
+            log_id
         );
 
         let mut res;
@@ -375,17 +398,13 @@ impl ContractsUi for crate::uis::Ui {
                 Locator::XPath("//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]")
             ).await;
             if res.is_ok() {
-                log::info!(
-                    "upload: success on try {} for {:?}",
-                    retry,
-                    upload_input.contract_path
-                );
+                log::info!("[{}] upload: success on try {}", log_id, retry,);
                 break
             } else {
                 log::info!(
-                    "upload: try {} - waiting for either success or failure notification {:?}",
+                    "[{}] upload: try {} - waiting for either success or failure notification",
+                    log_id,
                     retry,
-                    upload_input.contract_path
                 );
 
                 let statuses = self
@@ -395,25 +414,22 @@ impl ContractsUi for crate::uis::Ui {
                     ))
                     .await?;
                 log::info!(
-                    "upload retry: found {:?} status messages for {:?}",
+                    "[{}] upload retry: found {} status messages",
+                    log_id,
                     statuses.len(),
-                    upload_input.contract_path
                 );
                 for mut el in statuses {
-                    log::info!("upload retry, text: {:?}", el.text().await?);
+                    log::info!("[{}] upload retry, text: {:?}", log_id, el.text().await?);
                 }
 
                 if retry == 20 {
                     log::info!(
-                        "timed out on waiting for {:?} upload! next recursion.",
-                        upload_input.contract_path
+                        "[{}] timed out on waiting for upload! next recursion.",
+                        log_id,
                     );
                     return self.execute_upload(upload_input.clone()).await
                 } else {
-                    log::info!(
-                        "timed out on waiting for {:?} upload! sleeping.",
-                        upload_input.contract_path
-                    );
+                    log::info!("[{}] timed out on waiting for upload! sleeping.", log_id,);
                 }
             }
         }
@@ -425,14 +441,10 @@ impl ContractsUi for crate::uis::Ui {
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!(
-            "found {:?} status messages for {:?}",
-            statuses.len(),
-            upload_input.contract_path
-        );
+        log::info!("[{}] found {} status messages", log_id, statuses.len(),);
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            log::info!("text {:?}", el.text().await?);
+            log::info!("[{}] text {:?}", log_id, el.text().await?);
             let header = el
                 .find(Locator::XPath("div[@class = 'header']"))
                 .await?
@@ -444,10 +456,10 @@ impl ContractsUi for crate::uis::Ui {
                 .text()
                 .await?;
             log::info!(
-                "found status message {:?} with {:?} for {:?}",
+                "[{}] found status message {:?} with {:?}",
+                log_id,
                 header,
                 status,
-                upload_input.contract_path
             );
             statuses_processed.push(Event { header, status });
         }
@@ -455,19 +467,17 @@ impl ContractsUi for crate::uis::Ui {
 
         if events.contains("Priority is too low") {
             log::info!(
-                "found priority too low during upload of {:?}! trying again!",
-                upload_input.contract_path
+                "[{}] found priority too low during upload! trying again!",
+                log_id
             );
             return self.execute_upload(upload_input.clone()).await
         } else if events.contains("usurped") {
-            log::info!(
-                "found usurped for upload of {:?}! trying again!",
-                upload_input.contract_path
-            );
+            log::info!("[{}] found usurped for upload! trying again!", log_id);
             return self.execute_upload(upload_input.clone()).await
         } else {
             log::info!(
-                "did not find priority too low in {:?} status messages",
+                "[{}] did not find priority too low in {} status messages",
+                log_id,
                 events.events.len()
             );
         }
@@ -476,14 +486,14 @@ impl ContractsUi for crate::uis::Ui {
             "uploading contract must succeed"
         );
 
-        log::info!("dismiss notifications {:?}", foo);
+        log::info!("[{}] dismiss notifications", log_id);
         self.client
             .wait_for_find(Locator::XPath("//*[contains(text(),'Dismiss')]"))
             .await?
             .click()
             .await?;
 
-        log::info!("click execute {:?}", foo);
+        log::info!("[{}] click execute", log_id);
         self.client
             .find(Locator::XPath(
                 "//button[contains(text(),'Execute Contract')]",
@@ -500,7 +510,7 @@ impl ContractsUi for crate::uis::Ui {
             .captures(curr_client_url.as_str())
             .expect("contract address cannot be extracted from website");
         let addr = captures.get(1).expect("no capture group").as_str();
-        log::info!("contract address {:?} {:?}", addr, foo);
+        log::info!("[{}] contract address {:?}", log_id, addr);
         Ok(String::from(addr))
     }
 
@@ -514,21 +524,28 @@ impl ContractsUi for crate::uis::Ui {
         &mut self,
         call: Call,
     ) -> Result<String, Box<dyn std::error::Error>> {
+        let log_id = call.method.clone();
+
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
-        log::info!("opening url for rpc {:?}: {:?}", call.method, url);
+        log::info!(
+            "[{}] opening url for rpc {:?}: {:?}",
+            log_id,
+            call.method,
+            url
+        );
         self.client.goto(url.as_str()).await?;
 
         // hack to get around a failure of the ui for the multisig tests.
         // the ui fails displaying the flipper contract execution page, but
         // it strangely works if tried again after some time.
-        log::info!("sleep for {}", url);
+        log::info!("[{}] sleep for {}", log_id, url);
         std::thread::sleep(std::time::Duration::from_secs(2));
 
         self.client.refresh().await?;
         self.client.goto(url.as_str()).await?;
 
         // open listbox for methods
-        log::info!("click listbox");
+        log::info!("[{}] click listbox", log_id);
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
@@ -538,7 +555,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // click `method`
-        log::info!("choose {:?}", call.method);
+        log::info!("[{}] choose {:?}", log_id, call.method);
         let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[text() = '{}']", call.method);
         self.client
             .find(Locator::XPath(&path))
@@ -547,7 +564,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // Open listbox
-        log::info!("Open listbox for rpc vs. transaction");
+        log::info!("[{}] open listbox for rpc vs. transaction", log_id);
         let path = "//*[contains(text(),'Send as RPC call')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]";
         self.client
             .find(Locator::XPath(path))
@@ -556,7 +573,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // Send as RPC call
-        log::info!("select 'Send as RPC call'");
+        log::info!("[{}] select 'Send as RPC call'", log_id);
         let path = "//*[contains(text(),'Send as RPC call')]/ancestor::div[1]";
         self.client
             .find(Locator::XPath(path))
@@ -567,16 +584,22 @@ impl ContractsUi for crate::uis::Ui {
         // possibly set max gas
         if let Some(max_gas) = call.max_gas_allowed {
             // click checkbox
-            log::info!("unset 'use estimated gas' checkbox if it exists");
+            log::info!(
+                "[{}] unset 'use estimated gas' checkbox if it exists",
+                log_id
+            );
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
             let checkbox = self.client.find(Locator::XPath(path)).await;
 
             if let Ok(checkbox) = checkbox {
-                log::info!("unsetting 'use estimated gas' checkbox - it exists");
+                log::info!(
+                    "[{}] unsetting 'use estimated gas' checkbox - it exists",
+                    log_id
+                );
                 checkbox.click().await?;
             }
 
-            log::info!("{}", &format!("entering max gas {:?}", max_gas));
+            log::info!("[{}] entering max gas {:?}", log_id, max_gas);
             let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
                 .find(Locator::XPath(path))
@@ -592,7 +615,7 @@ impl ContractsUi for crate::uis::Ui {
 
         // possibly add values
         for (key, mut value) in call.values {
-            log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
+            log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
             let path = format!(
                 "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                 key
@@ -611,7 +634,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // click call
-        log::info!("click call");
+        log::info!("[{}] click call", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
@@ -635,9 +658,11 @@ impl ContractsUi for crate::uis::Ui {
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
+        let log_id = call.method.clone();
         let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
         log::info!(
-            "opening url for executing transaction {:?}: {:?}",
+            "[{}] opening url for executing transaction {:?}: {:?}",
+            log_id,
             call.method,
             url
         );
@@ -645,7 +670,7 @@ impl ContractsUi for crate::uis::Ui {
         self.client.refresh().await?;
 
         // open listbox for methods
-        log::info!("click listbox");
+        log::info!("[{}] click listbox", log_id);
         self.client
             .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/div",
@@ -655,7 +680,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // click `method`
-        log::info!("choose {:?}", call.method);
+        log::info!("[{}] choose {:?}", log_id, call.method);
         let path = format!("//*[contains(text(),'Message to Send')]/ancestor::div[1]/div//*[text() = '{}']", call.method);
         self.client
             .find(Locator::XPath(&path))
@@ -664,7 +689,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // Open listbox
-        log::info!("open listbox for rpc vs. transaction");
+        log::info!("[{}] open listbox for rpc vs. transaction", log_id);
         let path = "//*[contains(text(),'Send as transaction')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]";
         self.client
             .find(Locator::XPath(path))
@@ -673,7 +698,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // Send as transaction
-        log::info!("select 'Send as transaction'");
+        log::info!("[{}] select 'Send as transaction'", log_id);
         let path = "//*[contains(text(),'Send as transaction')]/ancestor::div[1]";
         self.client
             .find(Locator::XPath(path))
@@ -683,7 +708,7 @@ impl ContractsUi for crate::uis::Ui {
 
         if let Some(caller) = &call.caller {
             // open listbox for accounts
-            log::info!("click listbox for accounts");
+            log::info!("[{}] click listbox for accounts", log_id);
             self.client
                 .wait_for_find(Locator::XPath(
                     "//*[contains(text(),'Call from Account')]/ancestor::div[1]/div",
@@ -693,7 +718,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             // choose caller
-            log::info!("choose {:?}", caller);
+            log::info!("[{}] choose {:?}", log_id, caller);
             let path = format!("//*[contains(text(),'Call from Account')]/ancestor::div[1]//div[@name = '{}']", caller.to_lowercase());
             self.client
                 .find(Locator::XPath(&path))
@@ -705,7 +730,7 @@ impl ContractsUi for crate::uis::Ui {
         // Possibly add payment
         if let Some(payment) = &call.payment {
             // Open listbox
-            log::info!("open listbox for payment units");
+            log::info!("[{}] open listbox for payment units", log_id);
             let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
             self.client
                 .find(Locator::XPath(&path))
@@ -713,7 +738,7 @@ impl ContractsUi for crate::uis::Ui {
                 .click()
                 .await?;
 
-            log::info!("click payment unit option {}", payment.unit);
+            log::info!("[{}] click payment unit option {}", log_id, payment.unit);
             let path = format!(
                 "//div[@role='option']/span[contains(text(),'{}')]/ancestor::div[1]",
                 payment.unit
@@ -724,7 +749,7 @@ impl ContractsUi for crate::uis::Ui {
                 .click()
                 .await?;
 
-            log::info!("{}", &format!("entering payment {:?}", payment.payment));
+            log::info!("[{}] entering payment {:?}", log_id, payment.payment);
             let path = "//*[contains(text(),'Payment')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
                 .find(Locator::XPath(path))
@@ -741,7 +766,7 @@ impl ContractsUi for crate::uis::Ui {
         // possibly set max gas
         if let Some(max_gas) = &call.max_gas_allowed {
             // click checkbox
-            log::info!("unset 'use estimated gas' checkbox");
+            log::info!("[{}] unset 'use estimated gas' checkbox", log_id);
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
             self.client
                 .find(Locator::XPath(path))
@@ -749,7 +774,7 @@ impl ContractsUi for crate::uis::Ui {
                 .click()
                 .await?;
 
-            log::info!("{}", &format!("entering max gas {:?}", max_gas));
+            log::info!("[{}] entering max gas {:?}", log_id, max_gas);
             let path = "//*[contains(text(),'Max Gas Allowed')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
                 .find(Locator::XPath(path))
@@ -765,7 +790,7 @@ impl ContractsUi for crate::uis::Ui {
 
         // possibly add values
         for (key, value) in &call.values {
-            log::info!("{}", &format!("entering {:?} into {:?}", &value, &key));
+            log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
             let path = format!(
                 "//*[contains(text(),'Message to Send')]/ancestor::div[1]/following-sibling::div[1]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                 key
@@ -783,7 +808,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // click call
-        log::info!("click call");
+        log::info!("[{}] click call", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
@@ -798,14 +823,17 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // click sign and submit
-        log::info!("sign and submit");
+        log::info!("[{}] sign and submit", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
             .await?
             .click()
             .await?;
 
-        log::info!("transaction: waiting for either success or failure notification");
+        log::info!(
+            "[{}] transaction: waiting for either success or failure notification",
+            log_id
+        );
         let mut res;
         for retry in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
@@ -814,14 +842,16 @@ impl ContractsUi for crate::uis::Ui {
             ).await;
             if res.is_ok() {
                 log::info!(
-                    "transaction: success on try {} for {:?}",
+                    "[{}] transaction: success on try {} for {:?}",
+                    log_id,
                     retry,
                     call.method
                 );
                 break
             } else {
                 log::info!(
-                    "transaction: try {} - waiting for either success or failure notification {:?}",
+                    "[{}] transaction: try {} - waiting for either success or failure notification {:?}",
+                    log_id,
                     retry,
                     call.method
                 );
@@ -833,7 +863,8 @@ impl ContractsUi for crate::uis::Ui {
                     ))
                     .await?;
                 log::info!(
-                    "transaction retry: found {:?} status messages for {:?}",
+                    "[{}] transaction retry: found {:?} status messages for {:?}",
+                    log_id,
                     statuses.len(),
                     call.method
                 );
@@ -843,13 +874,15 @@ impl ContractsUi for crate::uis::Ui {
 
                 if retry == 20 {
                     log::info!(
-                        "timed out on waiting for {:?} transaction! next recursion.",
+                        "[{}] timed out on waiting for {:?} transaction! next recursion.",
+                        log_id,
                         call.method
                     );
                     return self.execute_transaction(call.clone()).await
                 } else {
                     log::info!(
-                        "timed out on waiting for {:?} transaction! sleeping.",
+                        "[{}] timed out on waiting for {:?} transaction! sleeping.",
+                        log_id,
                         call.method
                     );
                 }
@@ -863,7 +896,7 @@ impl ContractsUi for crate::uis::Ui {
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!("found {:?} status messages", statuses.len());
+        log::info!("[{}] found {:?} status messages", log_id, statuses.len());
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             let header = el
@@ -876,26 +909,34 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .text()
                 .await?;
-            log::info!("found status message {:?} with {:?}", header, status);
+            log::info!(
+                "[{}] found status message {:?} with {:?}",
+                log_id,
+                header,
+                status
+            );
             statuses_processed.push(Event { header, status });
         }
         let events = Events::new(statuses_processed);
 
         if events.contains("Priority is too low") {
             log::info!(
-                "found priority too low during transaction execution of {:?}! trying again!",
+                "[{}] found priority too low during transaction execution of {:?}! trying again!",
+                log_id,
                 call.method
             );
             return self.execute_transaction(call.clone()).await
         } else if events.contains("usurped") {
             log::info!(
-                "found usurped for transaction {:?}! trying again!",
+                "[{}] found usurped for transaction {:?}! trying again!",
+                log_id,
                 call.method
             );
             return self.execute_transaction(call.clone()).await
         } else {
             log::info!(
-                "did not find priority too low in {:?} status messages",
+                "[{}] did not find priority too low in {:?} status messages",
+                log_id,
                 events.events.len()
             );
         }
