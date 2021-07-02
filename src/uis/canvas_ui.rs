@@ -806,11 +806,55 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("transaction: waiting for either success or failure notification");
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]",
-            ))
-            .await?;
+        let mut res;
+        for retry in 0..21 {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            res = self.client.find(
+                Locator::XPath("//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]")
+            ).await;
+            if res.is_ok() {
+                log::info!(
+                    "transaction: success on try {} for {:?}",
+                    retry,
+                    call.method
+                );
+                break
+            } else {
+                log::info!(
+                    "transaction: try {} - waiting for either success or failure notification {:?}",
+                    retry,
+                    call.method
+                );
+
+                let statuses = self
+                    .client
+                    .find_all(Locator::XPath(
+                        "//div[contains(@class, 'ui--Status')]//div[@class = 'desc' or @class = 'header']",
+                    ))
+                    .await?;
+                log::info!(
+                    "transaction retry: found {:?} status messages for {:?}",
+                    statuses.len(),
+                    call.method
+                );
+                for mut el in statuses {
+                    log::info!("upload retry, text: {:?}", el.text().await?);
+                }
+
+                if retry == 20 {
+                    log::info!(
+                        "timed out on waiting for {:?} transaction! next recursion.",
+                        call.method
+                    );
+                    return self.execute_transaction(call.clone()).await
+                } else {
+                    log::info!(
+                        "timed out on waiting for {:?} transaction! sleeping.",
+                        call.method
+                    );
+                }
+            }
+        }
 
         // extract all status messages
         let statuses = self
