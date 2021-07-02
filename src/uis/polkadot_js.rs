@@ -87,6 +87,8 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
+        std::thread::sleep(std::time::Duration::from_secs(2));
+
         let path = format!(
             "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
             account
@@ -121,6 +123,8 @@ impl ContractsUi for crate::uis::Ui {
         self.client
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
+
+        std::thread::sleep(std::time::Duration::from_secs(2));
 
         log::info!("click settings");
         self.client
@@ -444,7 +448,11 @@ impl ContractsUi for crate::uis::Ui {
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!("upload: found {:?} status messages", statuses.len());
+        log::info!(
+            "upload: found {:?} status messages {:?}",
+            statuses.len(),
+            upload_input.contract_path
+        );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             // the switch of status vs. header is intentional here
@@ -454,7 +462,11 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .split("\n")
                 .for_each(|status| {
-                    log::info!("found status message {:?}", status);
+                    log::info!(
+                        "found status message {:?} {:?}",
+                        status,
+                        upload_input.contract_path
+                    );
                     statuses_processed.push(Event {
                         header: String::from(""),
                         status: status.to_string(),
@@ -476,13 +488,15 @@ impl ContractsUi for crate::uis::Ui {
             return self.execute_upload(upload_input.clone()).await
         } else {
             log::info!(
-                "did not find priority too low in {:?} status messages",
-                events.events.len()
+                "did not find priority too low in {:?} status messages {:?}",
+                events.events.len(),
+                upload_input.contract_path
             );
         }
         assert!(
             events.contains("system.ExtrinsicSuccess"),
-            "upload must have succeeded!"
+            "upload must have succeeded, but events contain only {:?}",
+            events.events
         );
 
         log::info!("click dismiss");
