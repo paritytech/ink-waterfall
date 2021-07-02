@@ -3,7 +3,7 @@
 [![ci-result][a1]][a2]
 
 [a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.svg
-[a2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines?ref=master
+[a2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines
 
 This project contains end-to-end tests for this pipeline:
 
@@ -11,12 +11,11 @@ This project contains end-to-end tests for this pipeline:
 ink! ➜
    cargo-contract ➜
              canvas-ui || polkadot-js ➜
-                                  canvas-node
+                                 canvas-node
 ```
 
 ## How the tests in this repository work
 
-* the `HEAD` of the `master` branch of all these components.
 * They build the ink! examples using `cargo-contract`.
 * The resulting `.contract` file is deployed on a local `canvas-node` instance
   using either the `canvas-ui` or `polkadot-js`.
@@ -24,6 +23,7 @@ ink! ➜
   uploading files, …).
 * After successful deployment more browser interactions with the contract are
   executed, in order to assert that the contract behaves as expected.
+* The `master` branch of all these components is used.
   
 
 ## Required dependencies
