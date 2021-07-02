@@ -80,6 +80,9 @@ export UI_URL="http://localhost:3000"
 cargo test
 ```
 
+If you want to use the `polkadot-js` UI instead you need to
+supply `--features polkadot-js-ui` to `cargo test`.
+
 ## Environment variables
 
 * `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder.
@@ -87,3 +90,4 @@ cargo test
 * `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder.
+* `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on the test progress.
