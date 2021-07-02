@@ -962,19 +962,6 @@ impl ContractsUi for crate::uis::Ui {
                 .click()
                 .await?;
 
-            /*
-            let possibly_slider = self.client.find(Locator::XPath(path)).await;
-            let slider = match possibly_slider {
-                Ok(slider) => slider,
-                Err(_) => {
-                    let path =
-                        "// *[contains(text(),'max read gas')]/ancestor::div[1]/div";
-                    self.client.find(Locator::XPath(path)).await?
-                }
-            };
-            slider.click().await?;
-            */
-
             log::info!("[{}] entering max gas {:?}", log_id, max_gas);
             let path = "//*[contains(text(),'max gas allowed')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client
