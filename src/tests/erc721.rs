@@ -17,7 +17,6 @@
 use crate::{
     uis::{
         Call,
-        ContractsUi,
         Ui,
         Upload,
     },
@@ -192,6 +191,8 @@ async fn assert_owner(
     id: &str,
     owner: Option<&str>,
 ) -> Result<()> {
+    use crate::uis::ContractsUi;
+
     let address = match owner {
         Some(owner) => ui.name_to_address(owner).await?,
         None => String::from("<none>"),
