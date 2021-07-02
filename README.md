@@ -2,7 +2,7 @@
 
 [![ci-result][a1]][a2]
 
-[a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.svg
+[a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.png
 [a2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines
 
 This project contains end-to-end tests for this pipeline:
