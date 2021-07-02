@@ -419,12 +419,17 @@ impl ContractsUi for crate::uis::Ui {
                     log::info!("upload retry, text: {:?}", el.text().await?);
                 }
 
-                if retry < 20 {
+                if retry == 20 {
                     log::info!(
                         "timed out on waiting for {:?} upload! next recursion.",
                         upload_input.contract_path
                     );
                     return self.execute_upload(upload_input.clone()).await
+                } else {
+                    log::info!(
+                        "timed out on waiting for {:?} upload! sleeping.",
+                        upload_input.contract_path
+                    );
                 }
             }
         }
