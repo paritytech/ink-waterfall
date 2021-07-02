@@ -415,7 +415,7 @@ impl ContractsUi for crate::uis::Ui {
         for retry in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
             res = self.client.find(
-                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready'))]")
+                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped'))]")
             ).await;
             if res.is_ok() {
                 log::info!(
@@ -1038,7 +1038,7 @@ impl ContractsUi for crate::uis::Ui {
         for retry in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
             res = self.client.find(
-                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready'))]")
+                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped'))]")
             ).await;
             if res.is_ok() {
                 log::info!(
