@@ -30,7 +30,6 @@ use lang_macro::waterfall_test;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
-#[cfg_attr(feature = "polkadot-js-ui", ignore)]
 async fn erc721(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc721/Cargo.toml");

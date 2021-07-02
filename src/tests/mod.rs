@@ -17,10 +17,17 @@ mod contract_transfer;
 mod delegator;
 mod dns;
 mod erc20;
+
+#[cfg(not(feature = "polkadot-js-ui"))]
 mod erc721;
+
 mod flipper;
 mod incrementer;
 mod multisig_plain;
 mod rand_extension;
+
+// TODO only enable for `canvas-ui` once https://github.com/paritytech/canvas-ui/issues/105 is fixed
+#[cfg(feature = "polkadot-js-ui")]
 mod trait_erc20;
+
 mod trait_flipper;
