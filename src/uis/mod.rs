@@ -30,6 +30,7 @@ use fantoccini::{
     Client,
     ClientBuilder,
 };
+use lazy_static::lazy_static;
 use serde_json::{
     self,
     map::Map,
@@ -38,7 +39,12 @@ use serde_json::{
 use std::{
     path::PathBuf,
     process,
+    sync::Mutex,
 };
+
+lazy_static! {
+    static ref PICKED_PORTS: Mutex<Vec<u16>> = Mutex::new(vec![]);
+}
 
 #[async_trait]
 pub trait ContractsUi {
@@ -83,17 +89,31 @@ impl Ui {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
         crate::utils::assert_canvas_node_running();
 
+        let mut port = None;
+        for retry in 0..10 {
+            let port_candidate = portpicker::pick_unused_port().expect("no free port");
+            log::info!("picked free port candidate {}", port_candidate);
+
+            // add this port to a global variable and check that no other thread has yet chosen it.
+            let mut picked_ports =
+                PICKED_PORTS.lock().expect("failed locking `PICKED_PORTS`");
+            log::info!("picked ports {:?}", picked_ports);
+            if !picked_ports.contains(&port_candidate) {
+                picked_ports.push(port_candidate);
+                port = Some(port_candidate);
+                break
+            } else {
+                log::info!("port {} was already chosen by another thread, picking another one (try {})", port_candidate, retry);
+            }
+        }
+        let port = port.expect("no free port could be determined!");
+        log::info!("picked free port {} for geckodriver instance", port);
+
         // the output is unfortunately always printed
         // https://users.rust-lang.org/t/cargo-test-printing-println-output-from-child-threads/11627
         // https://github.com/rust-lang/rust/issues/35136
-        let port = format!("{}", portpicker::pick_unused_port().expect("no free port"));
-        log::info!("picked free port {:?} for geckodriver instance", port);
-
-        // TODO add this port to a global variable and check that no other
-        // thread has yet chosen this port.
-
         let geckodriver = process::Command::new("geckodriver")
-            .args(&["--port", &port, "--log", "fatal"])
+            .args(&["--port", &port.to_string(), "--log", "fatal"])
             .stdout(std::process::Stdio::piped())
             .spawn()
             .expect("geckodriver can not be spawned");

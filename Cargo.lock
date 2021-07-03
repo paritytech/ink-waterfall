@@ -1415,6 +1415,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "lang_macro",
+ "lazy_static",
  "log",
  "portpicker",
  "psutil",
