@@ -406,7 +406,7 @@ impl ContractsUi for crate::uis::Ui {
         );
 
         let mut res;
-        for retry in 0..21 {
+        for waited in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped'))]")
@@ -427,18 +427,18 @@ impl ContractsUi for crate::uis::Ui {
                     res.expect("res must exist here").text().await?
                 );
                 log::info!(
-                    "[{}] upload: success on try {} for {:?}",
+                    "[{}] upload: success for {:?} after waiting {}",
                     log_id,
-                    retry,
                     upload_input.contract_path
+                    waited,
                 );
                 break
             } else {
                 log::info!(
-                    "[{}] upload: try {} - waiting for either success or failure notification {:?}",
+                    "[{}] upload retry: failed for {:?} after waiting {}",
                     log_id,
-                    retry,
                     upload_input.contract_path
+                    waited,
                 );
 
                 let statuses = self
@@ -457,7 +457,7 @@ impl ContractsUi for crate::uis::Ui {
                     log::info!("[{}] upload retry, text: {:?}", log_id, el.text().await?);
                 }
 
-                if retry == 20 {
+                if waited == 20 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} upload! next recursion.",
                         log_id,
@@ -1026,25 +1026,25 @@ impl ContractsUi for crate::uis::Ui {
             log_id
         );
         let mut res;
-        for retry in 0..21 {
+        for waited in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped'))]")
             ).await;
             if res.is_ok() {
                 log::info!(
-                    "[{}] transaction: success on try {} for {:?}",
+                    "[{}] transaction: success for {:?} after waiting {}",
                     log_id,
-                    retry,
                     call.method
+                    waited,
                 );
                 break
             } else {
                 log::info!(
-                    "[{}] transaction: try {} - waiting for either success or failure notification {:?}",
+                    "[{}] transaction: waited for {:?} for {}",
                     log_id,
-                    retry,
-                    call.method
+                    call.method,
+                    waited,
                 );
 
                 let statuses = self
@@ -1060,10 +1060,14 @@ impl ContractsUi for crate::uis::Ui {
                     call.method
                 );
                 for mut el in statuses {
-                    log::info!("[{}] upload retry, text: {:?}", log_id, el.text().await?);
+                    log::info!(
+                        "[{}] transaction retry, text: {:?}",
+                        log_id,
+                        el.text().await?
+                    );
                 }
 
-                if retry == 20 {
+                if waited == 20 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} transaction! next recursion.",
                         log_id,

@@ -861,7 +861,7 @@ impl ContractsUi for crate::uis::Ui {
                     call.method
                 );
                 for mut el in statuses {
-                    log::info!("upload retry, text: {:?}", el.text().await?);
+                    log::info!("transaction retry, text: {:?}", el.text().await?);
                 }
 
                 if retry == 20 {
