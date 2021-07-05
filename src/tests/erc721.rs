@@ -56,7 +56,11 @@ async fn erc721(mut ui: Ui) -> Result<()> {
 
     // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
     #[cfg(feature = "polkadot-js-ui")]
-    assert_owner(&mut ui, &contract_addr, "123", Some("ALICE")).await?;
+    assert_eq!(
+        ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
+            .await?,
+        "ALICE"
+    );
 
     ui.execute_transaction(
         Call::new(&contract_addr, "transfer")
@@ -83,7 +87,11 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     );
     // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
     #[cfg(feature = "polkadot-js-ui")]
-    assert_owner(&mut ui, &contract_addr, "123", Some("BOB")).await?;
+    assert_eq!(
+        ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
+            .await?,
+        "BOB"
+    );
     ui.execute_transaction(
         Call::new(&contract_addr, "approve")
             .caller("BOB")
@@ -117,7 +125,11 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     );
     // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
     #[cfg(feature = "polkadot-js-ui")]
-    assert_owner(&mut ui, &contract_addr, "123", Some("BOB")).await?;
+    assert_eq!(
+        ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
+            .await?,
+        "BOB"
+    );
 
     assert_eq!(
         ui.execute_rpc(
@@ -160,7 +172,11 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     );
     // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
     #[cfg(feature = "polkadot-js-ui")]
-    assert_owner(&mut ui, &contract_addr, "123", Some("DAVE")).await?;
+    assert_eq!(
+        ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
+            .await?,
+        "DAVE"
+    );
     ui.execute_transaction(
         Call::new(&contract_addr, "burn")
             .caller("DAVE")
@@ -178,28 +194,11 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     );
     // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
     #[cfg(feature = "polkadot-js-ui")]
-    assert_owner(&mut ui, &contract_addr, "123", None).await?;
-
-    Ok(())
-}
-
-#[cfg(feature = "polkadot-js-ui")]
-async fn assert_owner(
-    ui: &mut Ui,
-    contract_addr: &str,
-    id: &str,
-    owner: Option<&str>,
-) -> Result<()> {
-    use crate::uis::ContractsUi;
-
-    let address = match owner {
-        Some(owner) => ui.name_to_address(owner).await?,
-        None => String::from("<none>"),
-    };
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", id))
+        ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
-        address
+        "<empty>"
     );
+
     Ok(())
 }

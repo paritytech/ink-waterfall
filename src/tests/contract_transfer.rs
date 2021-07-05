@@ -34,9 +34,7 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    log::info!("uploading in must_transfer_value");
     let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
-    log::info!("getting balance in must_transfer_value");
     let balance_before = ui.balance_postfix("BOB".to_string()).await?;
 
     // when

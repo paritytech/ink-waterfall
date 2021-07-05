@@ -67,9 +67,6 @@ impl From<CmdError> for TransactionError {
 
 #[async_trait]
 pub trait ContractsUi {
-    /// Returns the address for a given `name`.
-    async fn name_to_address(&mut self, name: &str) -> self::Result<String>;
-
     /// Returns the balance postfix numbers.
     async fn balance_postfix(&mut self, account: String) -> self::Result<u128>;
 

@@ -58,10 +58,6 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
     .expect("failed to execute `set_address` transaction");
 
     // then the name must resolve to the address
-    #[cfg(not(feature = "polkadot-js-ui"))]
-    let address = owner;
-    #[cfg(feature = "polkadot-js-ui")]
-    let address = ui.name_to_address(owner).await?;
     assert_eq!(
         ui.execute_rpc(
             Call::new(&contract_addr, "get_address")
@@ -70,7 +66,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
                 .max_gas("5000")
         )
         .await?,
-        address
+        owner
     );
 
     // when trying to set the address from a different caller (BOB) the transaction must fail
@@ -105,10 +101,6 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
     )
     .await
     .expect("failed to execute `set_address` transaction from BOB");
-    #[cfg(not(feature = "polkadot-js-ui"))]
-    let address = owner2;
-    #[cfg(feature = "polkadot-js-ui")]
-    let address = ui.name_to_address(owner2).await?;
     assert_eq!(
         ui.execute_rpc(
             Call::new(&contract_addr, "get_address")
@@ -117,7 +109,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
                 .max_gas("5000")
         )
         .await?,
-        address
+        owner2
     );
     Ok(())
 }

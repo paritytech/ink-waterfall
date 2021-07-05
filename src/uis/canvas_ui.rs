@@ -28,47 +28,6 @@ use regex::Regex;
 
 #[async_trait]
 impl ContractsUi for crate::uis::Ui {
-    /// Returns the address for a given `name`.
-    async fn name_to_address(&mut self, name: &str) -> Result<String> {
-        // There is currently no way of doing this via the `canvas-ui`, hence
-        // we need to use `polkadot-js`.
-        let log_id = name.clone();
-        self.client
-            .goto(
-                // TODO doesn't work with differen URI!
-                "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
-            )
-            .await?;
-
-        // Firefox might not load if the website at that address is already open, hence we refresh
-        // just to be sure that it's a clean, freshly loaded page in front of us.
-        self.client.refresh().await?;
-
-        log::info!("[{}] waiting for page to become visible", log_id);
-        self.client
-            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
-            .await?;
-
-        std::thread::sleep(std::time::Duration::from_secs(2));
-
-        log::info!("[{}] checking account {:?}", log_id, name);
-        self.client
-            .find(Locator::XPath(&format!("//div[text() = '{}']", name)))
-            .await?
-            .click()
-            .await?;
-
-        log::info!("[{}] getting address", log_id);
-        let addr = self
-            .client
-            .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
-            .await?
-            .text()
-            .await?;
-        log::info!("[{}] got address {}", log_id, addr);
-        Ok(addr)
-    }
-
     /// Returns the balance postfix numbers.
     async fn balance_postfix(&mut self, account: String) -> Result<u128> {
         let log_id = account.clone();

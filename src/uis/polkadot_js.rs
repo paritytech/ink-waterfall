@@ -23,49 +23,13 @@ use crate::uis::{
     Upload,
 };
 use async_trait::async_trait;
-use fantoccini::Locator;
+use fantoccini::{
+    Client,
+    Locator,
+};
 
 #[async_trait]
 impl ContractsUi for crate::uis::Ui {
-    /// Returns the address for a given `name`.
-    async fn name_to_address(&mut self, name: &str) -> Result<String> {
-        let log_id = name.clone();
-        self.client
-            .goto(
-                // TODO doesn't work with differen URI!
-                "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
-            )
-            .await?;
-
-        // Firefox might not load if the website at that address is already open, hence we refresh
-        // just to be sure that it's a clean, freshly loaded page in front of us.
-        self.client.refresh().await?;
-
-        log::info!("[{}] waiting for page to become visible", log_id);
-        self.client
-            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
-            .await?;
-
-        std::thread::sleep(std::time::Duration::from_secs(1));
-
-        log::info!("[{}] checking account {:?}", log_id, name);
-        self.client
-            .find(Locator::XPath(&format!("//div[text() = '{}']", name)))
-            .await?
-            .click()
-            .await?;
-
-        log::info!("[{}] getting address", log_id);
-        let addr = self
-            .client
-            .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
-            .await?
-            .text()
-            .await?;
-        log::info!("[{}] got address {}", log_id, addr);
-        Ok(addr)
-    }
-
     /// Returns the balance postfix numbers.
     async fn balance_postfix(&mut self, account: String) -> Result<u128> {
         let log_id = account.clone();
@@ -760,15 +724,35 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("[{}] read outcome", log_id);
-        let mut el = self
+        let mut ret_value = self
             .client
             .wait_for_find(Locator::XPath(
                 "(//div[contains(@class, 'ui--output')])[last()]/div",
             ))
+            .await?
+            .text()
             .await?;
-        let txt = el.text().await?;
-        log::info!("[{}] outcomes value {:?}", log_id, txt);
-        Ok(txt)
+
+        log::info!("[{}] read outcome type", log_id);
+        let ret_type = self
+            .client
+            .wait_for_find(Locator::XPath(
+                "(//span[@class = 'ui--MessageSignature-returnType'])[last()]",
+            ))
+            .await?
+            .text()
+            .await?;
+
+        if ret_type.contains("AccountId") {
+            // convert hash account id to mnemonic name
+            ret_value = name_to_address(&mut self.client, &call.contract_address)
+                .await
+                .expect("conversion must work");
+        }
+
+        log::info!("[{}] outcome value is {:?}", log_id, ret_value);
+        log::info!("[{}] outcome type value is {:?}", log_id, ret_type);
+        Ok(ret_value)
     }
 
     /// Executes the transaction `call`.
@@ -1166,6 +1150,7 @@ impl ContractsUi for crate::uis::Ui {
         }
     }
 }
+
 /// Returns the URL to the `path` in the UI.
 ///
 /// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
@@ -1178,4 +1163,42 @@ fn url() -> String {
     let base_url = base_url.trim_end_matches('/');
 
     String::from(format!("{}{}", base_url, "/apps/#/contracts"))
+}
+
+/// Returns the address for a given `name`.
+async fn name_to_address(client: &mut Client, name: &str) -> Result<String> {
+    let log_id = name.clone();
+    client
+        .goto(
+            // TODO doesn't work with different URI!
+            "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
+        )
+        .await?;
+
+    // Firefox might not load if the website at that address is already open, hence we refresh
+    // just to be sure that it's a clean, freshly loaded page in front of us.
+    client.refresh().await?;
+
+    log::info!("[{}] waiting for page to become visible", log_id);
+    client
+        .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
+        .await?;
+
+    std::thread::sleep(std::time::Duration::from_secs(1));
+
+    log::info!("[{}] checking account {:?}", log_id, name);
+    client
+        .find(Locator::XPath(&format!("//div[text() = '{}']", name)))
+        .await?
+        .click()
+        .await?;
+
+    log::info!("[{}] getting address", log_id);
+    let addr = client
+        .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
+        .await?
+        .text()
+        .await?;
+    log::info!("[{}] got address {}", log_id, addr);
+    Ok(addr)
 }
