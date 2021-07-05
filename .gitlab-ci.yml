@@ -14,7 +14,7 @@ variables:
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   RUST_LIB_BACKTRACE:              "0"
   RUST_LOG:                        "info"
-  RUST_TEST_THREADS:               "4"
+  RUST_TEST_THREADS:               "5"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
@@ -75,7 +75,7 @@ canvas-ui-ink-examples:
         echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
       done
     - cat /tmp/cmds | xargs -P 1 -I{} bash -c "{}"
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless --jobs 4
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless --jobs 5
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
@@ -94,7 +94,7 @@ polkadot-js-ui-ink-examples:
         echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
       done
     - cat /tmp/cmds | xargs -P 1 -I{} bash -c "{}"
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui --jobs 4
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui --jobs 5
   after_script:
     - pkill -f -x "canvas --tmp --dev"
 
