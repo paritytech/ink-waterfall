@@ -17,6 +17,7 @@
 use crate::{
     uis::{
         Call,
+        Result,
         Ui,
         Upload,
     },
@@ -27,8 +28,6 @@ use crate::{
     },
 };
 use lang_macro::waterfall_test;
-
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
 async fn delegator_works(mut ui: Ui) -> Result<()> {

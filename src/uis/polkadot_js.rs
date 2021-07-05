@@ -15,9 +15,11 @@
 use crate::uis::{
     Call,
     ContractsUi,
-    Error,
     Event,
     Events,
+    Result,
+    TransactionError,
+    TransactionResult,
     Upload,
 };
 use async_trait::async_trait;
@@ -26,10 +28,7 @@ use fantoccini::Locator;
 #[async_trait]
 impl ContractsUi for crate::uis::Ui {
     /// Returns the address for a given `name`.
-    async fn name_to_address(
-        &mut self,
-        name: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    async fn name_to_address(&mut self, name: &str) -> Result<String> {
         let log_id = name.clone();
         self.client
             .goto(
@@ -68,10 +67,7 @@ impl ContractsUi for crate::uis::Ui {
     }
 
     /// Returns the balance postfix numbers.
-    async fn balance_postfix(
-        &mut self,
-        account: String,
-    ) -> Result<u128, Box<dyn std::error::Error>> {
+    async fn balance_postfix(&mut self, account: String) -> Result<u128> {
         let log_id = account.clone();
         self.client
             .goto(
@@ -110,10 +106,7 @@ impl ContractsUi for crate::uis::Ui {
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
-    async fn execute_upload(
-        &mut self,
-        upload_input: Upload,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    async fn execute_upload(&mut self, upload_input: Upload) -> Result<String> {
         let log_id = format!(
             "{}",
             upload_input
@@ -602,10 +595,7 @@ impl ContractsUi for crate::uis::Ui {
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
-    async fn execute_rpc(
-        &mut self,
-        call: Call,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    async fn execute_rpc(&mut self, call: Call) -> Result<String> {
         let log_id = call.method.clone();
 
         let url = format!("{}", url());
@@ -786,7 +776,7 @@ impl ContractsUi for crate::uis::Ui {
     ///
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
-    async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error> {
+    async fn execute_transaction(&mut self, call: Call) -> TransactionResult<Events> {
         let log_id = call.method.clone();
 
         let url = format!("{}", url());
@@ -1165,7 +1155,7 @@ impl ContractsUi for crate::uis::Ui {
         let failure = events.contains("system.ExtrinsicFailed");
         match (success, failure) {
             (true, false) => Ok(events),
-            (false, true) => Err(Error::ExtrinsicFailed(events)),
+            (false, true) => Err(TransactionError::ExtrinsicFailed(events)),
             (false, false) => panic!("ERROR: Neither 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
             (true, true) => panic!("ERROR: Both 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
         }

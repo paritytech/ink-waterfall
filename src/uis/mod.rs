@@ -46,34 +46,44 @@ lazy_static! {
     static ref PICKED_PORTS: Mutex<Vec<u16>> = Mutex::new(vec![]);
 }
 
+// The result of an interaction with the UI.
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+// The result of submitting a transaction.
+pub type TransactionResult<T> = std::result::Result<T, TransactionError>;
+
+// An error which happened when interacting with the UI.
+#[derive(Debug)]
+pub enum TransactionError {
+    ExtrinsicFailed(Events),
+    Other(Box<dyn std::error::Error>),
+}
+
+impl From<CmdError> for TransactionError {
+    fn from(cmd_err: CmdError) -> Self {
+        TransactionError::Other(Box::new(cmd_err))
+    }
+}
+
 #[async_trait]
 pub trait ContractsUi {
     /// Returns the address for a given `name`.
-    async fn name_to_address(
-        &mut self,
-        name: &str,
-    ) -> Result<String, Box<dyn std::error::Error>>;
+    async fn name_to_address(&mut self, name: &str) -> self::Result<String>;
 
     /// Returns the balance postfix numbers.
-    async fn balance_postfix(
-        &mut self,
-        account: String,
-    ) -> Result<u128, Box<dyn std::error::Error>>;
+    async fn balance_postfix(&mut self, account: String) -> self::Result<u128>;
 
     /// Uploads the contract behind `contract_path`.
-    async fn execute_upload(
-        &mut self,
-        upload_input: Upload,
-    ) -> Result<String, Box<dyn std::error::Error>>;
+    async fn execute_upload(&mut self, upload_input: Upload) -> self::Result<String>;
 
     /// Executes the RPC call `call`.
-    async fn execute_rpc(
-        &mut self,
-        call: Call,
-    ) -> Result<String, Box<dyn std::error::Error>>;
+    async fn execute_rpc(&mut self, call: Call) -> self::Result<String>;
 
     /// Executes the transaction `call`.
-    async fn execute_transaction(&mut self, call: Call) -> Result<Events, Error>;
+    async fn execute_transaction(
+        &mut self,
+        call: Call,
+    ) -> self::TransactionResult<Events>;
 }
 
 /// Holds everything necessary to interact with the user interface.
@@ -86,7 +96,7 @@ impl Ui {
     /// Creates a new `Ui` instance.
     ///
     /// As part of this set-up a `geckodriver` instance is spawned to a free port.
-    pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new() -> self::Result<Self> {
         crate::utils::assert_canvas_node_running();
 
         let mut port = None;
@@ -118,7 +128,7 @@ impl Ui {
             .spawn()
             .expect("geckodriver can not be spawned");
 
-        // connect to webdriver instance that is listening on that port
+        // connect to `webdriver` instance that is listening on that port
         let client = ClientBuilder::native()
             .capabilities(get_capabilities())
             .connect(&format!("http://localhost:{}", port))
@@ -133,7 +143,7 @@ impl Ui {
     ///
     /// It would be better to have this in `Ui::Drop`, but this is not possible
     /// due to the async nature of the `client.close()` method.
-    pub async fn shutdown(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn shutdown(&mut self) -> self::Result<()> {
         if !closing_enabled() {
             log::info!(
                 "keeping client open due to env variable `WATERFALL_CLOSE_BROWSER`"
@@ -164,18 +174,6 @@ impl Drop for Ui {
             .kill()
             .expect("unable to kill geckodriver, it probably wasn't running");
         log::debug!("killed geckodriver");
-    }
-}
-
-#[derive(Debug)]
-pub enum Error {
-    ExtrinsicFailed(Events),
-    Other(Box<dyn std::error::Error>),
-}
-
-impl From<CmdError> for Error {
-    fn from(cmd_err: CmdError) -> Self {
-        Error::Other(Box::new(cmd_err))
     }
 }
 

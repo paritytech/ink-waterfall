@@ -17,7 +17,8 @@
 use crate::{
     uis::{
         Call,
-        Error,
+        Result,
+        TransactionError,
         Ui,
         Upload,
     },
@@ -27,8 +28,6 @@ use crate::{
     },
 };
 use lang_macro::waterfall_test;
-
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
 async fn contract_terminate_works(mut ui: Ui) -> Result<()> {
@@ -53,7 +52,7 @@ async fn contract_terminate_works(mut ui: Ui) -> Result<()> {
         .await
         .expect_err("successfully executed transaction, but expected it to_fail");
     match err {
-        Error::ExtrinsicFailed(events) => {
+        TransactionError::ExtrinsicFailed(events) => {
             assert!(events.contains("contracts.ContractNotFound"))
         }
         err => panic!("encountered unexpected {:?}", err),

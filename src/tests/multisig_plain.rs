@@ -17,6 +17,7 @@
 use crate::{
     uis::{
         Call,
+        Result,
         Ui,
         Upload,
     },
@@ -26,8 +27,6 @@ use crate::{
     },
 };
 use lang_macro::waterfall_test;
-
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[waterfall_test]
 async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
