@@ -85,7 +85,7 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
-        std::thread::sleep(std::time::Duration::from_secs(2));
+        std::thread::sleep(std::time::Duration::from_secs(3));
 
         let path = format!(
             "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
@@ -97,6 +97,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .text()
             .await?;
+        log::info!("[{}] found balance {} for account {}", log_id, txt, account);
         Ok(txt.parse::<u128>().expect("failed parsing"))
     }
 

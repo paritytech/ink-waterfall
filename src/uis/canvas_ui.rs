@@ -30,6 +30,8 @@ use regex::Regex;
 impl ContractsUi for crate::uis::Ui {
     /// Returns the address for a given `name`.
     async fn name_to_address(&mut self, name: &str) -> Result<String> {
+        // There is currently no way of doing this via the `canvas-ui`, hence
+        // we need to use `polkadot-js`.
         let log_id = name.clone();
         self.client
             .goto(
@@ -99,7 +101,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .text()
             .await?;
-        log::info!("[{}] extracted balance {:?}", log_id, balance);
+        log::info!("[{}] extracted balance {:?} for account", log_id, balance);
         Ok(balance.parse::<u128>().expect("failed parsing"))
     }
 
