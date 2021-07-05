@@ -429,7 +429,7 @@ impl ContractsUi for crate::uis::Ui {
                 log::info!(
                     "[{}] upload: success for {:?} after waiting {}",
                     log_id,
-                    upload_input.contract_path
+                    upload_input.contract_path,
                     waited,
                 );
                 break
@@ -437,7 +437,7 @@ impl ContractsUi for crate::uis::Ui {
                 log::info!(
                     "[{}] upload retry: failed for {:?} after waiting {}",
                     log_id,
-                    upload_input.contract_path
+                    upload_input.contract_path,
                     waited,
                 );
 
@@ -1035,7 +1035,7 @@ impl ContractsUi for crate::uis::Ui {
                 log::info!(
                     "[{}] transaction: success for {:?} after waiting {}",
                     log_id,
-                    call.method
+                    call.method,
                     waited,
                 );
                 break
