@@ -53,20 +53,22 @@ requirement. By default the published versions of those projects are used
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 canvas --tmp --dev > /tmp/canvas.log 2>&1 &
 
-# by default you will see the firefox gui and the
-# tests interacting with it
+# By default you will see the Firefox GUI and the
+# tests interacting with it.
 cargo test 
 
 # …you can also start the tests headless though, then
-# you won't see anything
+# you won't see anything.
 cargo test --features headless
 
-# handy for debugging:
-# you can prevent the test suite from closing the browser
-# window. then you can still interact with the browser after
+# Handy for debugging:
+
+# You can prevent the test suite from closing the browser
+# window. Then you can still interact with the browser after
 # the test failed/succeeded. 
 export WATERFALL_CLOSE_BROWSER=false
-# setting the number of parallel jobs to one makes it easier
+
+# Setting the number of parallel jobs to `1` makes it easier
 # to follow the tests interacting with the browser.
 cargo test --jobs 1
 ```
@@ -81,7 +83,7 @@ yarn install
 yarn start > /tmp/canvas-ui.log 2>&1 &
 cd ..
 
-# check that the ui is ready and a `200 OK` is returned
+# Check that the ui is ready and a `200 OK` is returned.
 curl -I http://localhost:3000/
 
 export UI_URL="http://localhost:3000"
@@ -100,4 +102,16 @@ supply `--features polkadot-js-ui` to `cargo test`.
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder.
 * `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
-* `CANVAS_PORT` ‒ Port under which the `canvas-node` is running, defaults to `9944.
+* `CANVAS_PORT` ‒ Port under which the `canvas-node` is running, defaults to `9944`.
+
+
+## Known issues
+
+The tooltips which show the result of a contract upload or transaction
+(`ExtrinsicSuccess`, …) disappear after some time. If too many UI tests
+are run at the same time the tooltips might disappear before the test
+is finished processing them.
+
+The test will then fail with an error that the DOM element is no longer
+available. The easiest fix is to limit the number of concurrent test
+threads via `cargo test --jobs 4`.
