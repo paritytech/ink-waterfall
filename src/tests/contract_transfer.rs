@@ -49,7 +49,7 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
         .expect("failed to execute transaction");
 
     // then
-    let balance_after = ui.balance_postfix("BOB".to_string()).await?;
+    let balance_after = ui.balance_postfix("EVE".to_string()).await?;
     log::info!("balance before: {}", balance_before);
     log::info!("balance after: {}", balance_after);
     assert_eq!(balance_after - balance_before, 1);
