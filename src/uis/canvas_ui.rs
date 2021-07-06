@@ -564,7 +564,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // click call
-        log::info!("[{}] click call", log_id);
+        log::info!("[{}] click rpc call", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
@@ -742,9 +742,9 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // click call
-        log::info!("[{}] click call", log_id);
+        log::info!("[{}] transaction click call", log_id);
         self.client
-            .find(Locator::XPath("//button[contains(text(),'Call')]"))
+            .wait_for_find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
             .click()
             .await?;
