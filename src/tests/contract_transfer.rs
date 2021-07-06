@@ -35,14 +35,14 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
-    let balance_before = ui.balance_postfix("BOB".to_string()).await?;
+    let balance_before = ui.balance_postfix("EVE".to_string()).await?;
 
     // when
     let _events = ui
         .execute_transaction(
             Call::new(&contract_addr, "give_me")
                 .push_value("value", "100")
-                .caller("BOB")
+                .caller("EVE")
                 .max_gas("25000"),
         )
         .await
@@ -72,6 +72,7 @@ async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
     let result = ui
         .execute_transaction(
             Call::new(&contract_addr, "was_it_ten")
+                .caller("DAVE")
                 .payment("10", "pico")
                 .max_gas("25000"),
         )
