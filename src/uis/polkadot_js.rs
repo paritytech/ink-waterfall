@@ -1107,7 +1107,10 @@ fn base_url() -> String {
     // strip a possibly ending `/` from he URL, since a URL like `http://foo//bar`
     // can cause issues.
     let mut url = base_url.trim_end_matches('/').to_string();
-    url.push_str(&format!("/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/", utils::canvas_port()));
+    url.push_str(&format!(
+        "/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
+        utils::canvas_port()
+    ));
     url
 }
 
@@ -1115,9 +1118,7 @@ fn base_url() -> String {
 ///
 /// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
 fn url() -> String {
-    format!("{}contracts",
-        base_url(),
-    )
+    format!("{}contracts", base_url())
 }
 
 /// Returns the address for a given `name`.

@@ -85,15 +85,10 @@ impl ContractsUi for crate::uis::Ui {
                 .to_str()
                 .expect("conversion must work")
         );
-        log::info!(
-            "[{}] opening url for upload: {:?}",
-            log_id,
-            url("/#/upload")
-        );
+        log::info!("[{}] opening url for upload: {:?}", log_id, url("upload"));
 
-        self.client.goto(&url("/#/upload")).await?;
+        self.client.goto(&url("upload")).await?;
 
-        // We wait until the settings are visible to make sure the page is ready
         log::info!("[{}] waiting for settings to become visible", log_id);
         self.client
             .wait_for_find(Locator::XPath("//*[contains(text(),'Local Node')]"))
@@ -120,22 +115,6 @@ impl ContractsUi for crate::uis::Ui {
                 log_id
             );
         }
-
-        log::info!("[{}] click settings first time", log_id);
-        self.client
-            .find(Locator::Css(".app--SideBar-settings"))
-            .await?
-            .click()
-            .await?;
-
-        log::info!("[{}] click local node", log_id);
-        self.client
-            .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
-            .await?
-            .click()
-            .await?;
-
-        std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] click upload", log_id);
         self.client
@@ -461,13 +440,13 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        let base_url = url("");
-        let re = Regex::new(&format!("{}/#/execute/([0-9a-zA-Z]+)/0", base_url))
-            .expect("invalid regex");
-        let curr_client_url = self.client.current_url().await?;
+        let re = Regex::new("/execute/([0-9a-zA-Z]+)/0").expect("invalid regex");
+        let client_url = self.client.current_url().await?;
+        let url_fragment = client_url.fragment().expect("fragment must exist in url");
+        log::info!("[{}] url fragment {:?}", log_id, url_fragment);
         let captures = re
-            .captures(curr_client_url.as_str())
-            .expect("contract address cannot be extracted from website");
+            .captures(url_fragment)
+            .expect("contract address cannot be extracted from client url");
         let addr = captures.get(1).expect("no capture group").as_str();
         log::info!("[{}] contract address {:?}", log_id, addr);
         Ok(String::from(addr))
@@ -482,7 +461,7 @@ impl ContractsUi for crate::uis::Ui {
     async fn execute_rpc(&mut self, call: Call) -> Result<String> {
         let log_id = call.method.clone();
 
-        let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
+        let url = format!("{}{}/0", url("execute/"), call.contract_address);
         log::info!(
             "[{}] opening url for rpc {:?}: {:?}",
             log_id,
@@ -615,7 +594,7 @@ impl ContractsUi for crate::uis::Ui {
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> TransactionResult<Events> {
         let log_id = call.method.clone();
-        let url = format!("{}{}/0", url("/#/execute/"), call.contract_address);
+        let url = url(&format!("execute/{}/0", call.contract_address));
         log::info!(
             "[{}] opening url for executing transaction {:?}: {:?}",
             log_id,
@@ -907,16 +886,28 @@ impl ContractsUi for crate::uis::Ui {
         }
     }
 }
-/// Returns the URL to the `path` in the UI.
+
+/// Returns the UI's base URL.
 ///
-/// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
-fn url(path: &str) -> String {
-    let base_url: String = std::env::var("UI_URL")
+/// If the env variable `UI_URL` is set that one is taken, otherwise the default
+/// `https://paritytech.github.io/canvas-ui` is returned.
+fn base_url() -> String {
+    let base_url = std::env::var("UI_URL")
         .unwrap_or(String::from("https://paritytech.github.io/canvas-ui"));
 
     // strip a possibly ending `/` from he URL, since a URL like `http://foo//bar`
     // can cause issues.
-    let base_url = base_url.trim_end_matches('/');
+    let mut url = base_url.trim_end_matches('/').to_string();
+    url.push_str(&format!(
+        "?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
+        utils::canvas_port()
+    ));
+    url
+}
 
-    String::from(format!("{}{}", base_url, path))
+/// Returns the URL to the `path` in the UI.
+///
+/// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
+fn url(path: &str) -> String {
+    format!("{}{}", base_url(), path)
 }
