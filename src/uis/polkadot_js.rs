@@ -1029,30 +1029,20 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            el.find(Locator::XPath("div[@class = 'status']"))
-                .await?
-                .text()
-                .await?
-                .split("\n")
-                .for_each(|status| {
-                    log::info!("[{}] found status message {:?}", log_id, status);
-                    statuses_processed.push(Event {
-                        header: String::from(""),
-                        status: status.to_string(),
-                    });
+            el.find(Locator::XPath(
+                "div[@class = 'status' or @class = 'header']",
+            ))
+            .await?
+            .text()
+            .await?
+            .split("\n")
+            .for_each(|status| {
+                log::info!("[{}] found status message {:?}", log_id, status);
+                statuses_processed.push(Event {
+                    header: String::from(""),
+                    status: status.to_string(),
                 });
-            el.find(Locator::XPath("div[@class = 'header']"))
-                .await?
-                .text()
-                .await?
-                .split("\n")
-                .for_each(|status| {
-                    log::info!("[{}] found status message {:?}", log_id, status);
-                    statuses_processed.push(Event {
-                        header: String::from(""),
-                        status: status.to_string(),
-                    });
-                });
+            });
         }
         let events = Events::new(statuses_processed);
 
