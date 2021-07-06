@@ -26,10 +26,7 @@ use crate::{
     utils::{self,},
 };
 use async_trait::async_trait;
-use fantoccini::{
-    Client,
-    Locator,
-};
+use fantoccini::Locator;
 
 #[async_trait]
 impl ContractsUi for crate::uis::Ui {
@@ -508,14 +505,14 @@ impl ContractsUi for crate::uis::Ui {
     async fn execute_rpc(&mut self, call: Call) -> Result<String> {
         let log_id = call.method.clone();
 
-        let url = format!("{}", url());
+        let url = url();
         log::info!(
             "[{}] opening url for rpc {:?}: {:?}",
             log_id,
             call.method,
             url
         );
-        self.client.goto(url.as_str()).await?;
+        self.client.goto(&url).await?;
 
         // Firefox might not load if the website at that address is already open, hence we refresh
         // just to be sure that it's a clean, freshly loaded page in front of us.
@@ -690,9 +687,9 @@ impl ContractsUi for crate::uis::Ui {
 
         if ret_type.contains("AccountId") {
             // convert hash account id to mnemonic name
-            ret_value = name_to_address(&mut self.client, &call.contract_address)
-                .await
-                .expect("conversion must work");
+            log::info!("[{}] attempting to resolve {}", log_id, &ret_value);
+            ret_value = name_to_address(&ret_value).expect("address for name must exist");
+            log::info!("[{}] resolved to {}", log_id, &ret_value);
         }
 
         log::info!("[{}] outcome value is {:?}", log_id, ret_value);
@@ -709,14 +706,14 @@ impl ContractsUi for crate::uis::Ui {
     async fn execute_transaction(&mut self, call: Call) -> TransactionResult<Events> {
         let log_id = call.method.clone();
 
-        let url = format!("{}", url());
+        let url = url();
         log::info!(
             "[{}] opening url for executing transaction {:?}: {:?}",
             log_id,
             call.method,
             url
         );
-        self.client.goto(url.as_str()).await?;
+        self.client.goto(&url).await?;
 
         // Firefox might not load if the website at that address is already open, hence we refresh
         // just to be sure that it's a clean, freshly loaded page in front of us.
@@ -1122,40 +1119,13 @@ fn url() -> String {
 }
 
 /// Returns the address for a given `name`.
-async fn name_to_address(client: &mut Client, name: &str) -> Result<String> {
-    let log_id = name.clone();
-    client
-        .goto(&format!(
-            "{}/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
-            base_url(),
-            utils::canvas_port()
-        ))
-        .await?;
-
-    // Firefox might not load if the website at that address is already open, hence we refresh
-    // just to be sure that it's a clean, freshly loaded page in front of us.
-    client.refresh().await?;
-
-    log::info!("[{}] waiting for page to become visible", log_id);
-    client
-        .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
-        .await?;
-
-    std::thread::sleep(std::time::Duration::from_secs(1));
-
-    log::info!("[{}] checking account {:?}", log_id, name);
-    client
-        .find(Locator::XPath(&format!("//div[text() = '{}']", name)))
-        .await?
-        .click()
-        .await?;
-
-    log::info!("[{}] getting address", log_id);
-    let addr = client
-        .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
-        .await?
-        .text()
-        .await?;
-    log::info!("[{}] got address {}", log_id, addr);
-    Ok(addr)
+fn name_to_address(name: &str) -> Option<String> {
+    match name {
+        "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" => Some("ALICE".to_string()),
+        "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty" => Some("BOB".to_string()),
+        "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y" => Some("CHARLIE".to_string()),
+        "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy" => Some("DAVE".to_string()),
+        "5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw" => Some("EVE".to_string()),
+        _ => None,
+    }
 }
