@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::uis::{
-    Call,
-    ContractsUi,
-    Event,
-    Events,
-    Result,
-    TransactionError,
-    TransactionResult,
-    Upload,
+use crate::{
+    uis::{
+        Call,
+        ContractsUi,
+        Event,
+        Events,
+        Result,
+        TransactionError,
+        TransactionResult,
+        Upload,
+    },
+    utils::{self,},
 };
 use async_trait::async_trait;
 use fantoccini::Locator;
@@ -30,13 +33,15 @@ use regex::Regex;
 impl ContractsUi for crate::uis::Ui {
     /// Returns the balance postfix numbers.
     async fn balance_postfix(&mut self, account: String) -> Result<u128> {
+        // The `canvas-ui` doesn't display the balance, so we need to piggy-back
+        // on `polkadot-js`.
         let log_id = account.clone();
         log::info!("[{}] getting balance_postfix for {:?}", log_id, account);
         self.client
-            .goto(
-                // TODO doesn't work with differen URI!
-                "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/accounts",
-            )
+            .goto(&format!(
+                "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
+                utils::canvas_port()
+            ))
             .await?;
 
         // Firefox might not load if the website at that address is already open, hence we refresh

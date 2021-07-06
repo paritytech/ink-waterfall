@@ -98,3 +98,4 @@ supply `--features polkadot-js-ui` to `cargo test`.
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder.
 * `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
+* `CANVAS_PORT` ‒ Port under which the `canvas-node` is running, defaults to `9944.

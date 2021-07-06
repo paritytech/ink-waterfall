@@ -26,7 +26,7 @@ use std::{
 /// Returns the full path to the ink! example directory for `example`.
 pub fn example_path(example: &str) -> PathBuf {
     let examples_path = std::env::var("INK_EXAMPLES_PATH")
-        .expect("env variable INK_EXAMPLES_PATH must be set");
+        .expect("env variable `INK_EXAMPLES_PATH` must be set");
     let path = PathBuf::from(examples_path);
     path.join(example)
 }
@@ -61,6 +61,11 @@ pub fn assert_canvas_node_running() {
         canvas_node_running,
         "ERROR: The canvas node is not running!"
     );
+}
+
+/// Returns the port under which the `canvas-node` is running.
+pub fn canvas_port() -> String {
+    std::env::var("CANVAS_PORT").unwrap_or(String::from("9944"))
 }
 
 /// Returns true if the `canvas-node` log under `/tmp/canvas.log` contains `msg`.
