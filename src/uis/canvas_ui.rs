@@ -179,19 +179,9 @@ impl ContractsUi for crate::uis::Ui {
             .execute("$(\".ui--InputFile input\").trigger('change')", Vec::new())
             .await?;
 
-        log::info!("[{}] click settings second time", log_id);
-        self.client
-            .find(Locator::Css(".app--SideBar-settings"))
-            .await?
-            .click()
-            .await?;
-
-        // We should get rid of this `sleep`
-        std::thread::sleep(std::time::Duration::from_secs(1));
-
         log::info!("[{}] click details", log_id);
         self.client
-            .find(Locator::XPath(
+            .wait_for_find(Locator::XPath(
                 "//*[contains(text(),'Constructor Details')]",
             ))
             .await?
@@ -759,17 +749,10 @@ impl ContractsUi for crate::uis::Ui {
             .click()
             .await?;
 
-        // wait for notification to show up
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//div[@class = 'status' and contains(text(), 'queued')]",
-            ))
-            .await?;
-
         // click sign and submit
         log::info!("[{}] sign and submit", log_id);
         self.client
-            .find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
+            .wait_for_find(Locator::XPath("//button[contains(text(),'Sign & Submit')]"))
             .await?
             .click()
             .await?;
