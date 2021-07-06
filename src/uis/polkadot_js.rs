@@ -345,29 +345,6 @@ impl ContractsUi for crate::uis::Ui {
                 );
                 break
             } else {
-                log::info!(
-                    "[{}] upload retry: failed for {:?} after waiting {}",
-                    log_id,
-                    upload_input.contract_path,
-                    waited,
-                );
-
-                let statuses = self
-                    .client
-                    .find_all(Locator::XPath(
-                        "//div[contains(@class, 'ui--Status')]//div[@class = 'desc' or @class = 'header']",
-                    ))
-                    .await?;
-                log::info!(
-                    "[{}] upload retry: found {:?} status messages for {:?}",
-                    log_id,
-                    statuses.len(),
-                    upload_input.contract_path
-                );
-                for mut el in statuses {
-                    log::info!("[{}] upload retry, text: {:?}", log_id, el.text().await?);
-                }
-
                 if waited == 20 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} upload! next recursion.",
@@ -377,9 +354,10 @@ impl ContractsUi for crate::uis::Ui {
                     return self.execute_upload(upload_input.clone()).await
                 } else {
                     log::info!(
-                        "[{}] timed out on waiting for {:?} upload! sleeping.",
+                        "[{}] timed out on waiting for {:?} upload after {}! sleeping.",
                         log_id,
-                        upload_input.contract_path
+                        upload_input.contract_path,
+                        waited
                     );
                 }
             }
