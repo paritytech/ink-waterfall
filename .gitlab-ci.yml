@@ -133,6 +133,6 @@ build_badge:
     - .scripts/get-updated-badge-info.sh
   artifacts:
     paths:
-        - .scripts/badge.json
+        - badge.json
     when: always
     expire_in: 4 weeks
