@@ -57,7 +57,7 @@ async fn flipper_works(mut ui: Ui) -> Result<()> {
 }
 
 #[waterfall_test]
-async fn default_constructor(mut ui: Ui) -> Result<()> {
+async fn flipper_default_constructor(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let contract_file =

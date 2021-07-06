@@ -29,7 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test]
-async fn flipper_works(mut ui: Ui) -> Result<()> {
+async fn trait_flipper_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-flipper/Cargo.toml");
     let contract_file =
@@ -57,7 +57,7 @@ async fn flipper_works(mut ui: Ui) -> Result<()> {
 }
 
 #[waterfall_test]
-async fn default_constructor(mut ui: Ui) -> Result<()> {
+async fn trait_default_constructor(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-flipper/Cargo.toml");
     let contract_file =

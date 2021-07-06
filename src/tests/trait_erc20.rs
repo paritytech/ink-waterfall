@@ -31,7 +31,7 @@ use lang_macro::waterfall_test;
 #[waterfall_test]
 // TODO has to be ignored for `canvas-ui` until https://github.com/paritytech/canvas-ui/issues/105 is fixed.
 #[cfg_attr(not(feature = "polkadot-js-ui"), ignore)]
-async fn erc20(mut ui: Ui) -> Result<()> {
+async fn trait_erc20(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-erc20/Cargo.toml");
     let contract_file =
@@ -78,7 +78,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
 #[waterfall_test]
 // TODO has to be ignored for `canvas-ui` until https://github.com/paritytech/canvas-ui/issues/105 is fixed.
 #[cfg_attr(not(feature = "polkadot-js-ui"), ignore)]
-async fn erc20_allowances(mut ui: Ui) -> Result<()> {
+async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-erc20/Cargo.toml");
     let contract_file =
