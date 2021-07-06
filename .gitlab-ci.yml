@@ -6,6 +6,7 @@
 
 stages:
   - test
+  - build
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -118,3 +119,19 @@ polkadot-js-ui-rand-extension:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - pkill -f -x "canvas-rand-extension --tmp --dev"
+
+build_badge:
+  stage: build
+  tags:
+    - docker-build
+  before_script:
+    - chmod +x get-updated-badge-info.sh
+  script:
+    - # nothing to do here
+  after_script:
+    - ./scripts/get-updated-badge-info.sh
+  artifacts:
+    paths:
+        - badge.json
+    when: always
+    expire_in: 4 weeks
