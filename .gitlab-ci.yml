@@ -60,65 +60,63 @@ workflow:
   tags:
     - linux-docker
 
+.prepare:                          &prepare
+  - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
+  - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
+
+.build-contracts:                  &build-contracts
+  - for example in ${INK_EXAMPLES_PATH}/*/; do
+      echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
+    done
+  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
+    done
+  - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+
+.shutdown:                          &shutdown
+  - pkill -f -x "canvas --tmp --dev"
+
 canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
-  variables:
+    - *prepare
   script:
-    - for example in ${INK_EXAMPLES_PATH}/*/; do
-        echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
-      done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless
   after_script:
-    - pkill -f -x "canvas --tmp --dev"
+    - *shutdown
 
 polkadot-js-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
-  variables:
+    - *prepare
   script:
-    - for example in ${INK_EXAMPLES_PATH}/*/; do
-        echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
-      done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui
   after_script:
-    - pkill -f -x "canvas --tmp --dev"
+    - *shutdown
 
 canvas-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
-    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
+    - *prepare
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
-    - pkill -f -x "canvas-rand-extension --tmp --dev"
+    - *shutdown
 
 polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - canvas-rand-extension --tmp --dev > /tmp/canvas-rand-extension.log 2>&1 &
-    - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
+    - *prepare
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
-    - pkill -f -x "canvas-rand-extension --tmp --dev"
+    - *shutdown
 
 build_badge:
   stage: build
