@@ -583,6 +583,10 @@ impl ContractsUi for crate::uis::Ui {
         if txt == "0x000000…00000000" {
             txt = String::from("<empty>");
         }
+        txt = txt
+            .trim_start_matches("Some(\n")
+            .trim_end_matches("\n)")
+            .to_string();
         Ok(txt)
     }
 

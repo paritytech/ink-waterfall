@@ -53,9 +53,6 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         .await?,
         "1"
     );
-
-    // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
-    #[cfg(feature = "polkadot-js-ui")]
     assert_eq!(
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
@@ -85,8 +82,6 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         .await?,
         "1"
     );
-    // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
-    #[cfg(feature = "polkadot-js-ui")]
     assert_eq!(
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
@@ -123,8 +118,6 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         .await?,
         "0"
     );
-    // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
-    #[cfg(feature = "polkadot-js-ui")]
     assert_eq!(
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
@@ -170,8 +163,6 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         .await?,
         "1"
     );
-    // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
-    #[cfg(feature = "polkadot-js-ui")]
     assert_eq!(
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
@@ -192,12 +183,10 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         .await?,
         "0"
     );
-    // TODO https://github.com/paritytech/canvas-ui/issues/84 needs to be fixed first for `canvas-ui`
-    #[cfg(feature = "polkadot-js-ui")]
     assert_eq!(
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
-        "<none>"
+        "None"
     );
 
     Ok(())

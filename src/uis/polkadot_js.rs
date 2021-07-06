@@ -695,6 +695,10 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] resolved to {}", log_id, &ret_value);
         }
 
+        if ret_value == "<none" {
+            ret_value = "None".to_string();
+        }
+
         log::info!("[{}] outcome value is {:?}", log_id, ret_value);
         log::info!("[{}] outcome type value is {:?}", log_id, ret_type);
         Ok(ret_value)
