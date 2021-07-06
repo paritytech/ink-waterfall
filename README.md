@@ -105,15 +105,13 @@ supply `--features polkadot-js-ui` to `cargo test`.
 * `CANVAS_PORT` ‒ Port under which the `canvas-node` is running, defaults to `9944`.
 
 
-## Known issues
+## Known issue
 
-The tooltips which show the result of a contract upload or transaction
-(`ExtrinsicSuccess`, …) disappear after some time. If too many UI tests
-are run at the same time the tooltips might disappear before the test
-is finished processing them.
+The tooltips which show the result of a contract upload or contract
+transaction (`ExtrinsicSuccess`, …) disappear after some time. When too
+many UI tests are run at the same time the tooltips might disappear
+before the test is finished processing them.
 
 The test will then fail with a `NoSucheElement` error, indicating that
-the DOM element is no longer available.
-
-The easiest fix for this is to limit the number of concurrent test
-threads via `cargo test --jobs 4`.
+the DOM element is no longer available. The easiest fix for this is to
+limit the number of concurrent test threads via `cargo test --jobs 4`.
