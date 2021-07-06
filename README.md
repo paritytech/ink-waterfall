@@ -66,7 +66,9 @@ cargo test --features headless
 # window. then you can still interact with the browser after
 # the test failed/succeeded. 
 export WATERFALL_CLOSE_BROWSER=false
-cargo test
+# setting the number of parallel jobs to one makes it easier
+# to follow the tests interacting with the browser.
+cargo test --jobs 1
 ```
 
 By default, the `canvas-ui` published at [https://paritytech.github.io/canvas-ui](https://paritytech.github.io/canvas-ui)
