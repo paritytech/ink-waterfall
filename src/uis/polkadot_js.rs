@@ -363,7 +363,7 @@ impl ContractsUi for crate::uis::Ui {
                     log::info!("[{}] upload retry, text: {:?}", log_id, el.text().await?);
                 }
 
-                if waited == 40 {
+                if waited == 20 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} upload! next recursion.",
                         log_id,
@@ -996,7 +996,7 @@ impl ContractsUi for crate::uis::Ui {
                     );
                 }
 
-                if waited == 40 {
+                if waited == 20 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} transaction after {}! next recursion.",
                         log_id,
