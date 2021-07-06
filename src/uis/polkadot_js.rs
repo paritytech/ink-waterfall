@@ -391,12 +391,6 @@ impl ContractsUi for crate::uis::Ui {
                 "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
-        log::info!(
-            "[{}] upload: found {:?} status messages {:?}",
-            log_id,
-            statuses.len(),
-            upload_input.contract_path
-        );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             // the switch of status vs. header is intentional here
@@ -406,17 +400,14 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .split("\n")
                 .for_each(|status| {
-                    log::info!(
-                        "[{}] found status message {:?} {:?}",
-                        log_id,
-                        status,
-                        upload_input.contract_path
-                    );
                     statuses_processed.push(Event {
                         header: String::from(""),
                         status: status.to_string(),
                     });
                 });
+        }
+        for status in &statuses_processed {
+            log::info!("[{}] upload: found status {:?}", log_id, status,);
         }
         let events = Events::new(statuses_processed);
         if events.contains("Priority is too low") {
@@ -695,7 +686,7 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] resolved to {}", log_id, &ret_value);
         }
 
-        if ret_value == "<none" {
+        if ret_value == "<none>" {
             ret_value = "None".to_string();
         }
 
