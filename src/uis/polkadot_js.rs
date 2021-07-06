@@ -685,7 +685,10 @@ impl ContractsUi for crate::uis::Ui {
             .text()
             .await?;
 
-        if ret_type.contains("AccountId") {
+        if ret_type.contains("AccountId")
+            && ret_value != "<none>"
+            && ret_value != "<empty>"
+        {
             // convert hash account id to mnemonic name
             log::info!("[{}] attempting to resolve {}", log_id, &ret_value);
             ret_value = name_to_address(&ret_value).expect("address for name must exist");

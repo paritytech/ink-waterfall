@@ -197,7 +197,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     assert_eq!(
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
-        "<empty>"
+        "<none>"
     );
 
     Ok(())
