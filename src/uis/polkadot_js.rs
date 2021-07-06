@@ -87,68 +87,10 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("[{}] opening url for upload: {:?}", log_id, url());
         self.client.goto(&url()).await?;
 
-        // Firefox might not load if the website at that address is already open, hence we refresh
-        // just to be sure that it's a clean, freshly loaded page in front of us.
+        // Firefox might not load if the website at that address is already open due to e.g.
+        // a prior `execute_transaction` call in the test. Hence we refresh just to be sure
+        // that it's a clean, freshly loaded page in front of us.
         self.client.refresh().await?;
-
-        log::info!("[{}] waiting for page to become visible", log_id);
-        self.client
-            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
-            .await?;
-
-        std::thread::sleep(std::time::Duration::from_secs(2));
-
-        log::info!("[{}] click settings", log_id);
-        self.client
-            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']/*[1]"))
-            .await?
-            .click()
-            .await?;
-
-        // if we can already select the 'Local Node' we will.
-        let maybe_local_node = self
-            .client
-            .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
-            .await;
-        if maybe_local_node.is_err() {
-            log::info!("[{}] click development", log_id);
-            self.client
-                .find(Locator::XPath("//*[contains(text(),'Development')]"))
-                .await?
-                .click()
-                .await?;
-
-            log::info!("[{}] select local node", log_id);
-            self.client
-                .find(Locator::XPath("//*[contains(text(),'Local Node')]"))
-                .await?
-                .click()
-                .await?;
-
-            log::info!("[{}] click switch", log_id);
-            self.client
-                .find(Locator::XPath("//button[contains(text(),'Switch')]"))
-                .await?
-                .click()
-                .await?;
-        } else {
-            log::info!("[{}] close settings", log_id);
-            self.client
-                .wait_for_find(Locator::XPath(
-                    "//div[contains(@class, 'ui--Sidebar')]/*[2]",
-                ))
-                .await?
-                .click()
-                .await?;
-        }
-
-        log::info!("[{}] waiting for local node page to become visible", log_id);
-        self.client
-            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
-            .await?;
-
-        log::info!("[{}] opening url for upload: {:?}", log_id, url());
-        self.client.goto(&url()).await?;
 
         log::info!("[{}] waiting for page to become visible", log_id);
         self.client
@@ -1154,18 +1096,28 @@ impl ContractsUi for crate::uis::Ui {
     }
 }
 
-/// Returns the URL to the `path` in the UI.
+/// Returns the UI's base URL.
 ///
-/// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
-fn url() -> String {
-    let base_url: String =
+/// If the env variable `UI_URL` is set that one is taken, otherwise the default
+/// `https://polkadot.js.org` is returned.
+fn base_url() -> String {
+    let base_url =
         std::env::var("UI_URL").unwrap_or(String::from("https://polkadot.js.org"));
 
     // strip a possibly ending `/` from he URL, since a URL like `http://foo//bar`
     // can cause issues.
-    let base_url = base_url.trim_end_matches('/');
+    let mut url = base_url.trim_end_matches('/').to_string();
+    url.push_str(&format!("/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/", utils::canvas_port()));
+    url
+}
 
-    String::from(format!("{}{}", base_url, "/apps/#/contracts"))
+/// Returns the URL to the `path` in the UI.
+///
+/// Defaults to https://paritytech.github.io/canvas-ui as the base URL.
+fn url() -> String {
+    format!("{}contracts",
+        base_url(),
+    )
 }
 
 /// Returns the address for a given `name`.
@@ -1173,7 +1125,8 @@ async fn name_to_address(client: &mut Client, name: &str) -> Result<String> {
     let log_id = name.clone();
     client
         .goto(&format!(
-            "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
+            "{}/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
+            base_url(),
             utils::canvas_port()
         ))
         .await?;
