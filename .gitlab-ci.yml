@@ -64,6 +64,10 @@ workflow:
   - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
   - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
 
+.prepare-rand-extension:           &prepare-rand-extension
+  - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
+  - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
+
 .build-contracts:                  &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
@@ -102,7 +106,7 @@ canvas-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - *prepare
+    - *prepare-rand-extension
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
@@ -112,7 +116,7 @@ polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - *prepare
+    - *prepare-rand-extension
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
