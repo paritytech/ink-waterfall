@@ -6,7 +6,6 @@
 
 stages:
   - test
-  - build
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -117,18 +116,3 @@ polkadot-js-ui-rand-extension:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - *shutdown
-
-build_badge:
-  stage: build
-  <<:                              *docker-env
-  before_script:
-    - chmod +x .scripts/get-updated-badge-info.sh
-  script:
-    - echo "building badge"
-  after_script:
-    - .scripts/get-updated-badge-info.sh
-  artifacts:
-    paths:
-        - badge.json
-    when: always
-    expire_in: 4 weeks
