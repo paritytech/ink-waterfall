@@ -21,7 +21,15 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
-use std::sync::Once;
+use std::{
+    cell::RefCell,
+    sync::Once,
+};
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
+
+// We save the name of the currently executing test here.
+thread_local! {
+    pub static TEST_NAME: RefCell<String> = RefCell::new(String::from("no test"));
+}

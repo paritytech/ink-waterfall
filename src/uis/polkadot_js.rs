@@ -23,7 +23,10 @@ use crate::{
         TransactionResult,
         Upload,
     },
-    utils::{self,},
+    utils::{
+        self,
+        test_name,
+    },
 };
 use async_trait::async_trait;
 use fantoccini::Locator;
@@ -32,7 +35,7 @@ use fantoccini::Locator;
 impl ContractsUi for crate::uis::Ui {
     /// Returns the balance postfix numbers.
     async fn balance_postfix(&mut self, account: String) -> Result<u128> {
-        let log_id = account.clone();
+        let log_id = format!("{} {}", test_name(), account.clone());
         self.client
             .goto(&format!(
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
@@ -72,16 +75,18 @@ impl ContractsUi for crate::uis::Ui {
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_upload(&mut self, upload_input: Upload) -> Result<String> {
-        let log_id = format!(
-            "{}",
+        let log_id = format!("{}", test_name(),);
+        log::info!(
+            "[{}] opening url for upload of {}: {:?}",
+            log_id,
             upload_input
                 .contract_path
                 .file_name()
                 .expect("file name must exist")
                 .to_str()
-                .expect("conversion must work")
+                .expect("conversion must work"),
+            url()
         );
-        log::info!("[{}] opening url for upload: {:?}", log_id, url());
         self.client.goto(&url()).await?;
 
         // Firefox might not load if the website at that address is already open due to e.g.
@@ -494,7 +499,7 @@ impl ContractsUi for crate::uis::Ui {
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_rpc(&mut self, call: Call) -> Result<String> {
-        let log_id = call.method.clone();
+        let log_id = format!("{} {}", test_name(), call.method.clone());
 
         let url = url();
         log::info!(
@@ -702,7 +707,7 @@ impl ContractsUi for crate::uis::Ui {
     /// This method must not make any assumptions about the state of the Ui before
     /// the method is invoked. It must e.g. open the upload page right at the start.
     async fn execute_transaction(&mut self, call: Call) -> TransactionResult<Events> {
-        let log_id = call.method.clone();
+        let log_id = format!("{} {}", test_name(), call.method.clone());
 
         let url = url();
         log::info!(

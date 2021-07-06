@@ -23,6 +23,11 @@ use std::{
     process::Command,
 };
 
+/// Returns the name of the test which is currently executed.
+pub fn test_name() -> String {
+    crate::TEST_NAME.with(|test_name| test_name.borrow().clone())
+}
+
 /// Returns the full path to the ink! example directory for `example`.
 pub fn example_path(example: &str) -> PathBuf {
     let examples_path = std::env::var("INK_EXAMPLES_PATH")

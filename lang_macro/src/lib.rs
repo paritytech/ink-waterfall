@@ -44,12 +44,18 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #( #attrs )*
         #[tokio::test]
         async #vis fn #fn_name () #ret {
+            log::debug!("setting up test for {}", stringify!(#fn_name));
+            crate::TEST_NAME.with(|test_name| {
+                *test_name.borrow_mut() = String::from(stringify!(#fn_name));
+            });
             crate::INIT.call_once(|| {
                 env_logger::init();
             });
 
             use crate::uis::ContractsUi;
+            log::debug!("creating new ui for {}", stringify!(#fn_name));
             let mut ui = Ui::new().await?;
+            log::debug!("invoking block for {}", stringify!(#fn_name));
             let __ret = {
                 #block
             };
