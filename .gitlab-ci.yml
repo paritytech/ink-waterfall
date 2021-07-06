@@ -122,14 +122,13 @@ polkadot-js-ui-rand-extension:
 
 build_badge:
   stage: build
-  tags:
-    - docker-build
+  <<:                              *docker-env
   before_script:
-    - chmod +x get-updated-badge-info.sh
+    - chmod +x .scripts/get-updated-badge-info.sh
   script:
-    - # nothing to do here
+    - echo "building badge"
   after_script:
-    - ./scripts/get-updated-badge-info.sh
+    - .scripts/get-updated-badge-info.sh
   artifacts:
     paths:
         - badge.json
