@@ -50,6 +50,8 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
 
     // then
     let balance_after = ui.balance_postfix("BOB".to_string()).await?;
+    log::info!("balance before: {}", balance_before);
+    log::info!("balance after: {}", balance_after);
     assert_eq!(balance_after - balance_before, 1);
     assert!(utils::canvas_log_contains(
         "requested value: 100000000000000\n"

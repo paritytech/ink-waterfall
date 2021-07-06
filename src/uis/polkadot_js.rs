@@ -49,7 +49,7 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        std::thread::sleep(std::time::Duration::from_secs(6));
 
         let path = format!(
             "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
@@ -363,7 +363,7 @@ impl ContractsUi for crate::uis::Ui {
                     log::info!("[{}] upload retry, text: {:?}", log_id, el.text().await?);
                 }
 
-                if waited == 20 {
+                if waited == 40 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} upload! next recursion.",
                         log_id,
@@ -996,18 +996,20 @@ impl ContractsUi for crate::uis::Ui {
                     );
                 }
 
-                if waited == 20 {
+                if waited == 40 {
                     log::info!(
-                        "[{}] timed out on waiting for {:?} transaction! next recursion.",
+                        "[{}] timed out on waiting for {:?} transaction after {}! next recursion.",
                         log_id,
-                        call.method
+                        call.method,
+                        waited
                     );
                     return self.execute_transaction(call.clone()).await
                 } else {
                     log::info!(
-                        "[{}] timed out on waiting for {:?} transaction! sleeping.",
+                        "[{}] timed out on waiting for {:?} transaction after {}! sleeping.",
                         log_id,
-                        call.method
+                        call.method,
+                        waited
                     );
                 }
             }
