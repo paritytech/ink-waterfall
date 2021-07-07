@@ -4,7 +4,7 @@
 
 [a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.svg
 [a2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines
-[b1]: https://img.shields.io/badge/dynamic/json.svg?label=CI%20Duration&url=https://gitlab.parity.io/parity/ink-waterfall/-/jobs/artifacts/master/raw/badge.json?job=build_badge&query=duration&colorB=brightgreen
+[b1]: https://img.shields.io/badge/dynamic/json.svg?label=ci%20execution%20time&url=https://gitlab.parity.io/parity/ink-waterfall/-/jobs/artifacts/master/raw/badge.json?job=build_badge&query=duration&colorB=brightgreen
 [b2]: https://gitlab.parity.io/parity/ink-waterfall/pipelines
 
 This project contains end-to-end tests for this pipeline:
