@@ -13,4 +13,4 @@ echo now $TS_NOW
 DIFF=$(( ($TS_NOW - $TS_CREATED) / 60 ))
 echo diff $DIFF
 
-echo "{\"duration\":\"$DIFF\" mins}" > badge.json
+echo "{\"duration\":\"$DIFF mins\"}" > badge.json
