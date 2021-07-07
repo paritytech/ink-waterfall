@@ -98,13 +98,14 @@ supply `--features polkadot-js-ui` to `cargo test`.
 
 ## Environment variables
 
-* `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder.
-* `UI_URL` ‒ URL of the UI to use.
-* `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.
+* `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder, must be set.
+* `UI_URL` ‒ URL of the UI to use, defaults to the live interface for the chosen UI.
+* `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run,
+  default to `true`. Set it to `false` to prevent closing .
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
-  from their `target` folder.
+  from their `target` folder. Defaults to `false`. Set it to `true` to skip building.
 * `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
-* `CANVAS_PORT` ‒ Port under which the `canvas-node` is running, defaults to `9944`.
+* `CANVAS_PORT` ‒ Port under which the `canvas-node` is running. Defaults to `9944`.
 
 
 ## Known issue
@@ -116,4 +117,4 @@ before the test is finished processing them.
 
 The test will then fail with a `NoSucheElement` error, indicating that
 the DOM element is no longer available. The easiest fix for this is to
-limit the number of concurrent test threads via `cargo test --jobs 4`.
+limit the number of concurrent test threads via e.g. `cargo test --jobs 4`.
