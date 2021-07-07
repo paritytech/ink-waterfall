@@ -60,19 +60,19 @@ workflow:
   tags:
     - linux-docker
 
-.prepare:                          &prepare
-  - jq --version
+.clone-repo:                       &clone-repo
   - BRANCH="master"
   - if [ -n "$UPSTREAM_PR_ID" ]; then
       BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${UPSTREAM_PR_ID} | jq .number;`;
     fi
   - echo ${BRANCH}
-  - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
   - git clone --depth 1 --branch ${BRANCH} https://github.com/paritytech/ink.git
 
-.prepare-rand-extension:           &prepare-rand-extension
+.start-canvas:                     &start-canvas
+  - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
+
+.start-canvas-rand-extension:      &start-canvas-rand-extension
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
-  - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
 
 .build-contracts:                  &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
@@ -90,7 +90,8 @@ canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - *prepare
+    - *clone-repo
+    - *start-canvas
   script:
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
@@ -101,7 +102,8 @@ polkadot-js-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - *prepare
+    - *clone-repo
+    - *start-canvas
   script:
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
@@ -112,7 +114,8 @@ canvas-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - *prepare-rand-extension
+    - *clone-repo
+    - *start-canvas-rand-extension
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
@@ -122,7 +125,7 @@ polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
-    - *prepare-rand-extension
+    - *start-canvas-rand-extension
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
