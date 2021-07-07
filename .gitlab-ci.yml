@@ -63,7 +63,7 @@ workflow:
 .clone-repo:                       &clone-repo
   - BRANCH="master"
   - if [ -n "$UPSTREAM_PR_ID" ]; then
-      BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${UPSTREAM_PR_ID} | jq .number;`;
+      BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${UPSTREAM_PR_ID} | jq .head.ref;`;
     fi
   - echo ${BRANCH}
   - git clone --depth 1 --branch ${BRANCH} https://github.com/paritytech/ink.git
