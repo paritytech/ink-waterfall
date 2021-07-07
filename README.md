@@ -85,7 +85,7 @@ yarn install
 yarn start > /tmp/canvas-ui.log 2>&1 &
 cd ..
 
-# Check that the ui is ready and a `200 OK` is returned.
+# Check that the UI is ready and a `200 OK` is returned.
 curl -I http://localhost:3000/
 
 export UI_URL="http://localhost:3000"
@@ -98,14 +98,14 @@ supply `--features polkadot-js-ui` to `cargo test`.
 
 ## Environment variables
 
-* `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder, must be set.
-* `UI_URL` ‒ URL of the UI to use, defaults to the live interface for the chosen UI.
-* `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run,
-  default to `true`. Set it to `false` to prevent closing .
+* `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder. Must be set.
+* `UI_URL` ‒ URL of the UI to use. Defaults to the live interface for the chosen UI.
+* `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.
+  Defaults to `true`. Set it to `false` to prevent closing .
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder. Defaults to `false`. Set it to `true` to skip building.
-* `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
 * `CANVAS_PORT` ‒ Port under which the `canvas-node` is running. Defaults to `9944`.
+* `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
 
 
 ## Known issue
