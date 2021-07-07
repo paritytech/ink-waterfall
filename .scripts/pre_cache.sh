@@ -15,7 +15,7 @@ function prepopulate {
       -type d -name "$CI_JOB_NAME"  -exec stat --printf="%Y\t%n\n" {} \; |sort -n -r |head -1 |cut -f2);
     if [[ -d $FRESH_CACHE ]]; then
       echo "____Using" "$FRESH_CACHE" "to prepopulate the cache____";
-      time cp -r "$FRESH_CACHE" "$1";
+      time cp -rf "$FRESH_CACHE" "$1";
     else
       echo "_____No such $2 dir, proceeding from scratch_____";
     fi
