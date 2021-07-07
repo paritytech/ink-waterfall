@@ -66,7 +66,7 @@ workflow:
   - if [ -n "$UPSTREAM_PR_ID" ]; then
       BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${UPSTREAM_PR_ID} | jq .number;`;
     fi
-  - echo "Branch: " ${BRANCH}
+  - echo ${BRANCH}
   - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
   - git clone --depth 1 --branch ${BRANCH} https://github.com/paritytech/ink.git
 
