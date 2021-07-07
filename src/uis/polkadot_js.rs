@@ -320,7 +320,7 @@ impl ContractsUi for crate::uis::Ui {
         for waited in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
             res = self.client.find(
-                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped'))]")
+                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
             ).await;
             if res.is_ok() {
                 log::info!(
@@ -384,6 +384,7 @@ impl ContractsUi for crate::uis::Ui {
                 .split("\n")
                 .for_each(|status| {
                     statuses_processed.push(Event {
+                        // TODO remove `header` as a field altogether
                         header: String::from(""),
                         status: status.to_string(),
                     });
@@ -403,6 +404,13 @@ impl ContractsUi for crate::uis::Ui {
         } else if events.contains("usurped") {
             log::info!(
                 "[{}] found usurped for upload of {:?}! trying again!",
+                log_id,
+                upload_input.contract_path
+            );
+            return self.execute_upload(upload_input.clone()).await
+        } else if events.contains("outdated") {
+            log::info!(
+                "[{}] found outdated for upload of {:?}! trying again!",
                 log_id,
                 upload_input.contract_path
             );
@@ -828,7 +836,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
         }
 
-        // Possibly add payment
+        // possibly add payment
         if let Some(payment) = &call.payment {
             log::info!("[{}] open listbox for payment units", log_id);
             let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
@@ -936,7 +944,7 @@ impl ContractsUi for crate::uis::Ui {
         for waited in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(1));
             res = self.client.find(
-                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped'))]")
+                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
             ).await;
             if res.is_ok() {
                 log::info!(
@@ -1043,6 +1051,13 @@ impl ContractsUi for crate::uis::Ui {
         } else if events.contains("usurped") {
             log::info!(
                 "[{}] found usurped for transaction of {:?}! trying again!",
+                log_id,
+                call.method
+            );
+            return self.execute_transaction(call.clone()).await
+        } else if events.contains("outdated") {
+            log::info!(
+                "[{}] found outdated for transaction of {:?}! trying again!",
                 log_id,
                 call.method
             );
