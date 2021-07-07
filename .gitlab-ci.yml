@@ -33,7 +33,7 @@ workflow:
       - artifacts/
 
 .docker-env:                       &docker-env
-  image:                           "paritytech/ink-waterfall-ci:latest"
+  image:                           "${CI_IMAGE}"
   before_script:
     - cargo -vV
     - rustc -vV
