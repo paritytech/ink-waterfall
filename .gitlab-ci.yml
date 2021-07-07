@@ -124,12 +124,13 @@ polkadot-js-ui-rand-extension:
 
 build_badge:
   stage: build
+  rules:
+    only:
+      refs:
+        - branches
+        - master
+        - tags
   <<:                              *docker-env
-  only:
-    refs:
-      - branches
-      - master
-      - tags
   before_script:
     - chmod +x .scripts/get-updated-badge-info.sh
   script:
