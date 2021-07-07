@@ -125,6 +125,7 @@ polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   before_script:
+    - *clone-repo
     - *start-canvas-rand-extension
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
