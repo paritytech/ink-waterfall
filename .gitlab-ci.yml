@@ -75,6 +75,7 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
+  - sleep $[ ( $RANDOM % 30 )  + 1 ]s
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
     done
