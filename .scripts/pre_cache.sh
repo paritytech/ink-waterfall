@@ -9,7 +9,7 @@ set -u
 # cache lives in /ci-cache/${CI_PROJECT_NAME}/${2}/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}
 
 function prepopulate {
-  if [[ ! -d $1 ]]; then
+  # if [[ ! -d $1 ]]; then
     mkdir -p "/ci-cache/$CI_PROJECT_NAME/$2/$CI_COMMIT_REF_NAME";
     FRESH_CACHE=$(find "/ci-cache/$CI_PROJECT_NAME/$2" -mindepth 2 -maxdepth 2 \
       -type d -name "$CI_JOB_NAME"  -exec stat --printf="%Y\t%n\n" {} \; |sort -n -r |head -1 |cut -f2);
@@ -19,9 +19,9 @@ function prepopulate {
     else
       echo "_____No such $2 dir, proceeding from scratch_____";
     fi
-  else
-    echo "____No need to prepopulate $2 cache____";
-  fi
+  # else
+    # echo "____No need to prepopulate $2 cache____";
+  # fi
 }
 
 # CARGO_HOME cache is still broken so would be handled some other way.
