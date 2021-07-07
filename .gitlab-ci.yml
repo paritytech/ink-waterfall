@@ -86,10 +86,9 @@ workflow:
 canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
-  before_script:
+  script:
     - *clone-repo
     - *start-canvas
-  script:
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
   after_script:
@@ -98,10 +97,9 @@ canvas-ui-ink-examples:
 polkadot-js-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
-  before_script:
+  script:
     - *clone-repo
     - *start-canvas
-  script:
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
@@ -110,10 +108,9 @@ polkadot-js-ui-ink-examples:
 canvas-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
-  before_script:
+  script:
     - *clone-repo
     - *start-canvas-rand-extension
-  script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
     - *shutdown-canvas-rand-extension
@@ -121,10 +118,9 @@ canvas-ui-rand-extension:
 polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
-  before_script:
+  script:
     - *clone-repo
     - *start-canvas-rand-extension
-  script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - *shutdown-canvas-rand-extension
