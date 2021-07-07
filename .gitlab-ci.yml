@@ -61,8 +61,12 @@ workflow:
     - linux-docker
 
 .prepare:                          &prepare
+  - BRANCH="master"
+  - if [ -n "$UPSTREAM_PR_ID" ]; then
+      BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${UPSTREAM_PR_ID} | jq .number`
+    fi
   - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
-  - git clone --depth 1 --branch ${UPSTREAM_BRANCH:-master} https://github.com/paritytech/ink.git
+  - git clone --depth 1 --branch ${BRANCH} https://github.com/paritytech/ink.git
 
 .prepare-rand-extension:           &prepare-rand-extension
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
