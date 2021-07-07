@@ -21,7 +21,6 @@ function prepopulate {
     fi
   else
     echo "____No need to prepopulate $2 cache____";
-    rm -rf "/ci-cache/$CI_PROJECT_NAME/$2/$CI_COMMIT_REF_NAME";
   fi
 }
 
