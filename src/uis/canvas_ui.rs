@@ -564,16 +564,40 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // click call
+        let mut txt = None;
         log::info!("[{}] click rpc call", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Call')]"))
             .await?
             .click()
             .await?;
+        for waited in 0..21 {
+            log::info!("[{}] waiting for rpc call outcome {}", log_id, waited);
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            let el = self.client.find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await;
+            if let Ok(mut el) = el {
+                log::info!("[{}] found rpc call outcome", log_id);
+                txt = Some(el.text().await?);
+                log::info!(
+                    "[{}] found rpc call outcome text {}",
+                    log_id,
+                    txt.clone().expect("txt exists here")
+                );
+                break
+            }
+
+            if waited % 5 == 0 {
+                log::info!("[{}] click rpc call again in {}", log_id, waited);
+                self.client
+                    .find(Locator::XPath("//button[contains(text(),'Call')]"))
+                    .await?
+                    .click()
+                    .await?;
+            }
+        }
+        let mut txt = txt.expect("[{}] no outcome txt found after retrying!");
 
         // wait for outcomes
-        let mut el = self.client.wait_for_find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await?;
-        let mut txt = el.text().await?;
         log::info!("outcomes value {:?}", txt);
         if txt == "0x000000…00000000" {
             txt = String::from("<empty>");
