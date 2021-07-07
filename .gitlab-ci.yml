@@ -83,8 +83,13 @@ workflow:
     done
   - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
 
-.shutdown:                          &shutdown
-  - pkill -f -x "canvas --tmp --dev"
+.shutdown-canvas:                  &shutdown-canvas
+  - cat /tmp/canvas.log
+  - pkill -f "canvas --tmp --dev"
+
+.shutdown-canvas-rand-extension:   &shutdown-canvas-rand-extension
+  - cat /tmp/canvas-rand-extension.log
+  - pkill -f "canvas-rand-extension --tmp --dev"
 
 canvas-ui-ink-examples:
   stage:                           test
@@ -96,7 +101,7 @@ canvas-ui-ink-examples:
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
   after_script:
-    - *shutdown
+    - *shutdown-canvas
 
 polkadot-js-ui-ink-examples:
   stage:                           test
@@ -108,8 +113,7 @@ polkadot-js-ui-ink-examples:
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
-    - *shutdown
-    - cat /tmp/canvas.log
+    - *shutdown-canvas
 
 canvas-ui-rand-extension:
   stage:                           test
@@ -120,7 +124,7 @@ canvas-ui-rand-extension:
   script:
     - cargo test --features headless -- --ignored rand_extension
   after_script:
-    - *shutdown
+    - *shutdown-canvas-rand-extension
 
 polkadot-js-ui-rand-extension:
   stage:                           test
@@ -131,7 +135,7 @@ polkadot-js-ui-rand-extension:
   script:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
-    - *shutdown
+    - *shutdown-canvas-rand-extension
 
 build_badge:
   stage: build
