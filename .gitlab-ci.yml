@@ -55,7 +55,8 @@ workflow:
 
 .clone-repo:                       &clone-repo
   - BRANCH="master"
-  - if [ -n "$UPSTREAM_PR_ID" ]; then
+  - echo ${UPSTREAM_PR_ID}
+  - if [ -n "$UPSTREAM_PR_ID" ] && [ "$UPSTREAM_PR_ID" != "master" ]; then
       BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${UPSTREAM_PR_ID} | jq -r .head.ref;`;
     fi
   - echo ${BRANCH}
