@@ -55,12 +55,16 @@ workflow:
 
 .clone-repo:                       &clone-repo
   - BRANCH="master"
+  - REPO="https://github.com/paritytech/ink.git"
   - echo ${TRGR_REF}
   - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
-      BRANCH=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF} | jq -r .head.ref;`;
+      PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
+      BRANCH=`cat ${PR_JSON} | jq -r .head.ref`;
+      REPO=`cat ${PR_JSON} | jq -r .head.repo.git_url`;
     fi
   - echo ${BRANCH}
-  - git clone --depth 1 --branch ${BRANCH} https://github.com/paritytech/ink.git
+  - echo ${REPO}
+  - git clone --depth 1 --branch ${BRANCH} ${REPO}
 
 .start-canvas:                     &start-canvas
   - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
