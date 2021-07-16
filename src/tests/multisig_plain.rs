@@ -84,13 +84,14 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
     );
 
     // when
-    ui.execute_transaction(
-        Call::new(&contract_addr, "invoke_transaction")
-            .caller("ALICE")
-            .push_value("transId", id),
-    )
-    .await
-    .expect("failed to `invoke_transaction`");
+    let call = Call::new(&contract_addr, "invoke_transaction")
+        .caller("ALICE")
+        .push_value("transId", id);
+    #[cfg(not(feature = "polkadot-js-ui"))]
+    let call = call.max_gas("90000");
+    ui.execute_transaction(call)
+        .await
+        .expect("failed to `invoke_transaction`");
 
     // then
     assert_eq!(
@@ -131,7 +132,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
                 .push_value("selector", "0xcafebabe") // `was_it_ten`
                 .push_value("input", "0x00")
                 .push_value("transferred_value", "10")
-                .max_gas("1199999"),
+                .max_gas("0"),
     )
     .await
     .expect("failed to `submit_transaction`");
