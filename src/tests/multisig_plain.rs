@@ -125,17 +125,17 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
         )
         .await?;
 
-    ui.execute_transaction(
-        Call::new(&contract_addr, "submit_transaction")
-                .caller("ALICE")
-                .push_value("callee", &contract_transfer_addr)
-                .push_value("selector", "0xcafebabe") // `was_it_ten`
-                .push_value("input", "0x00")
-                .push_value("transferred_value", "10")
-                .max_gas("0"),
-    )
-    .await
-    .expect("failed to `submit_transaction`");
+    let call = Call::new(&contract_addr, "submit_transaction")
+            .caller("ALICE")
+            .push_value("callee", &contract_transfer_addr)
+            .push_value("selector", "0xcafebabe") // `was_it_ten`
+            .push_value("input", "0x00")
+            .push_value("transferred_value", "10");
+    #[cfg(not(feature = "polkadot-js-ui"))]
+    let call = call.max_gas("90000");
+    ui.execute_transaction(call)
+        .await
+        .expect("failed to `submit_transaction`");
     let id = "0";
     ui.execute_transaction(
         Call::new(&contract_addr, "confirm_transaction")
