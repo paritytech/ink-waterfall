@@ -59,8 +59,8 @@ workflow:
   - echo ${TRGR_REF}
   - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
       PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
-      BRANCH=`cat ${PR_JSON} | jq -r .head.ref`;
-      REPO=`cat ${PR_JSON} | jq -r .head.repo.git_url`;
+      BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
+      REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
     fi
   - echo ${BRANCH}
   - echo ${REPO}
