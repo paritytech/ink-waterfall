@@ -97,11 +97,6 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     .await
     .expect("`approve` must succeed");
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "get_approved").push_value("id", "123"))
-            .await?,
-        "CHARLIE"
-    );
-    assert_eq!(
         ui.execute_rpc(
             Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
         )
@@ -192,87 +187,6 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         ui.execute_rpc(Call::new(&contract_addr, "owner_of").push_value("id", "123"))
             .await?,
         "None"
-    );
-
-    Ok(())
-}
-
-#[waterfall_test]
-async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
-    // given
-    let manifest_path = utils::example_path("erc721/Cargo.toml");
-    let contract_file =
-        cargo_contract::build(&manifest_path).expect("contract build failed");
-
-    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
-
-    ui.execute_transaction(
-        Call::new(&contract_addr, "mint")
-            .caller("ALICE")
-            .push_value("id", "123"),
-    )
-    .await
-    .expect("`mint` must succeed");
-    ui.execute_transaction(
-        Call::new(&contract_addr, "mint")
-            .caller("ALICE")
-            .push_value("id", "321"),
-    )
-    .await
-    .expect("`mint` must succeed");
-    ui.execute_transaction(
-        Call::new(&contract_addr, "set_approval_for_all")
-            .caller("ALICE")
-            .push_value("to", "BOB")
-            .push_value("approved", "true")
-            .max_gas("25000"),
-    )
-    .await
-    .expect("`approve_for_all` must succeed");
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "is_approved_for_all")
-                .push_value("owner", "ALICE")
-                .push_value("operator", "BOB")
-        )
-        .await?,
-        "true"
-    );
-
-    // when
-    ui.execute_transaction(
-        Call::new(&contract_addr, "transfer")
-            .caller("BOB")
-            .push_value("destination", "CHARLIE")
-            .push_value("id", "123")
-            .max_gas("25000"),
-    )
-    .await
-    .expect("`transfer` must succeed");
-    ui.execute_transaction(
-        Call::new(&contract_addr, "transfer")
-            .caller("BOB")
-            .push_value("destination", "CHARLIE")
-            .push_value("id", "321")
-            .max_gas("25000"),
-    )
-    .await
-    .expect("`transfer` must succeed");
-
-    // then
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE")
-        )
-        .await?,
-        "0"
-    );
-    assert_eq!(
-        ui.execute_rpc(
-            Call::new(&contract_addr, "balance_of").push_value("owner", "CHARLIE")
-        )
-        .await?,
-        "2"
     );
 
     Ok(())
