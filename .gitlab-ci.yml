@@ -79,7 +79,7 @@ workflow:
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
     done
-  - parallel -j 2 < /tmp/cmds
+  - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
 
 .shutdown-canvas:                  &shutdown-canvas
   - pkill -f "canvas --tmp --dev"
