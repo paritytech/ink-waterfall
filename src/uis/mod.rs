@@ -121,7 +121,7 @@ impl Ui {
         // https://github.com/rust-lang/rust/issues/35136
         let geckodriver = process::Command::new("geckodriver")
             .args(&["--port", &port.to_string(), "--log", "fatal"])
-            .stdout(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::null())
             .spawn()
             .expect("geckodriver can not be spawned");
 
@@ -220,6 +220,8 @@ pub struct Call {
     max_gas_allowed: Option<String>,
     /// Values to pass along.
     values: Vec<(String, String)>,
+    /// Items to add as instantiation values.
+    items: Vec<(String, String)>,
     /// The payment to send with the call.
     payment: Option<Payment>,
     /// The account from which to execute the call.
@@ -240,6 +242,7 @@ impl Call {
             method,
             max_gas_allowed: None,
             values: Vec::new(),
+            items: Vec::new(),
             payment: None,
             caller: None,
         }
@@ -250,6 +253,12 @@ impl Call {
     /// TODO: Make `val` an enum of `Boolean` and `String`.
     pub fn push_value(mut self, key: &str, val: &str) -> Self {
         self.values.push((key.to_string(), val.to_string()));
+        self
+    }
+
+    /// Adds an item.
+    pub fn add_item(mut self, key: &str, val: &str) -> Self {
+        self.items.push((key.to_string(), val.to_string()));
         self
     }
 
@@ -281,7 +290,7 @@ pub struct Upload {
     contract_path: PathBuf,
     /// Values to instantiate the contract with.
     initial_values: Vec<(String, String)>,
-    /// Items to add as instantiatiation values.
+    /// Items to add as instantiation values.
     items: Vec<(String, String)>,
     /// Initial endowment of the contract.
     endowment: String,

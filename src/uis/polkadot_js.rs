@@ -219,6 +219,7 @@ impl ContractsUi for crate::uis::Ui {
 
         for (key, value) in upload_input.initial_values.iter() {
             // if the value is `Yes` or `No` we assume it's a listbox with a boolean
+            let mut value = transform_value(&value);
             if value == "Yes" || value == "No" {
                 log::info!("[{}] opening dropdown list '{}'", log_id, key);
                 let path =
@@ -230,7 +231,7 @@ impl ContractsUi for crate::uis::Ui {
                     .await?;
 
                 log::info!("[{}] chossing option '{}''", log_id, value);
-                let path = format!("//label/*[contains(text(),'initValue')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", value);
+                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
@@ -616,22 +617,60 @@ impl ContractsUi for crate::uis::Ui {
 
         // possibly set values
         for (key, mut value) in call.values {
-            log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
-            let path = format!(
-                "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
-                key
-            );
+            // if the value is `Yes` or `No` we assume it's a listbox with a boolean
+            let mut value = transform_value(&value);
+            if value == "Yes" || value == "No" {
+                log::info!("[{}] opening dropdown list '{}'", log_id, key);
+                let path =
+                    format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+
+                log::info!("[{}] chossing option '{}''", log_id, value);
+                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+            } else {
+                log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
+                let path = format!(
+                    "//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                    key
+                );
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .clear()
+                    .await?;
+                value.push('\n');
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .send_keys(&value)
+                    .await?
+            }
+        }
+
+        // possibly add items
+        for (key, value) in call.items.iter() {
+            log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
+            let add_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
             self.client
-                .find(Locator::XPath(&path))
+                .find(Locator::XPath(&add_item))
                 .await?
-                .clear()
+                .click()
                 .await?;
-            value.push('\n');
-            self.client
-                .find(Locator::XPath(&path))
-                .await?
-                .send_keys(&value)
-                .await?
+
+            let last_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
+            let mut input = self.client.find(Locator::XPath(&last_item)).await?;
+            // we need to clear a possible default input from the field
+            input.clear().await?;
+            input.send_keys(&format!("{}\n", &value)).await?;
         }
 
         // click call
@@ -900,25 +939,65 @@ impl ContractsUi for crate::uis::Ui {
 
         // possibly set values
         for (key, mut value) in call.values.clone() {
-            log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
-            let path = format!(
-                "//div[contains(@class, 'ui--Params')]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
-                key
-            );
-            self.client
-                .find(Locator::XPath(&path))
-                .await?
-                .clear()
-                .await?;
-            value.push('\n');
-            self.client
-                .find(Locator::XPath(&path))
-                .await?
-                .send_keys(&value)
-                .await?;
+            // if the value is `Yes` or `No` we assume it's a listbox with a boolean
+            let mut value = transform_value(&value);
+            if value == "Yes" || value == "No" {
+                log::info!("[{}] opening dropdown list '{}'", log_id, key);
+                let path =
+                    format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+
+                log::info!("[{}] chossing option '{}''", log_id, value);
+                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+            } else {
+                log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
+                let path = format!(
+                    "//div[contains(@class, 'ui--Params')]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                    key
+                );
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .clear()
+                    .await?;
+                value.push('\n');
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .send_keys(&value)
+                    .await?;
+            }
         }
 
         std::thread::sleep(std::time::Duration::from_secs(2));
+
+        // possibly add items
+        for (key, value) in call.items.iter() {
+            log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
+            let add_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
+            self.client
+                .find(Locator::XPath(&add_item))
+                .await?
+                .click()
+                .await?;
+
+            let last_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
+            let mut input = self.client.find(Locator::XPath(&last_item)).await?;
+            // we need to clear a possible default input from the field
+            input.clear().await?;
+            input.send_keys(&format!("{}\n", &value)).await?;
+        }
+
+        std::thread::sleep(std::time::Duration::from_secs(1));
 
         log::info!("[{}] click execute", log_id);
         self.client
@@ -1115,5 +1194,13 @@ fn name_to_address(name: &str) -> Option<String> {
         "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy" => Some("DAVE".to_string()),
         "5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw" => Some("EVE".to_string()),
         _ => None,
+    }
+}
+
+fn transform_value(value: &str) -> String {
+    match value {
+        "true" => String::from("Yes"),
+        "false" => String::from("No"),
+        _ => value.to_string(),
     }
 }
