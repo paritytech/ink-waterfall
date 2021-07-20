@@ -249,6 +249,7 @@ impl ContractsUi for crate::uis::Ui {
                 let mut input = self.client.find(Locator::XPath(&path)).await?;
                 // we need to clear a possible default input from the field
                 input.clear().await?;
+                value.push('\n');
                 input.send_keys(&value).await?;
             }
         }
@@ -266,7 +267,7 @@ impl ContractsUi for crate::uis::Ui {
             let mut input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
-            input.send_keys(&value).await?;
+            input.send_keys(&format!("{}\n", value)).await?;
         }
 
         log::info!("[{}] set endowment to {}", log_id, upload_input.endowment);
@@ -616,7 +617,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         // possibly set values
-        for (key, mut value) in call.values {
+        for (key, value) in call.values {
             // if the value is `Yes` or `No` we assume it's a listbox with a boolean
             let mut value = transform_value(&value);
             if value == "Yes" || value == "No" {
@@ -938,7 +939,7 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         // possibly set values
-        for (key, mut value) in call.values.clone() {
+        for (key, value) in call.values.clone() {
             // if the value is `Yes` or `No` we assume it's a listbox with a boolean
             let mut value = transform_value(&value);
             if value == "Yes" || value == "No" {

@@ -241,18 +241,20 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
 
     // when
     ui.execute_transaction(
-        Call::new(&contract_addr, "transfer")
+        Call::new(&contract_addr, "transfer_from")
             .caller("BOB")
-            .push_value("destination", "CHARLIE")
+            .push_value("from", "ALICE")
+            .push_value("to", "CHARLIE")
             .push_value("id", "123")
             .max_gas("25000"),
     )
     .await
     .expect("`transfer` must succeed");
     ui.execute_transaction(
-        Call::new(&contract_addr, "transfer")
+        Call::new(&contract_addr, "transfer_from")
             .caller("BOB")
-            .push_value("destination", "CHARLIE")
+            .push_value("from", "ALICE")
+            .push_value("to", "CHARLIE")
             .push_value("id", "321")
             .max_gas("25000"),
     )
