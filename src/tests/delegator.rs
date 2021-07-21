@@ -67,10 +67,8 @@ async fn delegator_works(mut ui: Ui) -> Result<()> {
         .await?;
 
     // then
-    // this should work without having to set the `max_gas_allowed` explicitly here!
-    // can be removed once https://github.com/paritytech/canvas-ui/issues/95 has been fixed.
     assert_eq!(
-        ui.execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
+        ui.execute_rpc(Call::new(&delegator_addr, "get"))
             .await?,
         "0"
     );
