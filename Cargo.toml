@@ -14,6 +14,7 @@ webdriver = { version = "0.43.1", default-features = false }
 fantoccini = "0.17.4"
 serde = "1.0"
 serde_json = "1.0"
+rand = "0.8.4"
 regex = "1.4"
 log = "0.4"
 env_logger = "0.8"

@@ -30,6 +30,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use fantoccini::Locator;
+use rand::Rng;
 use regex::Regex;
 
 #[async_trait]
@@ -960,6 +961,12 @@ impl ContractsUi for crate::uis::Ui {
                 log_id,
                 call.method
             );
+            {
+                let mut rng = rand::thread_rng();
+                let rand = rng.gen_range(0..30_000);
+                log::info!("[{}] sleeping for rand {:?} after usurped", log_id, rand);
+                std::thread::sleep(std::time::Duration::from_millis(rand));
+            }
             return self.execute_transaction(call.clone()).await
         } else {
             log::info!(
