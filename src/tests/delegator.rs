@@ -68,7 +68,8 @@ async fn delegator_works(mut ui: Ui) -> Result<()> {
 
     // then
     assert_eq!(
-        ui.execute_rpc(Call::new(&delegator_addr, "get")).await?,
+        ui.execute_rpc(Call::new(&delegator_addr, "get"))
+            .await?,
         "0"
     );
     ui.execute_transaction(

@@ -52,7 +52,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                 .push_value("tokenId", "1"),
         )
         .await?;
-    assert!(balance == "123.0000 Unit");
+    assert!(balance == "123000000000000" || balance == "123.0000 Unit");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "mint")
@@ -70,7 +70,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                 .push_value("tokenId", "1"),
         )
         .await?;
-    assert!(balance == "341.0000 Unit");
+    assert!(balance == "341000000000000" || balance == "341.0000 Unit");
 
     let balance = ui
         .execute_rpc(
@@ -132,7 +132,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                 .push_value("tokenId", "1"),
         )
         .await?;
-    assert!(balance == "300.0000 Unit");
+    assert!(balance == "300000000000000" || balance == "300.0000 Unit");
 
     let balance = ui
         .execute_rpc(
@@ -141,7 +141,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                 .push_value("tokenId", "1"),
         )
         .await?;
-    assert!(balance == "41.0000 Unit");
+    assert!(balance == "41000000000000" || balance == "41.0000 Unit");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "create")
@@ -172,7 +172,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                 .push_value("tokenId", "1"),
         )
         .await?;
-    assert!(balance == "41.0000 Unit");
+    assert!(balance == "41000000000000" || balance == "41.0000 Unit");
 
     let balance = ui
         .execute_rpc(
@@ -181,7 +181,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                 .push_value("tokenId", "2"),
         )
         .await?;
-    assert!(balance == "99.0000 Unit");
+    assert!(balance == "99000000000000" || balance == "99.0000 Unit");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "Erc1155,set_approval_for_all")
