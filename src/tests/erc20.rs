@@ -45,11 +45,11 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     let total_supply = ui
         .execute_rpc(Call::new(&contract_addr, "total_supply"))
         .await?;
-    assert!(total_supply == "1000000000000000" || total_supply == "1.0000 kUnit");
+    assert!(total_supply == "1.0000 kUnit");
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "bob"))
         .await?;
-    assert!(balance == "1000000000000000" || balance == "1.0000 kUnit");
+    assert!(balance == "1.0000 kUnit");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "transfer")
@@ -63,7 +63,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE"))
         .await?;
-    assert!(balance == "500000000000000" || balance == "500.0000 Unit");
+    assert!(balance == "500.0000 Unit");
 
     Ok(())
 }
@@ -116,7 +116,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
                 .push_value("spender", "ALICE"),
         )
         .await?;
-    assert!(allowance == "600000000000000" || allowance == "600.0000 Unit");
+    assert!(allowance == "600.0000 Unit");
 
     // Alice tries again to transfer tokens on behalf ob Bob
     ui.execute_transaction(
@@ -131,11 +131,11 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE"))
         .await?;
-    assert!(balance == "400000000000000" || balance == "400.0000 Unit");
+    assert!(balance == "400.0000 Unit");
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "BOB"))
         .await?;
-    assert!(balance == "600000000000000" || balance == "600.0000 Unit");
+    assert!(balance == "600.0000 Unit");
 
     // Alice tries to transfer even more tokens on behalf ob Bob, this time exhausting the allowance
     // TODO
@@ -158,7 +158,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "BOB"))
         .await?;
-    assert!(balance == "600000000000000" || balance == "600.0000 Unit");
+    assert!(balance == "600.0000 Unit");
 
     Ok(())
 }
