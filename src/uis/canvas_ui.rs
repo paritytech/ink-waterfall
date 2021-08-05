@@ -132,19 +132,29 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("[{}] injecting jquery", log_id);
+        // The `inject` script will retry to load jQuery every 10 seconds.
+        // This is because the CI sometimes has spurious network errors.
         let inject = String::from(
             "(function (){\
                     var d = document;\
                     if (!d.getElementById('jquery')) {\
-                        var s = d.createElement('script');\
-                        s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
-                        s.id = 'jquery';\
-                        d.body.appendChild(s);\
+                        function load_jquery() {\
+                            var d = document;\
+                            var s = d.createElement('script');\
+                            s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
+                            s.id = 'jquery';\
+                            d.body.appendChild(s);\
+                        }\
+                        var jTimer = setInterval(function() {\
+                            load_jquery();\
+                        }, 10000);\
+                        load_jquery();\
                         (function() {\
                             var nTimer = setInterval(function() {\
                                 if (window.jQuery) {\
                                     $('body').append('<div id=\"jquery-ready\"></div');\
                                     clearInterval(nTimer);\
+                                    clearInterval(jTimer);\
                                 }\
                             }, 100);\
                         })();\
