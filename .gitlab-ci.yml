@@ -74,7 +74,6 @@ workflow:
 
 .build-contracts:                  &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-    # - chmod +x .scripts/build-contract
   - echo ".scripts/build-contract ${example}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -88,7 +87,7 @@ workflow:
 .shutdown-canvas-rand-extension:   &shutdown-canvas-rand-extension
   - pkill -f "canvas-rand-extension --tmp --dev"
 
-canvas-ui-ink-examples:
+.canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   script:
@@ -148,6 +147,7 @@ build_badge:
     - echo "building badge"
   after_script:
     - .scripts/get-updated-badge-info.sh
+    - .scripts/build-contract.sh flipper
   artifacts:
     paths:
         - badge.json
