@@ -74,7 +74,12 @@ workflow:
 
 .build-contracts:                  &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
+  # TODO: Use `--output-json` when that gets merged
+  - echo "SIZE_OUT="" && \
+          SIZE_OUT=$(cargo contract build --manifest-path=${example}/Cargo.toml \
+            | grep \"Original\" \
+            | cut -d \" \" -f 4,6) && \
+           echo \"${example}, ${SIZE_OUT}\" >> output.csv" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
@@ -147,5 +152,6 @@ build_badge:
   artifacts:
     paths:
         - badge.json
+        - output.csv
     when: always
     expire_in: 4 weeks
