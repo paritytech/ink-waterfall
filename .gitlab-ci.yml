@@ -91,7 +91,7 @@ canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script: 
-    - .scripts/build-contract.sh ./ink/examples/flipper
+    - .scripts/build-contract.sh flipper
   script:
     - *clone-repo
     - *start-canvas
