@@ -75,7 +75,7 @@ workflow:
 .build-contracts:                  &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
   # TODO: Use `--output-json` when that gets merged
-  - echo "SIZE_OUT="" && \
+  - echo "SIZE_OUT=\"\" && \
           SIZE_OUT=$(cargo contract build --manifest-path=${example}/Cargo.toml \
             | grep \"Original\" \
             | cut -d \" \" -f 4,6) && \
