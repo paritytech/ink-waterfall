@@ -74,7 +74,7 @@ workflow:
 
 .build-contracts:                  &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-  - chmod +x .scripts/build-contract
+    # - chmod +x .scripts/build-contract
   - echo ".scripts/build-contract ${example}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
