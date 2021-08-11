@@ -90,6 +90,8 @@ workflow:
 .canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
+  before_script: 
+    - chmod +x .scripts/build-contract.sh
   script:
     - *clone-repo
     - *start-canvas
@@ -147,7 +149,7 @@ build_badge:
     - echo "building badge"
   after_script:
     - .scripts/get-updated-badge-info.sh
-    - .scripts/build-contract.sh flipper
+      # - .scripts/build-contract.sh flipper
   artifacts:
     paths:
         - badge.json
