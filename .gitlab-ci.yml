@@ -99,40 +99,43 @@ canvas-ui-ink-examples:
     - *clone-repo
     - *start-canvas
     - *build-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
+      # - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
   after_script:
     - *shutdown-canvas
+  artifacts:
+    paths: 
+      - output.csv
 
-polkadot-js-ui-ink-examples:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-canvas
-    - *build-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
-  after_script:
-    - *shutdown-canvas
+      # polkadot-js-ui-ink-examples:
+      #   stage:                           test
+      #   <<:                              *docker-env
+      #   script:
+      #     - *clone-repo
+      #     - *start-canvas
+      #     - *build-contracts
+      #     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
+      #   after_script:
+      # - *shutdown-canvas
 
-canvas-ui-rand-extension:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-canvas-rand-extension
-    - cargo test --features headless -- --ignored rand_extension
-  after_script:
-    - *shutdown-canvas-rand-extension
+      # canvas-ui-rand-extension:
+      #   stage:                           test
+      #   <<:                              *docker-env
+      #   script:
+      #     - *clone-repo
+      #     - *start-canvas-rand-extension
+      #     - cargo test --features headless -- --ignored rand_extension
+      #   after_script:
+      #     - *shutdown-canvas-rand-extension
 
-polkadot-js-ui-rand-extension:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-canvas-rand-extension
-    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
-  after_script:
-    - *shutdown-canvas-rand-extension
+      # polkadot-js-ui-rand-extension:
+      #   stage:                           test
+      #   <<:                              *docker-env
+      #   script:
+      #     - *clone-repo
+      #     - *start-canvas-rand-extension
+      #     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
+      #   after_script:
+      #     - *shutdown-canvas-rand-extension
 
 build_badge:
   stage: build
@@ -152,6 +155,5 @@ build_badge:
   artifacts:
     paths:
         - badge.json
-        - output.csv
     when: always
     expire_in: 4 weeks
