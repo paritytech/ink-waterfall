@@ -87,7 +87,7 @@ workflow:
 .shutdown-canvas-rand-extension:   &shutdown-canvas-rand-extension
   - pkill -f "canvas-rand-extension --tmp --dev"
 
-.canvas-ui-ink-examples:
+canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   before_script: 
