@@ -17,6 +17,7 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  WASM_SIZES_OUTPUT_FILE:          "accumulator adder subber"
 
 workflow:
   rules:
@@ -73,10 +74,9 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
-  - echo "$CI_EXTERNAL_PULL_REQUEST_ID"
-  - echo "$CI_EXTERNAL_PULL_REQUEST_IID"
-  - echo "$CI_EXTERNAL_PULL_REQUEST_SOURCE_REPOSITORY"
-  - echo "$CI_EXTERNAL_PULL_REQUEST_TARGET_REPOSITORY"
+  - if test -f "$BRANCH.csv"; then
+      rm $BRANCH.csv
+    fi
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "./.scripts/build-contract.sh ${example}" >> /tmp/cmds;
     done
@@ -104,7 +104,7 @@ canvas-ui-ink-examples:
     - *shutdown-canvas
   artifacts:
     paths: 
-      - output.csv
+      - ${BRANCH}.csv
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
