@@ -73,9 +73,9 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
-  - ./.scripts/build-contract.sh flipper
+  # - ./.scripts/build-contract.sh flipper
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo ".scripts/build-contract ${example}" >> /tmp/cmds;
+      echo "./.scripts/build-contract ${example}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
@@ -91,8 +91,6 @@ workflow:
 canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
-  before_script: 
-    - .scripts/build-contract.sh flipper
   script:
     - *clone-repo
     - *start-canvas
