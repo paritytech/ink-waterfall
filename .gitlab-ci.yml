@@ -75,7 +75,7 @@ workflow:
 
 .build-contracts:                  &build-contracts
   - if test -f "$BRANCH.csv"; then
-      rm $BRANCH.csv
+      rm $BRANCH.csv;
     fi
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "./.scripts/build-contract.sh ${example}" >> /tmp/cmds;
