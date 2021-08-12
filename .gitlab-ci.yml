@@ -73,7 +73,6 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
-  # - ./.scripts/build-contract.sh flipper
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "./.scripts/build-contract.sh ${example}" >> /tmp/cmds;
     done
@@ -148,7 +147,6 @@ build_badge:
     - echo "building badge"
   after_script:
     - .scripts/get-updated-badge-info.sh
-      # - .scripts/build-contract.sh flipper
   artifacts:
     paths:
         - badge.json
