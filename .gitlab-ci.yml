@@ -95,6 +95,7 @@ canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   script:
+    - export
     - *clone-repo
     - *start-canvas
     - *build-contracts
