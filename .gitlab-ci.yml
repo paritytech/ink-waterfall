@@ -83,6 +83,7 @@ workflow:
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
     done
   - parallel -j 2 < /tmp/cmds
+  - mkdir ./size-artifacts/
   - mv ./master.csv ./size-artifacts/
 
 .shutdown-canvas:                  &shutdown-canvas
