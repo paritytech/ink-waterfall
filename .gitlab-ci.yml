@@ -79,6 +79,7 @@ workflow:
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "./.scripts/build-contract.sh ${example} ${BRANCH}" >> /tmp/cmds;
     done
+  - mv ./master.csv ./size-artifacts/
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
     done
@@ -101,9 +102,9 @@ canvas-ui-ink-examples:
   after_script:
     - *shutdown-canvas
   artifacts:
-    name: "$BRANCH.csv"
+    name: "${BRANCH}"
     paths:
-      - $BRANCH.csv
+      - ./size-artifacts/
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
