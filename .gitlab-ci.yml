@@ -75,7 +75,8 @@ workflow:
 
 .build-contracts:                  &build-contracts
   - if test -f "$BRANCH.csv"; then
-      rm $BRANCH.csv;
+      echo "File exists";
+    # rm $BRANCH.csv;
     fi
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "./.scripts/build-contract.sh ${example}" >> /tmp/cmds;
@@ -95,7 +96,6 @@ canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   script:
-    - export
     - *clone-repo
     - *start-canvas
     - *build-contracts
