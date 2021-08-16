@@ -73,18 +73,17 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
-  - if test -f "$BRANCH.csv"; then
+  - if test -f "$CI_COMMIT_BRANCH.csv"; then
       echo "File exists";
     fi
-  - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "./.scripts/build-contract.sh ${example} ${BRANCH}" >> /tmp/cmds;
-    done
-  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
-    done
+  - echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/flipper ${CI_COMMIT_BRANCH}" >> /tmp/cmds
+    # - for example in ${INK_EXAMPLES_PATH}/*/; do
+    #     echo "./.scripts/build-contract.sh ${example} ${BRANCH}" >> /tmp/cmds;
+    #   done
+    # - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+    #     echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
+    #   done
   - parallel -j 2 < /tmp/cmds
-  - mkdir ./size-artifacts/
-  - mv ./master.csv ./size-artifacts/
 
 .shutdown-canvas:                  &shutdown-canvas
   - pkill -f "canvas --tmp --dev"
@@ -103,9 +102,7 @@ canvas-ui-ink-examples:
   after_script:
     - *shutdown-canvas
   artifacts:
-    name: "${BRANCH}"
-    paths:
-      - ./size-artifacts/
+    name: "${CI_COMMIT_BRANCH}.csv"
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
