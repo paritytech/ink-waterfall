@@ -74,7 +74,7 @@ workflow:
 
 .prepare-artifacts:                &prepare-artifacts
   - CSV_NAME="master"
-  - if [ "BRANCH" != "master"]; then 
+  - if [ "$BRANCH" != "master"]; then 
       CSV_NAME="${CI_COMMIT_BRANCH}";
       echo "${CSV_NAME}";
     fi
