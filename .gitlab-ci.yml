@@ -77,8 +77,8 @@ workflow:
   - if [ "$BRANCH" != "master" ]; then 
       CSV_NAME="${CI_COMMIT_BRANCH}";
     fi
+  # We want to make sure we have a clean file with each run
   - if test -f "$CSV_NAME.csv"; then
-      # We want to make sure we have a clean file with each run
       rm "$CSV_NAME.csv";
     fi
 
