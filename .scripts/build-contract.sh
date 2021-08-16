@@ -2,7 +2,7 @@
 
 set -eux
 
-# TODO: Use `--output-json` when that gets merged
-SIZE_OUT=""
-SIZE_OUT=$(cargo contract build --manifest-path $1/Cargo.toml  | grep "Original" | cut -d " " -f 4,6)
-echo "$1, ${SIZE_OUT}" >> $2.csv
+SIZE_OUT=$(cargo contract build --manifest-path $1/Cargo.toml --output-json)
+ORIGINAL_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.original_size')
+OPTIMIZED_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.optimized_size')
+echo "$1, ${ORIGINAL_SIZE}, ${OPTIMIZED_SIZE}" >> $2.csv
