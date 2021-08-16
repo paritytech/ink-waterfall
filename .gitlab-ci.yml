@@ -102,7 +102,7 @@ canvas-ui-ink-examples:
   after_script:
     - *shutdown-canvas
   artifacts:
-    paths: $CI_COMMIT_BRANCH.csv"
+    paths: $CI_COMMIT_BRANCH.csv
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
