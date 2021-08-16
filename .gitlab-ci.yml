@@ -101,7 +101,8 @@ canvas-ui-ink-examples:
   after_script:
     - *shutdown-canvas
   artifacts:
-    paths: 
+    name: "$BRANCH.csv"
+    paths:
       - $BRANCH.csv
 
 .polkadot-js-ui-ink-examples:
