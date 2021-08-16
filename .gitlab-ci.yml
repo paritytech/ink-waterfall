@@ -103,7 +103,8 @@ canvas-ui-ink-examples:
     - *shutdown-canvas
   artifacts:
     paths: 
-      - ${BRANCH}.csv
+      - output.csv
+        # - ${BRANCH}.csv
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
