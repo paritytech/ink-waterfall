@@ -72,11 +72,22 @@ workflow:
 .start-canvas-rand-extension:      &start-canvas-rand-extension
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
-.build-contracts:                  &build-contracts
-  - if test -f "$CI_COMMIT_BRANCH.csv"; then
-      echo "File exists";
+.prepare-artifacts:                &prepare-artifacts
+  - CSV_NAME="master"
+  - if [ "BRANCH" != "master"]; then 
+      CSV_NAME="${CI_COMMIT_BRANCH}";
+      echo "${CSV_NAME}";
     fi
-  - echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/flipper ${CI_COMMIT_BRANCH}" >> /tmp/cmds
+  - if test -f "$CI_COMMIT_BRANCH.csv"; then
+      rm "$CI_COMMIT_BRANCH.csv";
+    fi
+
+.build-contracts:                  &build-contracts
+  <<: *prepare-artifacts
+  - if test -f "$CI_COMMIT_BRANCH.csv"; then
+      rm "$CI_COMMIT_BRANCH.csv";
+    fi
+  - echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/flipper ${CSV_NAME}" >> /tmp/cmds
     # - for example in ${INK_EXAMPLES_PATH}/*/; do
     #     echo "./.scripts/build-contract.sh ${example} ${BRANCH}" >> /tmp/cmds;
     #   done
@@ -103,6 +114,7 @@ canvas-ui-ink-examples:
     - *shutdown-canvas
   artifacts:
     paths:
+      - master.csv
       - $CI_COMMIT_BRANCH.csv
 
 .polkadot-js-ui-ink-examples:
