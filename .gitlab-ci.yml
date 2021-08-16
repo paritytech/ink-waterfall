@@ -17,7 +17,6 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples/"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  WASM_SIZES_OUTPUT_FILE:          "accumulator adder subber"
 
 workflow:
   rules:
@@ -78,7 +77,7 @@ workflow:
       echo "File exists";
     fi
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "./.scripts/build-contract.sh ${example}" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${example} ${BRANCH}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
@@ -103,8 +102,7 @@ canvas-ui-ink-examples:
     - *shutdown-canvas
   artifacts:
     paths: 
-      - output.csv
-        # - ${BRANCH}.csv
+      - ${BRANCH}.csv
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
