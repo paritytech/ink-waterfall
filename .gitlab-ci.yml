@@ -88,7 +88,7 @@ workflow:
     fi
     #- echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/flipper ${CSV_NAME}" >> /tmp/cmds
   - for example in ${INK_EXAMPLES_PATH}/*; do
-      echo "./.scripts/build-contract.sh ${example} ${BRANCH}" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${example} ${CSV_NAME}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
