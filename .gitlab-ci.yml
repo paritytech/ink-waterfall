@@ -77,10 +77,6 @@ workflow:
   - if [ "$BRANCH" != "master" ]; then 
       CSV_NAME="${CI_COMMIT_BRANCH}";
     fi
-  # We want to make sure we have a clean file with each run
-  - if test -f "$CSV_NAME.csv"; then
-      rm "$CSV_NAME.csv";
-    fi
 
 .build-contracts:                  &build-contracts
     #- echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/flipper ${CSV_NAME}" >> /tmp/cmds
