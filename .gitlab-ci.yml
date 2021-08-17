@@ -83,9 +83,6 @@ workflow:
     fi
 
 .build-contracts:                  &build-contracts
-  - if test -f "$CI_COMMIT_BRANCH.csv"; then
-      rm "$CI_COMMIT_BRANCH.csv";
-    fi
     #- echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/flipper ${CSV_NAME}" >> /tmp/cmds
   - for example in ${INK_EXAMPLES_PATH}/*; do
       echo "./.scripts/build-contract.sh ${example} ${CSV_NAME}" >> /tmp/cmds;
