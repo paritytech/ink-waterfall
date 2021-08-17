@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Write the original and optimized sizes of a Wasm file
+# to a CSV file.
+#
+# Usage: `./build-contract.sh <path_to_contract> <path_to_output_file>`
 
 set -eux
 
