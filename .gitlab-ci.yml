@@ -25,6 +25,22 @@ workflow:
     - if: $CI_COMMIT_BRANCH
 
 .default-refs:                      &default-refs
+  rules: 
+  - if: $CI_PIPELINE_SOURCE == "web"
+  - if: $CI_PIPELINE_SOURCE == "schedule"
+  - if: $CI_COMMIT_REF_NAME == "master"
+  - if: $CI_COMMIT_REF_NAME == "tags"
+  - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
+  - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+
+.default-refs-trgr-ref-master:      &default-refs-trgr-ref-master
+  rules:
+  - if: $TRGR_REF == "master"
+
+.default-refs-trgr-ref-pr:      &default-refs-trgr-ref-pr
+  rules:
+  - if: $TRGR_REF == "master"
+    when: never
   - if: $CI_PIPELINE_SOURCE == "web"
   - if: $CI_PIPELINE_SOURCE == "schedule"
   - if: $CI_COMMIT_REF_NAME == "master"
@@ -44,8 +60,7 @@ workflow:
     - ./.scripts/pre_cache.sh
     - sccache -s
     - git show
-  rules:
-    <<:                            *default-refs
+  <<:                              *default-refs
   interruptible:                   true
   retry:
     max:                           2
@@ -70,13 +85,21 @@ workflow:
 .clone-repo:                       &clone-repo
   - git clone --depth 1 --branch ${BRANCH} ${REPO}
 
-.collect-artifacts:                &collect-artifacts
+.collect-artifacts-master:                &collect-artifacts-master
   artifacts:
     name:                          "${CI_JOB_NAME}_${REPO_NAME}_${BRANCH}"
     when:                          on_success
     expire_in:                     7 days
     paths:
-      - artifacts/
+      - artifacts/master
+
+.collect-artifacts-pr:                    &collect-artifacts-pr
+  artifacts:
+    name:                          "${CI_JOB_NAME}_${REPO_NAME}_${BRANCH}"
+    when:                          on_success
+    expire_in:                     7 days
+    paths:
+      - artifacts/pr
 
 .start-canvas:                     &start-canvas
   - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
@@ -85,12 +108,12 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
-  - mkdir artifacts
+  - mkdir -p artifacts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "./.scripts/build-contract.sh ${example} ./artifacts/${CSV_NAME}" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${example} ./artifacts/${REF_KIND}/${CSV_NAME}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} ./artifacts/${CSV_NAME}" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} ./artifacts//${REF_KIND}/${CSV_NAME}" >> /tmp/cmds;
     done
   # TODO: looks like a race condition with possible simultaneous write to a single CSV file. Can break its formatting
   - parallel -j 2 < /tmp/cmds
@@ -109,17 +132,20 @@ parent-vars:
     - BRANCH="master"
     - REPO="https://github.com/paritytech/ink.git"
     - REPO_NAME="ink"
+    - REF_KIND="master"
     - echo ${TRGR_REF}
     - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
         PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
         BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
         REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
         REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
+        REF_KIND="pr"
       fi
     - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
     - echo "REPO=${REPO}" | tee -a parent-vars.env
     - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
     - echo "CSV_NAME=${REPO_NAME}_${BRANCH}" | tee -a parent-vars.env
+    - echo "REF_KIND=${REF_KIND}" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
@@ -127,7 +153,6 @@ parent-vars:
 .canvas-ui-ink-examples-template:  &canvas-ui-ink-examples-template
   stage:                           test
   <<:                              *docker-env
-  <<:                              *collect-artifacts
   script:
     - *clone-repo
     - *start-canvas
@@ -141,34 +166,30 @@ parent-vars:
 # added to a pipeline only if parent was created on master
 canvas-ui-ink-examples-master:
   <<:                              *canvas-ui-ink-examples-template
-  rules:
-    - if: $TRGR_REF == "master"
-    <<:                            *default-refs
+  <<:                              *collect-artifacts-master
+  <<:                              *default-refs-master
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
 canvas-ui-ink-examples-pr:
   <<:                              *canvas-ui-ink-examples-template
-  rules:
-    - if: $TRGR_REF == "master"
-      when: never
-    <<:                            *default-refs
+  <<:                              *collect-artifacts-pr
+  <<:                              *default-refs-pr
 
 # comparison is made if parent was created on prs only. otherwise we would compare master with master
 canvas-ui-ink-examples-compare-results:
   stage:                           build-and-compare
   <<:                              *kubernetes-env
+  # TODO: run on paritytech/ink-waterfall-ci, alpine is just for example here
   variables:
     CI_IMAGE: "alpine"
   script:
+    # TODO: replace with comparison logic / comparison script invocation
     - apk add tree
     - tree -a artifacts
   needs:
     - job: canvas-ui-ink-examples-pr
       artifacts: true
-  rules:
-    - if: $TRGR_REF == "master"
-      when: never
-    <<:                            *default-refs
+  <<:                              *default-refs-pr
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
