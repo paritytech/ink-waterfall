@@ -54,12 +54,12 @@ workflow:
 
 
 .docker-env:                      &docker-env
-  <<:                             &basic-env
+  <<:                             *basic-env
   tags:
     - linux-docker
 
 .kubernetes-env:                  &kubernetes-env
-  <<:                             &basic-env
+  <<:                             *basic-env
   before_script:                  []
   tags:
     - kubernetes-parity-build
@@ -103,7 +103,7 @@ workflow:
 # needed vars have to "exported" on a earlier stage
 parent-vars:
   stage:                           declare-vars
-  <<:                              kubernetes-env
+  <<:                              *kubernetes-env
   script:
     - BRANCH="master"
     - REPO="https://github.com/paritytech/ink.git"
