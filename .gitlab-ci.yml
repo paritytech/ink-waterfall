@@ -129,7 +129,6 @@ parent-vars:
   script:
     - *clone-repo
     - *start-canvas
-    - *prepare-artifacts
     - *build-contracts
       # - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
   after_script:
@@ -169,7 +168,6 @@ canvas-ui-ink-examples-compare-results:
   script:
     - *clone-repo
     - *start-canvas
-    - *prepare-artifacts
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
