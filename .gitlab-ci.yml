@@ -173,7 +173,7 @@ canvas-ui-ink-examples-master:
 canvas-ui-ink-examples-pr:
   <<:                              *canvas-ui-ink-examples-template
   <<:                              *collect-artifacts-pr
-  <<:                              *default-refs-pr
+  <<:                              *default-refs-trgr-ref-master
 
 # comparison is made if parent was created on prs only. otherwise we would compare master with master
 canvas-ui-ink-examples-compare-results:
@@ -189,7 +189,7 @@ canvas-ui-ink-examples-compare-results:
   needs:
     - job: canvas-ui-ink-examples-pr
       artifacts: true
-  <<:                              *default-refs-pr
+  <<:                              *default-refs-trgr-ref-pr
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
