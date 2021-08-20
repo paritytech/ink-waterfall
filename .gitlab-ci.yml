@@ -115,9 +115,9 @@ parent-vars:
         REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
         REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
       fi
-    - echo ${BRANCH}
-    - echo ${REPO}
-    - echo ${REPO_NAME}
+    - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
+    - echo "REPO=${REPO}" | tee -a parent-vars.env
+    - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
