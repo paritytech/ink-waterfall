@@ -139,14 +139,16 @@ parent-vars:
 canvas-ui-ink-examples-master:
   <<:                              *canvas-ui-ink-examples-template
   rules:
-    - when: never
+    - if: $BRANCH == "master"
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
 canvas-ui-ink-examples-pr:
   <<:                              *canvas-ui-ink-examples-template
-  # rules:
-  #   - if: $BRANCH == "master"
+  rules:
+    - if: $BRANCH == "master"
+      when: never
 
+# comparison is made if parent was created on prs only. otherwise we would compare master with master
 canvas-ui-ink-examples-compare-results:
   stage:                           build-and-compare
   <<:                              *kubernetes-env
@@ -154,12 +156,13 @@ canvas-ui-ink-examples-compare-results:
     CI_IMAGE: "alpine"
   script:
     - apk add tree
-    - tree -a
+    - tree -a artifacts
   needs:
     - job: canvas-ui-ink-examples-pr
       artifacts: true
-  # rules:
-  #   - if: $BRANCH == "master"
+  rules:
+    - if: $BRANCH == "master"
+      when: never
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
