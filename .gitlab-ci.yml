@@ -145,8 +145,8 @@ canvas-ui-ink-examples-master:
 # added to a pipeline only if parent was created by any other means (on prs basically)
 canvas-ui-ink-examples-pr:
   <<:                              *canvas-ui-ink-examples-template
-  rules:
-    - if: $BRANCH == "master"
+  # rules:
+  #   - if: $BRANCH == "master"
 
 canvas-ui-ink-examples-compare-results:
   stage:                           build-and-compare
@@ -160,7 +160,8 @@ canvas-ui-ink-examples-compare-results:
     # will run only if canvas-ui-ink-examples-pr exists on a pipeline
     - job: canvas-ui-ink-examples-pr
       artifacts: true
-
+  # rules:
+  #   - if: $BRANCH == "master"
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
