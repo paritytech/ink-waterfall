@@ -85,13 +85,15 @@ workflow:
 .build-contracts:                  &build-contracts
   - mkdir artifacts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "./.scripts/build-contract.sh ${example} ./artifacts/${CSV_NAME} >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${example} report.csv >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} ./artifacts/${CSV_NAME}" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} report.csv" >> /tmp/cmds;
     done
   # TODO: looks like a race condition with possible simultaneous write to a single CSV file. Can break its formatting
   - parallel -j 2 < /tmp/cmds
+  - pwd
+  - ls -la
 
 .shutdown-canvas:                  &shutdown-canvas
   - pkill -f "canvas --tmp --dev"
