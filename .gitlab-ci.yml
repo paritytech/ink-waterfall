@@ -155,9 +155,8 @@ canvas-ui-ink-examples-compare-results:
     CI_IMAGE: "alpine"
   script:
     - apk add tree
-    - tree -a artifacts
+    - tree -a
   needs:
-    # will run only if canvas-ui-ink-examples-pr exists on a pipeline
     - job: canvas-ui-ink-examples-pr
       artifacts: true
   # rules:
