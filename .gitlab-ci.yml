@@ -136,30 +136,30 @@ parent-vars:
   dependencies:
     - parent-vars
 
-# added to a pipeline only if parent was created on master
-canvas-ui-ink-examples-master:
-  rules:
-    - if: $BRANCH == "master"
-  <<:                              canvas-ui-ink-examples-template
+# # added to a pipeline only if parent was created on master
+# canvas-ui-ink-examples-master:
+#   rules:
+#     - if: $BRANCH == "master"
+#   <<:                              canvas-ui-ink-examples-template
 
-# added to a pipeline only if parent was created by any other means (on prs basically)
-canvas-ui-ink-examples-pr:
-  rules:
-    - if: $BRANCH != "master"
-  <<:                              canvas-ui-ink-examples-template
+# # added to a pipeline only if parent was created by any other means (on prs basically)
+# canvas-ui-ink-examples-pr:
+#   rules:
+#     - if: $BRANCH != "master"
+#   <<:                              canvas-ui-ink-examples-template
 
-canvas-ui-ink-examples-compare-results:
-  stage:                           build-and-compare
-  <<:                              kubernetes-env
-  variables:
-    CI_IMAGE: "alpine"
-  script:
-    - apk add tree
-    - tree -a artifacts
-  needs:
-    # will run only if canvas-ui-ink-examples-pr exists on a pipeline
-    - job: canvas-ui-ink-examples-pr
-      artifacts: true
+# canvas-ui-ink-examples-compare-results:
+#   stage:                           build-and-compare
+#   <<:                              kubernetes-env
+#   variables:
+#     CI_IMAGE: "alpine"
+#   script:
+#     - apk add tree
+#     - tree -a artifacts
+#   needs:
+#     # will run only if canvas-ui-ink-examples-pr exists on a pipeline
+#     - job: canvas-ui-ink-examples-pr
+#       artifacts: true
 
 
 .polkadot-js-ui-ink-examples:
