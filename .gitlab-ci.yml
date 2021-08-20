@@ -140,6 +140,7 @@ parent-vars:
 canvas-ui-ink-examples-master:
   rules:
     - if: $BRANCH == "master"
+    - when: never
   <<:                              *canvas-ui-ink-examples-template
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
