@@ -139,7 +139,7 @@ parent-vars:
         BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
         REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
         REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
-        REF_KIND="pr"
+        REF_KIND="pr";
       fi
     - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
     - echo "REPO=${REPO}" | tee -a parent-vars.env
