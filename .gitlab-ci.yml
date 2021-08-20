@@ -83,16 +83,15 @@ workflow:
   - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
+  - mkdir artifacts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "./.scripts/build-contract.sh ${example} report.csv" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${example} artifacts/${CSV_NAME} >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} report.csv" >> /tmp/cmds;
+      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} artifacts/${CSV_NAME}" >> /tmp/cmds;
     done
   # TODO: looks like a race condition with possible simultaneous write to a single CSV file. Can break its formatting
   - parallel -j 2 < /tmp/cmds
-  - mkdir -p artifacts/${REPO_NAME}_${BRANCH}
-  - mv report.csv artifacts/${REPO_NAME}_${BRANCH}
 
 .shutdown-canvas:                  &shutdown-canvas
   - pkill -f "canvas --tmp --dev"
@@ -118,6 +117,7 @@ parent-vars:
     - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
     - echo "REPO=${REPO}" | tee -a parent-vars.env
     - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
+    - echo "CSV_NAME=${REPO_NAME}_${BRANCH}.csv" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
@@ -140,14 +140,13 @@ parent-vars:
 canvas-ui-ink-examples-master:
   <<:                              *canvas-ui-ink-examples-template
   rules:
-    - if: $BRANCH == "master"
     - when: never
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
 canvas-ui-ink-examples-pr:
   <<:                              *canvas-ui-ink-examples-template
   rules:
-    - if: $BRANCH != "master"
+    - if: $BRANCH == "master"
 
 canvas-ui-ink-examples-compare-results:
   stage:                           build-and-compare
