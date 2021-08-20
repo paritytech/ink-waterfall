@@ -24,13 +24,14 @@ workflow:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
 
-.default-refs:                      &default-refs
-  - if: $CI_PIPELINE_SOURCE == "web"
-  - if: $CI_PIPELINE_SOURCE == "schedule"
-  - if: $CI_COMMIT_REF_NAME == "master"
-  - if: $CI_COMMIT_REF_NAME == "tags"
-  - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
-  - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+.default-refs:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_COMMIT_REF_NAME == "tags"
+    - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
+    - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
 
 .basic-env:                         &basic-env
   image:                           "${CI_IMAGE}"
@@ -44,8 +45,7 @@ workflow:
     - ./.scripts/pre_cache.sh
     - sccache -s
     - git show
-  rules:
-    <<:                            *default-refs
+  extends: .default-refs
   interruptible:                   true
   retry:
     max:                           2
@@ -143,7 +143,6 @@ canvas-ui-ink-examples-master:
   <<:                              *canvas-ui-ink-examples-template
   rules:
     - if: $TRGR_REF == "master"
-    <<:                            *default-refs
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
 canvas-ui-ink-examples-pr:
@@ -151,7 +150,6 @@ canvas-ui-ink-examples-pr:
   rules:
     - if: $TRGR_REF == "master"
       when: never
-    <<:                            *default-refs
 
 # comparison is made if parent was created on prs only. otherwise we would compare master with master
 canvas-ui-ink-examples-compare-results:
@@ -168,7 +166,6 @@ canvas-ui-ink-examples-compare-results:
   rules:
     - if: $TRGR_REF == "master"
       when: never
-    <<:                            *default-refs
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
