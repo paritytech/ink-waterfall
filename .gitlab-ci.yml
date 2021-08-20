@@ -143,6 +143,7 @@ canvas-ui-ink-examples-master:
   <<:                              *canvas-ui-ink-examples-template
   rules:
     - if: $TRGR_REF == "master"
+    - !reference [.default-refs, rules]
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
 canvas-ui-ink-examples-pr:
@@ -150,6 +151,7 @@ canvas-ui-ink-examples-pr:
   rules:
     - if: $TRGR_REF == "master"
       when: never
+    - !reference [.default-refs, rules]
 
 # comparison is made if parent was created on prs only. otherwise we would compare master with master
 canvas-ui-ink-examples-compare-results:
@@ -166,6 +168,7 @@ canvas-ui-ink-examples-compare-results:
   rules:
     - if: $TRGR_REF == "master"
       when: never
+    - !reference [.default-refs, rules]
 
 .polkadot-js-ui-ink-examples:
   stage:                           test
