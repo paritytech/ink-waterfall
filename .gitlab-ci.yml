@@ -173,7 +173,7 @@ canvas-ui-ink-examples-master:
 canvas-ui-ink-examples-pr:
   <<:                              *canvas-ui-ink-examples-template
   <<:                              *collect-artifacts-pr
-  <<:                              *default-refs-trgr-ref-master
+  <<:                              *default-refs-trgr-ref-pr
 
 # comparison is made if parent was created on prs only. otherwise we would compare master with master
 canvas-ui-ink-examples-compare-results:
