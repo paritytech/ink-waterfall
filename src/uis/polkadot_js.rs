@@ -171,7 +171,7 @@ impl ContractsUi for crate::uis::Ui {
                 .click()
                 .await?;
 
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
 
             // choose caller
             log::info!("[{}] choose {:?}", log_id, caller);
@@ -330,7 +330,7 @@ impl ContractsUi for crate::uis::Ui {
 
         let mut res;
         for waited in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
             ).await;
@@ -932,7 +932,7 @@ impl ContractsUi for crate::uis::Ui {
                 .wait_for_find(Locator::XPath(max_gas_input_path))
                 .await?;
 
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
 
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
             let possibly_estimated_gas = self.client.find(Locator::XPath(path)).await;
@@ -1008,7 +1008,7 @@ impl ContractsUi for crate::uis::Ui {
             input.send_keys(&format!("{}\n", &value)).await?;
         }
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] click execute", log_id);
         self.client
@@ -1032,7 +1032,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut res;
         for waited in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
             ).await;

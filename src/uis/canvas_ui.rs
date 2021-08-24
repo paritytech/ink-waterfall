@@ -306,7 +306,7 @@ impl ContractsUi for crate::uis::Ui {
                 Vec::new(),
             )
             .await?;
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] check 'Unique Instantiation Salt' checkbox", log_id);
         let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]/div";
@@ -337,7 +337,7 @@ impl ContractsUi for crate::uis::Ui {
 
         let mut res;
         for retry in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]")
             ).await;
@@ -622,7 +622,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
         for waited in 0..21 {
             log::info!("[{}] waiting for rpc call outcome {}", log_id, waited);
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             let el = self.client.find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await;
             if let Ok(mut el) = el {
                 log::info!("[{}] found rpc call outcome", log_id);
@@ -875,7 +875,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut res;
         for retry in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]")
             ).await;
