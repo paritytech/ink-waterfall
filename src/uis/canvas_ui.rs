@@ -635,7 +635,7 @@ impl ContractsUi for crate::uis::Ui {
                 break
             }
 
-            if waited % 5 == 0 {
+            if waited % 10 == 0 {
                 log::info!("[{}] click rpc call again in {}", log_id, waited);
                 self.client
                     .find(Locator::XPath("//button[contains(text(),'Call')]"))
