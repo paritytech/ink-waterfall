@@ -115,7 +115,6 @@ canvas-ui-rand-extension:
   script:
     - *clone-repo
     - *start-canvas-rand-extension
-    - cargo test --features headless -- --ignored rand_extension
   after_script:
     - *shutdown-canvas-rand-extension
 
@@ -125,7 +124,6 @@ polkadot-js-ui-rand-extension:
   script:
     - *clone-repo
     - *start-canvas-rand-extension
-    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - *shutdown-canvas-rand-extension
 
