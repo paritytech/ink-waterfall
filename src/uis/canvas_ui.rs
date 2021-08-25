@@ -620,9 +620,9 @@ impl ContractsUi for crate::uis::Ui {
             .await?
             .click()
             .await?;
-        for waited in 0..31 {
+        for waited in 0..21 {
             log::info!("[{}] waiting for rpc call outcome {}", log_id, waited);
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             let el = self.client.find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await;
             if let Ok(mut el) = el {
                 log::info!("[{}] found rpc call outcome", log_id);
@@ -635,7 +635,7 @@ impl ContractsUi for crate::uis::Ui {
                 break
             }
 
-            if waited % 15 == 0 {
+            if waited % 10 == 0 {
                 log::info!("[{}] click rpc call again in {}", log_id, waited);
                 self.client
                     .find(Locator::XPath("//button[contains(text(),'Call')]"))
@@ -643,10 +643,6 @@ impl ContractsUi for crate::uis::Ui {
                     .click()
                     .await?;
             }
-        }
-        if txt.is_none() {
-            let el = self.client.find(Locator::XPath("//div[@class = 'outcomes']")).await?.html(true).await?;
-            eprintln!("el: {:?}", el);
         }
         let mut txt = txt.expect("[{}] no outcome txt found after retrying!");
 
