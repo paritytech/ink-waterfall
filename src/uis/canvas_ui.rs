@@ -636,6 +636,12 @@ impl ContractsUi for crate::uis::Ui {
             }
 
             if waited % 5 == 0 {
+                if txt.is_none() {
+                    let html = self.client.find(Locator::XPath("//div[@class = 'outcomes']")).await?.html(true).await?;
+                    if html.contains("Error: OutOfGas") {
+                        panic!("[{}] An `OutOfGas` error occurred for this RPC", log_id);
+                    }
+                }
                 log::info!("[{}] click rpc call again in {}", log_id, waited);
                 self.client
                     .find(Locator::XPath("//button[contains(text(),'Call')]"))
