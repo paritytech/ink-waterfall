@@ -201,7 +201,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         self.client
             .find(Locator::XPath(
-                "//div[@class = 'actions']//button[contains(text(), 'Next')]",
+                "//button[contains(text(), 'Next')]",
             ))
             .await?
             .click()
