@@ -44,7 +44,7 @@ impl ContractsUi for crate::uis::Ui {
         self.client
             .goto(&format!(
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
-                utils::canvas_port()
+                utils::node_port()
             ))
             .await?;
 
@@ -636,14 +636,12 @@ impl ContractsUi for crate::uis::Ui {
             }
 
             if waited % 5 == 0 {
-                /*
-                if txt.is_none() {
-                    let html = self.client.find(Locator::XPath("//div[@class = 'outcomes']")).await?.html(true).await?;
-                    if html.contains("Error: OutOfGas") {
-                        panic!("[{}] An `OutOfGas` error occurred for this RPC", log_id);
-                    }
-                }
-                */
+                // if txt.is_none() {
+                // let html = self.client.find(Locator::XPath("//div[@class = 'outcomes']")).await?.html(true).await?;
+                // if html.contains("Error: OutOfGas") {
+                // panic!("[{}] An `OutOfGas` error occurred for this RPC", log_id);
+                // }
+                // }
                 log::info!("[{}] click rpc call again in {}", log_id, waited);
                 self.client
                     .find(Locator::XPath("//button[contains(text(),'Call')]"))
@@ -1018,7 +1016,7 @@ fn base_url() -> String {
     let mut url = base_url.trim_end_matches('/').to_string();
     url.push_str(&format!(
         "?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
-        utils::canvas_port()
+        utils::node_port()
     ));
     url
 }

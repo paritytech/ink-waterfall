@@ -39,7 +39,7 @@ impl ContractsUi for crate::uis::Ui {
         self.client
             .goto(&format!(
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
-                utils::canvas_port()
+                utils::node_port()
             ))
             .await?;
 
@@ -200,9 +200,7 @@ impl ContractsUi for crate::uis::Ui {
             upload_input.contract_path
         );
         self.client
-            .find(Locator::XPath(
-                "//button[contains(text(), 'Next')]",
-            ))
+            .find(Locator::XPath("//button[contains(text(), 'Next')]"))
             .await?
             .click()
             .await?;
@@ -1184,7 +1182,7 @@ fn base_url() -> String {
     let mut url = base_url.trim_end_matches('/').to_string();
     url.push_str(&format!(
         "/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
-        utils::canvas_port()
+        utils::node_port()
     ));
     url
 }

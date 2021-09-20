@@ -167,7 +167,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
     .expect("failed to `invoke_transaction`");
 
     // then
-    assert!(utils::canvas_log_contains("received payment: 10\n"));
+    assert!(utils::node_log_contains("received payment: 10\n"));
 
     Ok(())
 }

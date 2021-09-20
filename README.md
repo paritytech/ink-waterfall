@@ -13,7 +13,7 @@ This project contains end-to-end tests for this pipeline:
 ink! ➜
    cargo-contract ➜
              canvas-ui || polkadot-js ➜
-                                 canvas-node
+                          substrate-contracts-node
 ```
 
 
@@ -22,7 +22,7 @@ ink! ➜
 * They build [the ink! examples](https://github.com/paritytech/ink/tree/master/examples)
   using [`cargo-contract`](https://github.com/paritytech/cargo-contract).
 * The resulting `.contract` file is deployed on a local blockchain instance of
-  [`canvas-node`](https://github.com/paritytech/canvas-node).
+  [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node).
 * The deployment is done using either the [`canvas-ui`](https://github.com/paritytech/canvas-ui)
   or [`polkadot-js`](https://github.com/polkadot-js/apps).
 * This is done by emulating browser interactions in Firefox (clicking, uploading, …).
@@ -38,7 +38,7 @@ ink! ➜
 * [`geckodriver`](https://github.com/mozilla/geckodriver/) - is required for emulating interactions with
   a browser. Packages are available in some package managers, binary releases are available
   [in the repository](https://github.com/mozilla/geckodriver/releases).
-* [`canvas-node`](https://paritytech.github.io/ink-docs/getting-started/setup#installing-the-canvas-node)
+* [`substrate-contracts-node`](https://paritytech.github.io/ink-docs/getting-started/setup/#installing-the-substrate-smart-contracts-node)
 * [The ink! repository](https://github.com/paritytech/ink)
 * Firefox
 
@@ -53,7 +53,7 @@ requirement. By default the published versions of those projects are used
 
 ```bash
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
-canvas --tmp --dev > /tmp/canvas.log 2>&1 &
+substrate-contracts-node --tmp --dev > /tmp/substrate-contracts-node.log 2>&1 &
 
 # By default you will see the Firefox GUI and the
 # tests interacting with it.
@@ -104,7 +104,7 @@ supply `--features polkadot-js-ui` to `cargo test`.
   Defaults to `true`. Set it to `false` to prevent closing .
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder. Defaults to `false`. Set it to `true` to skip building.
-* `CANVAS_PORT` ‒ Port under which the `canvas-node` is running. Defaults to `9944`.
+* `NODE_PORT` ‒ Port under which the `substrate-contracts-node` is running. Defaults to `9944`.
 * `RUST_LOG` ‒ Use `RUST_LOG=info` to get output on what the tests are doing.
 
 
