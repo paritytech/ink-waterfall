@@ -30,7 +30,7 @@ workflow:
     - rustc -vV
     - rustup show
     - bash --version
-    - canvas --version
+    - substrate-contracts-node --version
     - cargo-contract --version
     - ./.scripts/pre_cache.sh
     - sccache -s
@@ -66,13 +66,13 @@ workflow:
   - echo ${REPO}
   - git clone --depth 1 --branch ${BRANCH} ${REPO}
 
-.start-canvas:                     &start-canvas
-  - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
+.start-substrate-contracts-node:                     &start-substrate-contracts-node
+  - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
-.start-canvas-rand-extension:      &start-canvas-rand-extension
-  - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
+.start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
+  - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
-.build-contracts:                  &build-contracts
+.build-contracts:                                    &build-contracts
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
     done
@@ -81,53 +81,53 @@ workflow:
     done
   - parallel -j 2 < /tmp/cmds
 
-.shutdown-canvas:                  &shutdown-canvas
-  - pkill -f "canvas --tmp --dev"
+.shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
+  - pkill -f "substrate-contracts-node --tmp --dev"
 
-.shutdown-canvas-rand-extension:   &shutdown-canvas-rand-extension
-  - pkill -f "canvas-rand-extension --tmp --dev"
+.shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
+  - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
 canvas-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   script:
     - *clone-repo
-    - *start-canvas
+    - *start-substrate-contracts-node
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
   after_script:
-    - *shutdown-canvas
+    - *shutdown-substrate-contracts-node
 
 polkadot-js-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
   script:
     - *clone-repo
-    - *start-canvas
+    - *start-substrate-contracts-node
     - *build-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
-    - *shutdown-canvas
+    - *shutdown-substrate-contracts-node
 
-canvas-ui-rand-extension:
+substrate-contracts-node-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   script:
     - *clone-repo
-    - *start-canvas-rand-extension
+    - *start-substrate-contracts-node-rand-extension
     - cargo test --features headless -- --ignored rand_extension
   after_script:
-    - *shutdown-canvas-rand-extension
+    - *shutdown-substrate-contracts-node-rand-extension
 
 polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   script:
     - *clone-repo
-    - *start-canvas-rand-extension
+    - *start-substrate-contracts-node-rand-extension
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
-    - *shutdown-canvas-rand-extension
+    - *shutdown-substrate-contracts-node-rand-extension
 
 build_badge:
   stage: build
