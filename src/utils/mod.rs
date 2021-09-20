@@ -62,7 +62,7 @@ pub fn assert_node_running() {
         .filter_map(|cmdline| cmdline.ok())
         .filter_map(|opt| opt)
         .any(|str| {
-            str.containsu("substrate-contracts-node ")
+            str.contains("substrate-contracts-node ")
                 || str.contains("substrate-contracts-node-rand-extension ")
         });
     assert!(
