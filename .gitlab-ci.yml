@@ -87,17 +87,6 @@ workflow:
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
   - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
-canvas-ui-ink-examples:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-substrate-contracts-node
-    - *build-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
-  after_script:
-    - *shutdown-substrate-contracts-node
-
 polkadot-js-ui-ink-examples:
   stage:                           test
   <<:                              *docker-env
@@ -108,16 +97,6 @@ polkadot-js-ui-ink-examples:
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
     - *shutdown-substrate-contracts-node
-
-substrate-contracts-node-ui-rand-extension:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-substrate-contracts-node-rand-extension
-    - cargo test --features headless -- --ignored rand_extension
-  after_script:
-    - *shutdown-substrate-contracts-node-rand-extension
 
 polkadot-js-ui-rand-extension:
   stage:                           test
