@@ -13,7 +13,7 @@ This project contains end-to-end tests for this pipeline:
 ink! ➜
    cargo-contract ➜
              canvas-ui || polkadot-js ➜
-                          substrate-contracts-node
+                                substrate-contracts-node
 ```
 
 
