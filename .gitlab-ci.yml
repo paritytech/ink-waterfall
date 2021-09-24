@@ -55,7 +55,7 @@ workflow:
     - rustc -vV
     - rustup show
     - bash --version
-    - canvas --version
+    - substrate-contracts-node --version
     - cargo-contract --version
     - ./.scripts/pre_cache.sh
     - sccache -s
@@ -101,11 +101,11 @@ workflow:
     paths:
       - artifacts/pr
 
-.start-canvas:                     &start-canvas
-  - canvas --tmp --dev -lruntime::contracts=debug > /tmp/canvas.log 2>&1 &
+.start-substrate-contracts-node:                     &start-substrate-contracts-node
+  - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
-.start-canvas-rand-extension:      &start-canvas-rand-extension
-  - canvas-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/canvas-rand-extension.log 2>&1 &
+.start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
+  - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
 .build-contracts:                  &build-contracts
   - mkdir -p artifacts/${REF_KIND}
@@ -118,11 +118,11 @@ workflow:
   # TODO: looks like a race condition with possible simultaneous write to a single CSV file. Can break its formatting
   - parallel -j 2 < /tmp/cmds
 
-.shutdown-canvas:                  &shutdown-canvas
-  - pkill -f "canvas --tmp --dev"
+.shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
+  - pkill -f "substrate-contracts-node --tmp --dev"
 
-.shutdown-canvas-rand-extension:   &shutdown-canvas-rand-extension
-  - pkill -f "canvas-rand-extension --tmp --dev"
+.shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
+  - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
 # needed vars have to be "exported" on a earlier stage
 parent-vars:
@@ -150,33 +150,33 @@ parent-vars:
     reports:
       dotenv: parent-vars.env
 
-.canvas-ui-ink-examples-template:  &canvas-ui-ink-examples-template
+.polkadot-js-ui-ink-examples-template:  &polkadot-js-ui-ink-examples-template
   stage:                           test
   <<:                              *docker-env
   script:
     - *clone-repo
-    - *start-canvas
+    - *start-substrate-contracts-node
     - *build-contracts
-      # - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless
+    # - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
-    - *shutdown-canvas
+    - *shutdown-substrate-contracts-node
   dependencies:
     - parent-vars
 
 # added to a pipeline only if parent was created on master
-canvas-ui-ink-examples-master:
-  <<:                              *canvas-ui-ink-examples-template
+polkadot-js-ui-ink-examples-master:
+  <<:                              *substrate-contracts-node-ui-ink-examples-template
   <<:                              *collect-artifacts-master
   <<:                              *default-refs-trgr-ref-master
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
-canvas-ui-ink-examples-pr:
-  <<:                              *canvas-ui-ink-examples-template
+polkadot-js-ui-ink-examples-pr:
+  <<:                              *substrate-contracts-node-ui-ink-examples-template
   <<:                              *collect-artifacts-pr
   <<:                              *default-refs-trgr-ref-pr
 
 # comparison is made if parent was created on prs only. otherwise we would compare master with master
-canvas-ui-ink-examples-compare-results:
+polkadot-js-ui-ink-examples-compare-results:
   stage:                           build-and-compare
   <<:                              *kubernetes-env
   # TODO: run on paritytech/ink-waterfall-ci, alpine is just for example here
@@ -187,58 +187,52 @@ canvas-ui-ink-examples-compare-results:
     - apk add tree
     - tree -a artifacts
   needs:
-    - job: canvas-ui-ink-examples-pr
+    # enable in a future prs. this has to be initially populated
+    # we want to download master's artifacts from the previous successful job in the past pipeline
+    # - project: $CI_PROJECT_PATH
+    #   job: $CI_JOB_NAME
+    #   ref: master
+    #   artifacts: true
+
+    # dag + artifacts
+    - job: polkadot-js-ui-ink-examples-pr
       artifacts: true
   <<:                              *default-refs-trgr-ref-pr
 
-.polkadot-js-ui-ink-examples:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-canvas
-    - *build-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
-  after_script:
-    - *shutdown-canvas
 
-.canvas-ui-rand-extension:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-canvas-rand-extension
-    - cargo test --features headless -- --ignored rand_extension
-  after_script:
-    - *shutdown-canvas-rand-extension
 
-.polkadot-js-ui-rand-extension:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-canvas-rand-extension
-    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
-  after_script:
-    - *shutdown-canvas-rand-extension
 
-build_badge:
-  stage:                           build-and-compare
-  rules:
-    only:
-      refs:
-        - branches
-        - master
-        - tags
-  <<:                              *docker-env
-  before_script:
-    - chmod +x .scripts/get-updated-badge-info.sh
-  script:
-    - echo "building badge"
-  after_script:
-    - .scripts/get-updated-badge-info.sh
-  artifacts:
-    paths:
-        - badge.json
-    when: always
-    expire_in: 4 weeks
+
+
+
+
+# .polkadot-js-ui-rand-extension:
+#   stage:                           test
+#   <<:                              *docker-env
+#   script:
+#     - *clone-repo
+#     - *start-substrate-contracts-node-rand-extension
+#     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
+#   after_script:
+#     - *shutdown-substrate-contracts-node-rand-extension
+
+# build_badge:
+#   stage:                           build-and-compare
+#   rules:
+#     only:
+#       refs:
+#         - branches
+#         - master
+#         - tags
+#   <<:                              *docker-env
+#   before_script:
+#     - chmod +x .scripts/get-updated-badge-info.sh
+#   script:
+#     - echo "building badge"
+#   after_script:
+#     - .scripts/get-updated-badge-info.sh
+#   artifacts:
+#     paths:
+#         - badge.json
+#     when: always
+#     expire_in: 4 weeks
