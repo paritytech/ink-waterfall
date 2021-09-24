@@ -7,7 +7,7 @@
 stages:
   - declare-vars
   - test
-  - build-and-compare
+  - compare-build
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -33,11 +33,7 @@ workflow:
   - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
   - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
 
-.default-refs-trgr-ref-master:      &default-refs-trgr-ref-master
-  rules:
-  - if: $TRGR_REF == "master"
-
-.default-refs-trgr-ref-pr:      &default-refs-trgr-ref-pr
+.default-refs-trgr-not-master:      &default-refs-trgr-not-master
   rules:
   - if: $TRGR_REF == "master"
     when: never
@@ -85,38 +81,11 @@ workflow:
 .clone-repo:                       &clone-repo
   - git clone --depth 1 --branch ${BRANCH} ${REPO}
 
-.collect-artifacts-master:                &collect-artifacts-master
-  artifacts:
-    name:                          "${CI_JOB_NAME}_${REPO_NAME}_${BRANCH}"
-    when:                          on_success
-    expire_in:                     7 days
-    paths:
-      - artifacts/master
-
-.collect-artifacts-pr:                    &collect-artifacts-pr
-  artifacts:
-    name:                          "${CI_JOB_NAME}_${REPO_NAME}_${BRANCH}"
-    when:                          on_success
-    expire_in:                     7 days
-    paths:
-      - artifacts/pr
-
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
   - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
 .start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
   - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
-
-.build-contracts:                  &build-contracts
-  - mkdir -p artifacts/${REF_KIND}
-  - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "./.scripts/build-contract.sh ${example} ./artifacts/${REF_KIND}/${CSV_NAME}" >> /tmp/cmds;
-    done
-  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} ./artifacts/${REF_KIND}/${CSV_NAME}" >> /tmp/cmds;
-    done
-  # TODO: looks like a race condition with possible simultaneous write to a single CSV file. Can break its formatting
-  - parallel -j 2 < /tmp/cmds
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
   - pkill -f "substrate-contracts-node --tmp --dev"
@@ -124,33 +93,49 @@ workflow:
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
   - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
+
 # needed vars have to be "exported" on a earlier stage
 parent-vars:
-  stage:                           declare-vars
-  <<:                              *kubernetes-env
+  stage:                                             declare-vars
+  <<:                                                *kubernetes-env
   script:
     - BRANCH="master"
     - REPO="https://github.com/paritytech/ink.git"
     - REPO_NAME="ink"
-    - REF_KIND="master"
     - echo ${TRGR_REF}
     - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
         PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
         BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
         REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
         REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
-        REF_KIND="pr";
       fi
     - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
     - echo "REPO=${REPO}" | tee -a parent-vars.env
     - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
     - echo "CSV_NAME=${REPO_NAME}_${BRANCH}" | tee -a parent-vars.env
-    - echo "REF_KIND=${REF_KIND}" | tee -a parent-vars.env
+    - echo "REDIS_RESULTS_KEY=${CI_PROJECT_NAME}::results::{$REPO_NAME}::${BRANCH} | tee -a parent-vars.env
+    - echo "REDIS_RESULTS_KEY_MASTER=${CI_PROJECT_NAME}::results::{$REPO_NAME}::master | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
 
-.polkadot-js-ui-ink-examples-template:  &polkadot-js-ui-ink-examples-template
+
+.build-contracts:                                    &build-contracts
+  # delete old list items if the key has existed previously
+  - redis-cli -u $GITLAB_REDIS_URI del $REDIS_RESULTS_KEY
+  - echo 'Data will be written to $REDIS_RESULTS_KEY'
+  - for example in ${INK_EXAMPLES_PATH}/*/; do
+      echo "./.scripts/build-contract.sh ${example} | redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_RESULTS_KEY}" >> /tmp/cmds;
+    done
+  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} | redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_RESULTS_KEY}" >> /tmp/cmds;
+    done
+  - parallel -j 2 < /tmp/cmds
+  # all ci/cd keys need to have ttl
+  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_RESULTS_KEY $GITLAB_REDIS_TTL
+
+
+polkadot-js-ui-ink-examples:                        &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
   script:
@@ -163,42 +148,23 @@ parent-vars:
   dependencies:
     - parent-vars
 
-# added to a pipeline only if parent was created on master
-polkadot-js-ui-ink-examples-master:
-  <<:                              *polkadot-js-ui-ink-examples-template
-  <<:                              *collect-artifacts-master
-  <<:                              *default-refs-trgr-ref-master
-
-# added to a pipeline only if parent was created by any other means (on prs basically)
-polkadot-js-ui-ink-examples-pr:
-  <<:                              *polkadot-js-ui-ink-examples-template
-  <<:                              *collect-artifacts-pr
-  <<:                              *default-refs-trgr-ref-pr
-
-# comparison is made if parent was created on prs only. otherwise we would compare master with master
-polkadot-js-ui-ink-examples-compare-results:
-  stage:                           build-and-compare
+polkadot-js-ui-ink-examples-compare:
+  stage:                           compare-build
   <<:                              *kubernetes-env
+  # comparison is made only if a parent (trgr) was created on prs. otherwise we would compare master with master
+  # TODO: while we lack comparison data for master, lets "compare" everything
+  <<:                              *default-refs-trgr-not-master
   # TODO: run on paritytech/ink-waterfall-ci, alpine is just for example here
   variables:
     CI_IMAGE: "alpine"
   script:
-    # TODO: replace with comparison logic / comparison script invocation
-    - apk add tree
-    - tree -a artifacts
-  needs:
-    # enable in a future prs. this has to be initially populated
-    # we want to download master's artifacts from the previous successful job in the past pipeline
-    # - project: $CI_PROJECT_PATH
-    #   job: $CI_JOB_NAME
-    #   ref: master
-    #   artifacts: true
-
-    # dag + artifacts
-    - job: polkadot-js-ui-ink-examples-pr
-      artifacts: true
-  <<:                              *default-refs-trgr-ref-pr
-
+  # TODO: replace with actual comparison logic
+    - apk add redis
+    # deserialize comparison data
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_RESULTS_KEY 0 -1 | tee $REDIS_RESULTS_KEY.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_RESULTS_KEY_MASTER 0 -1 | tee $REDIS_RESULTS_KEY_MASTER.csv
+    # comparison dummy
+    - echo "Comparing..."
 
 
 
@@ -217,7 +183,7 @@ polkadot-js-ui-ink-examples-compare-results:
 #     - *shutdown-substrate-contracts-node-rand-extension
 
 # build_badge:
-#   stage:                           build-and-compare
+#   stage:                           compare-build
 #   rules:
 #     only:
 #       refs:
