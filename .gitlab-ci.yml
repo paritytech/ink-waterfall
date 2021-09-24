@@ -165,13 +165,13 @@ parent-vars:
 
 # added to a pipeline only if parent was created on master
 polkadot-js-ui-ink-examples-master:
-  <<:                              *substrate-contracts-node-ui-ink-examples-template
+  <<:                              *polkadot-js-ui-ink-examples-template
   <<:                              *collect-artifacts-master
   <<:                              *default-refs-trgr-ref-master
 
 # added to a pipeline only if parent was created by any other means (on prs basically)
 polkadot-js-ui-ink-examples-pr:
-  <<:                              *substrate-contracts-node-ui-ink-examples-template
+  <<:                              *polkadot-js-ui-ink-examples-template
   <<:                              *collect-artifacts-pr
   <<:                              *default-refs-trgr-ref-pr
 
