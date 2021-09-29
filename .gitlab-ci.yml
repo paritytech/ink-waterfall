@@ -33,17 +33,6 @@ workflow:
   - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
   - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
 
-.default-refs-trgr-not-master:      &default-refs-trgr-not-master
-  rules:
-  - if: $TRGR_REF == "master"
-    when: never
-  - if: $CI_PIPELINE_SOURCE == "web"
-  - if: $CI_PIPELINE_SOURCE == "schedule"
-  - if: $CI_COMMIT_REF_NAME == "master"
-  - if: $CI_COMMIT_REF_NAME == "tags"
-  - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
-  - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-
 .basic-env:                         &basic-env
   image:                           "${CI_IMAGE}"
   before_script:
@@ -77,6 +66,14 @@ workflow:
   tags:
     - kubernetes-parity-build
 
+
+.if-trgr-ref-is-master:           &if-trgr-ref-is-master
+  before_script:
+    - if [ "$TRGR_REF" == "master" ]; then
+        echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER."
+        echo "Exiting gracefully."
+        exit 0
+      fi
 
 .clone-repo:                       &clone-repo
   - git clone --depth 1 --branch ${BRANCH} ${REPO}
@@ -112,7 +109,6 @@ parent-vars:
     - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
     - echo "REPO=${REPO}" | tee -a parent-vars.env
     - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
-    - echo "CSV_NAME=${REPO_NAME}_${BRANCH}" | tee -a parent-vars.env
     - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${REPO_NAME}::${BRANCH}::sizes" | tee -a parent-vars.env
     - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::results::${REPO_NAME}::sizes" | tee -a parent-vars.env
   artifacts:
@@ -151,14 +147,16 @@ polkadot-js-ui-ink-examples:                        &polkadot-js-ui-ink-examples
 polkadot-js-ui-ink-examples-compare:
   stage:                           compare-build
   <<:                              *kubernetes-env
+
   # comparison is made only if a parent (trgr) was created on prs. otherwise we would compare master with master
   # TODO: while we lack comparison data for master, lets "compare" everything
-  <<:                              *default-refs-trgr-not-master
+  # <<:                              *if-trgr-ref-is-master
+
   # TODO: run on paritytech/ink-waterfall-ci, alpine is just for example here
   variables:
     CI_IMAGE: "alpine"
   script:
-    - echo "$REDIS_SIZES_KEY will be compared against $REDIS_SIZES_KEY_MASTER"
+    - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
   # TODO: replace with actual comparison logic
     - apk add redis
     # deserialize comparison data
