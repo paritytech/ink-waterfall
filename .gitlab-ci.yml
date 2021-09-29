@@ -138,7 +138,7 @@ polkadot-js-ui-ink-examples:                        &polkadot-js-ui-ink-examples
     - *clone-repo
     - *start-substrate-contracts-node
     - *build-contracts
-    # - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
     - *shutdown-substrate-contracts-node
   dependencies:
@@ -166,38 +166,34 @@ polkadot-js-ui-ink-examples-compare:
     - echo "Comparing..."
 
 
+polkadot-js-ui-rand-extension:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - *clone-repo
+    - *start-substrate-contracts-node-rand-extension
+    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
+  after_script:
+    - *shutdown-substrate-contracts-node-rand-extension
 
 
-
-
-
-# .polkadot-js-ui-rand-extension:
-#   stage:                           test
-#   <<:                              *docker-env
-#   script:
-#     - *clone-repo
-#     - *start-substrate-contracts-node-rand-extension
-#     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
-#   after_script:
-#     - *shutdown-substrate-contracts-node-rand-extension
-
-# build_badge:
-#   stage:                           compare-build
-#   rules:
-#     only:
-#       refs:
-#         - branches
-#         - master
-#         - tags
-#   <<:                              *docker-env
-#   before_script:
-#     - chmod +x .scripts/get-updated-badge-info.sh
-#   script:
-#     - echo "building badge"
-#   after_script:
-#     - .scripts/get-updated-badge-info.sh
-#   artifacts:
-#     paths:
-#         - badge.json
-#     when: always
-#     expire_in: 4 weeks
+build_badge:
+  stage:                           compare-build
+  rules:
+    only:
+      refs:
+        - branches
+        - master
+        - tags
+  <<:                              *docker-env
+  before_script:
+    - chmod +x .scripts/get-updated-badge-info.sh
+  script:
+    - echo "building badge"
+  after_script:
+    - .scripts/get-updated-badge-info.sh
+  artifacts:
+    paths:
+        - badge.json
+    when: always
+    expire_in: 4 weeks
