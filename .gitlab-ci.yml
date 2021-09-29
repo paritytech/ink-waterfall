@@ -113,8 +113,8 @@ parent-vars:
     - echo "REPO=${REPO}" | tee -a parent-vars.env
     - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
     - echo "CSV_NAME=${REPO_NAME}_${BRANCH}" | tee -a parent-vars.env
-    - echo "REDIS_RESULTS_KEY=${CI_PROJECT_NAME}::results::${REPO_NAME}::${BRANCH}" | tee -a parent-vars.env
-    - echo "REDIS_RESULTS_KEY_MASTER=${CI_PROJECT_NAME}::results::${REPO_NAME}::master" | tee -a parent-vars.env
+    - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${REPO_NAME}::${BRANCH}::sizes" | tee -a parent-vars.env
+    - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::results::${REPO_NAME}::sizes" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
