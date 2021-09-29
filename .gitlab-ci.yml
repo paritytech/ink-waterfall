@@ -113,8 +113,8 @@ parent-vars:
     - echo "REPO=${REPO}" | tee -a parent-vars.env
     - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
     - echo "CSV_NAME=${REPO_NAME}_${BRANCH}" | tee -a parent-vars.env
-    - echo "REDIS_RESULTS_KEY=${CI_PROJECT_NAME}::results::{$REPO_NAME}::${BRANCH}" | tee -a parent-vars.env
-    - echo "REDIS_RESULTS_KEY_MASTER=${CI_PROJECT_NAME}::results::{$REPO_NAME}::master" | tee -a parent-vars.env
+    - echo "REDIS_RESULTS_KEY=${CI_PROJECT_NAME}::results::${REPO_NAME}::${BRANCH}" | tee -a parent-vars.env
+    - echo "REDIS_RESULTS_KEY_MASTER=${CI_PROJECT_NAME}::results::${REPO_NAME}::master" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
@@ -123,7 +123,7 @@ parent-vars:
 .build-contracts:                                    &build-contracts
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_RESULTS_KEY
-  - echo 'Data will be written to $REDIS_RESULTS_KEY'
+  - echo "Data will be written to $REDIS_RESULTS_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       echo "./.scripts/build-contract.sh ${example} | redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_RESULTS_KEY}" >> /tmp/cmds;
     done
@@ -158,6 +158,7 @@ polkadot-js-ui-ink-examples-compare:
   variables:
     CI_IMAGE: "alpine"
   script:
+    - echo "$REDIS_RESULTS_KEY will be compared against $REDIS_RESULTS_KEY_MASTER"
   # TODO: replace with actual comparison logic
     - apk add redis
     # deserialize comparison data
