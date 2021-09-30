@@ -53,7 +53,7 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
     log::info!("balance before: {}", balance_before);
     log::info!("balance after: {}", balance_after);
     assert_eq!(balance_after - balance_before, 1);
-    assert!(utils::canvas_log_contains(
+    assert!(utils::node_log_contains(
         "requested value: 100000000000000\n"
     ));
     Ok(())
@@ -80,6 +80,6 @@ async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
 
     // then
     assert!(result.is_ok());
-    assert!(utils::canvas_log_contains("received payment: 10\n"));
+    assert!(utils::node_log_contains("received payment: 10\n"));
     Ok(())
 }

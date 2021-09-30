@@ -44,7 +44,7 @@ impl ContractsUi for crate::uis::Ui {
         self.client
             .goto(&format!(
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
-                utils::canvas_port()
+                utils::node_port()
             ))
             .await?;
 
@@ -132,19 +132,29 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("[{}] injecting jquery", log_id);
+        // The `inject` script will retry to load jQuery every 10 seconds.
+        // This is because the CI sometimes has spurious network errors.
         let inject = String::from(
             "(function (){\
                     var d = document;\
                     if (!d.getElementById('jquery')) {\
-                        var s = d.createElement('script');\
-                        s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
-                        s.id = 'jquery';\
-                        d.body.appendChild(s);\
+                        function load_jquery() {\
+                            var d = document;\
+                            var s = d.createElement('script');\
+                            s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
+                            s.id = 'jquery';\
+                            d.body.appendChild(s);\
+                        }\
+                        var jTimer = setInterval(function() {\
+                            load_jquery();\
+                        }, 10000);\
+                        load_jquery();\
                         (function() {\
                             var nTimer = setInterval(function() {\
                                 if (window.jQuery) {\
                                     $('body').append('<div id=\"jquery-ready\"></div');\
                                     clearInterval(nTimer);\
+                                    clearInterval(jTimer);\
                                 }\
                             }, 100);\
                         })();\
@@ -296,7 +306,7 @@ impl ContractsUi for crate::uis::Ui {
                 Vec::new(),
             )
             .await?;
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] check 'Unique Instantiation Salt' checkbox", log_id);
         let path = "//*[contains(text(),'Unique Instantiation Salt')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]/div";
@@ -327,7 +337,7 @@ impl ContractsUi for crate::uis::Ui {
 
         let mut res;
         for retry in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]")
             ).await;
@@ -612,7 +622,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
         for waited in 0..21 {
             log::info!("[{}] waiting for rpc call outcome {}", log_id, waited);
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             let el = self.client.find(Locator::XPath("//div[@class = 'outcomes']/*[1]//div[@class = 'ui--output monospace']/div[1]")).await;
             if let Ok(mut el) = el {
                 log::info!("[{}] found rpc call outcome", log_id);
@@ -626,6 +636,12 @@ impl ContractsUi for crate::uis::Ui {
             }
 
             if waited % 5 == 0 {
+                // if txt.is_none() {
+                // let html = self.client.find(Locator::XPath("//div[@class = 'outcomes']")).await?.html(true).await?;
+                // if html.contains("Error: OutOfGas") {
+                // panic!("[{}] An `OutOfGas` error occurred for this RPC", log_id);
+                // }
+                // }
                 log::info!("[{}] click rpc call again in {}", log_id, waited);
                 self.client
                     .find(Locator::XPath("//button[contains(text(),'Call')]"))
@@ -865,7 +881,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut res;
         for retry in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//*[contains(text(),'Dismiss') or contains(text(),'usurped') or contains(text(),'Priority is too low')]")
             ).await;
@@ -1000,7 +1016,7 @@ fn base_url() -> String {
     let mut url = base_url.trim_end_matches('/').to_string();
     url.push_str(&format!(
         "?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
-        utils::canvas_port()
+        utils::node_port()
     ));
     url
 }

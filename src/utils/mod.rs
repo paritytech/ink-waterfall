@@ -52,33 +52,37 @@ pub fn extract_hash_from_contract_bundle(path: &PathBuf) -> String {
         .to_string()
 }
 
-/// Asserts that the `canvas` process is running.
-pub fn assert_canvas_node_running() {
+/// Asserts that the `substrate-contracts-node` process is running.
+pub fn assert_node_running() {
     let processes = processes().expect("can't get processes");
-    let canvas_node_running = processes
+    let node_running = processes
         .into_iter()
         .filter_map(|pr| pr.ok())
         .map(|p| p.cmdline())
         .filter_map(|cmdline| cmdline.ok())
         .filter_map(|opt| opt)
-        .any(|str| str.contains("canvas ") || str.contains("canvas-rand-extension "));
+        .any(|str| {
+            str.contains("substrate-contracts-node ")
+                || str.contains("substrate-contracts-node-rand-extension ")
+        });
     assert!(
-        canvas_node_running,
-        "ERROR: The canvas node is not running!"
+        node_running,
+        "ERROR: The substrate-contracts-node node is not running!"
     );
 }
 
-/// Returns the port under which the `canvas-node` is running.
-pub fn canvas_port() -> String {
-    std::env::var("CANVAS_PORT").unwrap_or(String::from("9944"))
+/// Returns the port under which the node is running.
+pub fn node_port() -> String {
+    std::env::var("NODE_PORT").unwrap_or(String::from("9944"))
 }
 
-/// Returns true if the `canvas-node` log under `/tmp/canvas.log` contains `msg`.
-pub fn canvas_log_contains(msg: &str) -> bool {
+/// Returns true if the `substrate-contracts-node` log under
+/// `/tmp/substrate-contracts-node.log` contains `msg`.
+pub fn node_log_contains(msg: &str) -> bool {
     let output = Command::new("grep")
         .arg("-q")
         .arg(msg)
-        .arg("/tmp/canvas.log")
+        .arg("/tmp/substrate-contracts-node.log")
         .spawn()
         .map_err(|err| format!("ERROR while executing `grep` with {:?}: {:?}", msg, err))
         .expect("failed to execute process")

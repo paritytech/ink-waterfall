@@ -39,7 +39,7 @@ impl ContractsUi for crate::uis::Ui {
         self.client
             .goto(&format!(
                 "https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/accounts",
-                utils::canvas_port()
+                utils::node_port()
             ))
             .await?;
 
@@ -99,7 +99,7 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] click upload", log_id);
         self.client
@@ -111,19 +111,29 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("[{}] injecting jquery", log_id);
+        // The `inject` script will retry to load jQuery every 10 seconds.
+        // This is because the CI sometimes has spurious network errors.
         let inject = String::from(
             "(function (){\
                     var d = document;\
                     if (!d.getElementById('jquery')) {\
-                        var s = d.createElement('script');\
-                        s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
-                        s.id = 'jquery';\
-                        d.body.appendChild(s);\
+                        function load_jquery() {\
+                            var d = document;\
+                            var s = d.createElement('script');\
+                            s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
+                            s.id = 'jquery';\
+                            d.body.appendChild(s);\
+                        }\
+                        var jTimer = setInterval(function() {\
+                            load_jquery();\
+                        }, 10000);\
+                        load_jquery();\
                         (function() {\
                             var nTimer = setInterval(function() {\
                                 if (window.jQuery) {\
                                     $('body').append('<div id=\"jquery-ready\"></div');\
                                     clearInterval(nTimer);\
+                                    clearInterval(jTimer);\
                                 }\
                             }, 100);\
                         })();\
@@ -161,7 +171,7 @@ impl ContractsUi for crate::uis::Ui {
                 .click()
                 .await?;
 
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
 
             // choose caller
             log::info!("[{}] choose {:?}", log_id, caller);
@@ -190,9 +200,7 @@ impl ContractsUi for crate::uis::Ui {
             upload_input.contract_path
         );
         self.client
-            .find(Locator::XPath(
-                "//div[@class = 'actions']//button[contains(text(), 'Next')]",
-            ))
+            .find(Locator::XPath("//button[contains(text(), 'Next')]"))
             .await?
             .click()
             .await?;
@@ -320,7 +328,7 @@ impl ContractsUi for crate::uis::Ui {
 
         let mut res;
         for waited in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
             ).await;
@@ -753,7 +761,7 @@ impl ContractsUi for crate::uis::Ui {
             .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
             .await?;
 
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        std::thread::sleep(std::time::Duration::from_secs(6));
 
         // iterate through the list and see which of the entries has the correct address
         let contracts_in_list = self
@@ -922,7 +930,7 @@ impl ContractsUi for crate::uis::Ui {
                 .wait_for_find(Locator::XPath(max_gas_input_path))
                 .await?;
 
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
 
             let path = "//*[contains(text(),'use estimated gas')]/ancestor::div[1]/div";
             let possibly_estimated_gas = self.client.find(Locator::XPath(path)).await;
@@ -998,7 +1006,7 @@ impl ContractsUi for crate::uis::Ui {
             input.send_keys(&format!("{}\n", &value)).await?;
         }
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] click execute", log_id);
         self.client
@@ -1022,7 +1030,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut res;
         for waited in 0..21 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
             ).await;
@@ -1174,7 +1182,7 @@ fn base_url() -> String {
     let mut url = base_url.trim_end_matches('/').to_string();
     url.push_str(&format!(
         "/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
-        utils::canvas_port()
+        utils::node_port()
     ));
     url
 }

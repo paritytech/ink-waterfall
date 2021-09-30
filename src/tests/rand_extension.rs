@@ -36,7 +36,7 @@ async fn rand_extension(mut ui: Ui) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let contract_addr = ui
-        .execute_upload(Upload::new(contract_file).push_initial_value("initValue", ""))
+        .execute_upload(Upload::new(contract_file))
         .await?;
 
     // when

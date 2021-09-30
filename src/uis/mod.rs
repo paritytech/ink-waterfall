@@ -94,7 +94,7 @@ impl Ui {
     ///
     /// As part of this set-up a `geckodriver` instance is spawned to a free port.
     pub async fn new() -> self::Result<Self> {
-        crate::utils::assert_canvas_node_running();
+        crate::utils::assert_node_running();
 
         let mut port = None;
         for retry in 0..10 {
