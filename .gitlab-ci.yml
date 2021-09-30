@@ -18,11 +18,21 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
+  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
+  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
 
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
+
+.vault-secrets:                    &vault-secrets
+  secrets:
+    REDISCLI_AUTH:
+      vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
+      file:                        false
+
 
 .default-refs:                      &default-refs
   rules: 
@@ -136,6 +146,7 @@ parent-vars:
 polkadot-js-ui-ink-examples:                        &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
+  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node
@@ -149,6 +160,7 @@ polkadot-js-ui-ink-examples:                        &polkadot-js-ui-ink-examples
 polkadot-js-ui-ink-examples-compare:
   stage:                           compare-build
   <<:                              *kubernetes-env
+  <<:                              *vault-secrets
 
   # comparison is made only if a parent (trigger) was created on prs. otherwise we would compare master with master
   # TODO: while we lack comparison data for master, lets "compare" everything
