@@ -86,7 +86,7 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
-  - git clone --depth 1 --branch ${BRANCH} ${REPO}
+  - git clone --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
   - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
@@ -105,28 +105,39 @@ workflow:
 parent-vars:
   stage:                                             declare-vars
   <<:                                                *kubernetes-env
+  variables:
+      CI_IMAGE: "paritytech/tools"
   script:
-    - BRANCH="master"
-    - REPO="https://github.com/paritytech/ink.git"
-    - REPO_NAME="ink"
+    # default values
+    - UPSTREAM_BRANCH="master"
+    - UPSTREAM_REPO="https://github.com/paritytech/ink.git"
+    - UPSTREAM_REPO_NAME="ink"
+    #
     - echo ${TRGR_REF}
     - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
         PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
-        BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
-        REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
-        REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
+        UPSTREAM_BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
+        UPSTREAM_REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
+        UPSTREAM_REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
       fi
-    - echo "BRANCH=${BRANCH}" | tee -a parent-vars.env
-    - echo "REPO=${REPO}" | tee -a parent-vars.env
-    - echo "REPO_NAME=${REPO_NAME}" | tee -a parent-vars.env
-    - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${REPO_NAME}::${BRANCH}::sizes" | tee -a parent-vars.env
-    - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::results::${REPO_NAME}::sizes" | tee -a parent-vars.env
+    - echo "UPSTREAM_BRANCH=${UPSTREAM_BRANCH}" | tee -a parent-vars.env
+    - echo "UPSTREAM_REPO=${UPSTREAM_REPO}" | tee -a parent-vars.env
+    - echo "UPSTREAM_REPO_NAME=${UPSTREAM_REPO_NAME}" | tee -a parent-vars.env
+
+    # REDIS_SIZES_KEY (e.g. ink-waterfall::ink::foo-add-feature::sizes)
+    # defines a Redis key name where contract sizes will be stored frpm a upstrem above
+    - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH}::sizes" | tee -a parent-vars.env
+
+    # REDIS_SIZES_KEY_MASTER (e.g. ink-waterfall::ink::master::sizes)
+    #  defines a Redis key name for a upstream's master reference branch. contracts sizes stored there will be used for
+    #  a comparison with contract sizes stored in REDIS_SIZES_KEY
+    - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::sizes" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
 
 
-.build-contracts:                                    &build-contracts
+.build-contracts:                  &build-contracts
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
@@ -143,7 +154,7 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
 
 
-polkadot-js-ui-ink-examples:                        &polkadot-js-ui-ink-examples
+polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
   <<:                              *vault-secrets
