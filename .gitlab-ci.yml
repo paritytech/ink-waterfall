@@ -5,8 +5,9 @@
 # pipelines can be triggered manually in the web
 
 stages:
+  - declare-vars
   - test
-  - build
+  - compare-build
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -15,15 +16,34 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   RUST_LOG:                        "info"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
-  INK_EXAMPLES_PATH:               "./ink/examples/"
+  INK_EXAMPLES_PATH:               "./ink/examples"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
+  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
+  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
 
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
 
-.docker-env:                       &docker-env
+.vault-secrets:                    &vault-secrets
+  secrets:
+    REDISCLI_AUTH:
+      vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
+      file:                        false
+
+
+.default-refs:                      &default-refs
+  rules: 
+  - if: $CI_PIPELINE_SOURCE == "web"
+  - if: $CI_PIPELINE_SOURCE == "schedule"
+  - if: $CI_COMMIT_REF_NAME == "master"
+  - if: $CI_COMMIT_REF_NAME == "tags"
+  - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
+  - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+
+.basic-env:                         &basic-env
   image:                           "${CI_IMAGE}"
   before_script:
     - cargo -vV
@@ -35,14 +55,7 @@ workflow:
     - ./.scripts/pre_cache.sh
     - sccache -s
     - git show
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-    - if: $CI_COMMIT_REF_NAME == "tags"
-    - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                   # PRs
-    - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-  dependencies:                    []
+  <<:                              *default-refs
   interruptible:                   true
   retry:
     max:                           2
@@ -50,21 +63,30 @@ workflow:
       - runner_system_failure
       - unknown_failure
       - api_failure
+
+
+.docker-env:                      &docker-env
+  <<:                             *basic-env
   tags:
     - linux-docker
 
+.kubernetes-env:                  &kubernetes-env
+  <<:                             *basic-env
+  before_script:                  []
+  tags:
+    - kubernetes-parity-build
+
+
+.if-trigger-ref-is-master:           &if-trigger-ref-is-master
+  before_script:
+    - if [ "$TRGR_REF" == "master" ]; then
+        echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER."
+        echo "Exiting gracefully."
+        exit 0
+      fi
+
 .clone-repo:                       &clone-repo
-  - BRANCH="master"
-  - REPO="https://github.com/paritytech/ink.git"
-  - echo ${TRGR_REF}
-  - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
-      PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
-      BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
-      REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
-    fi
-  - echo ${BRANCH}
-  - echo ${REPO}
-  - git clone --depth 1 --branch ${BRANCH} ${REPO}
+  - git clone --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
   - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
@@ -72,24 +94,70 @@ workflow:
 .start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
   - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
-.build-contracts:                                    &build-contracts
-  - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "cargo contract build --manifest-path=${example}/Cargo.toml" >> /tmp/cmds;
-    done
-  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "cargo contract build --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
-    done
-  - parallel -j 2 < /tmp/cmds
-
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
   - pkill -f "substrate-contracts-node --tmp --dev"
 
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
   - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
-polkadot-js-ui-ink-examples:
+
+# needed vars have to be "exported" on a earlier stage
+parent-vars:
+  stage:                                             declare-vars
+  <<:                                                *kubernetes-env
+  variables:
+      CI_IMAGE: "paritytech/tools"
+  script:
+    # default values
+    - UPSTREAM_BRANCH="master"
+    - UPSTREAM_REPO="https://github.com/paritytech/ink.git"
+    - UPSTREAM_REPO_NAME="ink"
+    #
+    - echo ${TRGR_REF}
+    - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
+        PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
+        UPSTREAM_BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
+        UPSTREAM_REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
+        UPSTREAM_REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
+      fi
+    - echo "UPSTREAM_BRANCH=${UPSTREAM_BRANCH}" | tee -a parent-vars.env
+    - echo "UPSTREAM_REPO=${UPSTREAM_REPO}" | tee -a parent-vars.env
+    - echo "UPSTREAM_REPO_NAME=${UPSTREAM_REPO_NAME}" | tee -a parent-vars.env
+
+    # REDIS_SIZES_KEY (e.g. ink-waterfall::ink::foo-add-feature::sizes)
+    # defines a Redis key name where contract sizes will be stored frpm a upstrem above
+    - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH}::sizes" | tee -a parent-vars.env
+
+    # REDIS_SIZES_KEY_MASTER (e.g. ink-waterfall::ink::master::sizes)
+    #  defines a Redis key name for a upstream's master reference branch. contracts sizes stored there will be used for
+    #  a comparison with contract sizes stored in REDIS_SIZES_KEY
+    - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::sizes" | tee -a parent-vars.env
+  artifacts:
+    reports:
+      dotenv: parent-vars.env
+
+
+.build-contracts:                  &build-contracts
+  # delete old list items if the key has existed previously
+  - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
+  - echo "Data will be written to $REDIS_SIZES_KEY"
+  - for example in ${INK_EXAMPLES_PATH}/*/; do
+      echo "./.scripts/build-contract.sh ${example} | 
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
+    done
+  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} | 
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
+    done
+  - parallel -j 2 < /tmp/cmds
+  # all ci/cd keys need to have ttl
+  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
+
+
+polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
+  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node
@@ -97,6 +165,27 @@ polkadot-js-ui-ink-examples:
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
     - *shutdown-substrate-contracts-node
+  dependencies:
+    - parent-vars
+
+polkadot-js-ui-ink-examples-compare:
+  stage:                           compare-build
+  <<:                              *kubernetes-env
+  <<:                              *vault-secrets
+
+  # comparison is made only if a parent (trigger) was created on prs. otherwise we would compare master with master
+  # TODO: while we lack comparison data for master, lets "compare" everything
+  # <<:                              *if-trigger-ref-is-master
+
+  script:
+    - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
+    # TODO [#4]: replace with actual comparison logic
+    # deserialize comparison data
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
+    # comparison dummy
+    - echo "Comparing..."
+
 
 polkadot-js-ui-rand-extension:
   stage:                           test
@@ -108,8 +197,9 @@ polkadot-js-ui-rand-extension:
   after_script:
     - *shutdown-substrate-contracts-node-rand-extension
 
+
 build_badge:
-  stage: build
+  stage:                           compare-build
   rules:
     only:
       refs:
