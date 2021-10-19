@@ -172,20 +172,19 @@ polkadot-js-ui-ink-examples-compare:
   stage:                           compare-build
   <<:                              *kubernetes-env
   <<:                              *vault-secrets
-
-  # comparison is made only if a parent (trigger) was created on prs. otherwise we would
-  # compare master with master TODO: while we lack comparison data for master, lets
-  # "compare" everything
+  # Comparison is made only if a parent (trigger) was created on PRs. Otherwise we would
+  # would be comparing `master` with `master`.
+  #
+  # TODO: While we lack comparison data for master, lets "compare" everything
   # <<:                              *if-trigger-ref-is-master
-
   script:
     - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
-    # TODO [#4]: replace with actual comparison logic
-    # deserialize comparison data
+    # Deserialize comparison data
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
     - cargo install --git https://github.com/HCastano/csv-comparator
-    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee output.csv
+    # TODO [#4]: Post the results of this script on GitHub
+    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee contract-size-diff.csv
 
 
 .polkadot-js-ui-rand-extension:
