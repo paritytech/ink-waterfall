@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Tests for the `multisig_plain `example.
+//! Tests for the `multisig`example.
 
 use crate::{
     uis::{
@@ -36,7 +36,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let flipper_contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
-    let manifest_path = utils::example_path("multisig_plain/Cargo.toml");
+    let manifest_path = utils::example_path("multisig/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
@@ -111,7 +111,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let contract_transfer_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
-    let manifest_path = utils::example_path("multisig_plain/Cargo.toml");
+    let manifest_path = utils::example_path("multisig/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 

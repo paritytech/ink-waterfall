@@ -21,7 +21,7 @@ mod erc20;
 mod erc721;
 mod flipper;
 mod incrementer;
-mod multisig_plain;
+mod multisig;
 mod rand_extension;
 mod trait_erc20;
 mod trait_flipper;

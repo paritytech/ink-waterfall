@@ -35,9 +35,7 @@ async fn rand_extension(mut ui: Ui) -> Result<()> {
     let manifest_path = utils::example_path("rand-extension/Cargo.toml");
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let contract_addr = ui
-        .execute_upload(Upload::new(contract_file))
-        .await?;
+    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
 
     // when
     assert_eq!(
