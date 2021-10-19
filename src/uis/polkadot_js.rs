@@ -230,8 +230,10 @@ impl ContractsUi for crate::uis::Ui {
             let mut value = transform_value(&value);
             if value == "Yes" || value == "No" {
                 log::info!("[{}] opening dropdown list '{}'", log_id, key);
-                let path =
-                    format!("//label/*[contains(normalize-space(text()),'{}')]/ancestor::div[1]", key);
+                let path = format!(
+                    "//label/*[contains(normalize-space(text()),'{}')]/ancestor::div[1]",
+                    key
+                );
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
