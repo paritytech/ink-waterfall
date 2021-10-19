@@ -215,7 +215,7 @@ impl ContractsUi for crate::uis::Ui {
 
             log::info!("[{}] click constructor option {}", log_id, constructor);
             let path = format!(
-                "//span[@class = 'ui--MessageSignature-name' and contains(text(),'{}')]",
+                "//span[@class = 'ui--MessageSignature-name' and contains(normalize-space(text()),'{}')]",
                 constructor
             );
             self.client
@@ -231,7 +231,7 @@ impl ContractsUi for crate::uis::Ui {
             if value == "Yes" || value == "No" {
                 log::info!("[{}] opening dropdown list '{}'", log_id, key);
                 let path =
-                    format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
+                    format!("//label/*[contains(normalize-space(text()),'{}')]/ancestor::div[1]", key);
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
@@ -239,7 +239,7 @@ impl ContractsUi for crate::uis::Ui {
                     .await?;
 
                 log::info!("[{}] chossing option '{}''", log_id, value);
-                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
+                let path = format!("//label/*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
@@ -253,7 +253,7 @@ impl ContractsUi for crate::uis::Ui {
                     key
                 );
                 let path =
-                    format!("//*[contains(text(),'{}')]/ancestor::div[1]//*/input", key);
+                    format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
                 let mut input = self.client.find(Locator::XPath(&path)).await?;
                 // we need to clear a possible default input from the field
                 input.clear().await?;
@@ -264,14 +264,14 @@ impl ContractsUi for crate::uis::Ui {
 
         for (key, value) in upload_input.items.iter() {
             log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
-            let add_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
+            let add_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
             self.client
                 .find(Locator::XPath(&add_item))
                 .await?
                 .click()
                 .await?;
 
-            let last_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
+            let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
             let mut input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
@@ -668,14 +668,14 @@ impl ContractsUi for crate::uis::Ui {
         // possibly add items
         for (key, value) in call.items.iter() {
             log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
-            let add_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
+            let add_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
             self.client
                 .find(Locator::XPath(&add_item))
                 .await?
                 .click()
                 .await?;
 
-            let last_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
+            let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
             let mut input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
@@ -970,7 +970,7 @@ impl ContractsUi for crate::uis::Ui {
             } else {
                 log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
                 let path = format!(
-                    "//div[contains(@class, 'ui--Params')]//*[contains(text(),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
+                    "//div[contains(@class, 'ui--Params')]//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                     key
                 );
                 self.client
@@ -992,14 +992,14 @@ impl ContractsUi for crate::uis::Ui {
         // possibly add items
         for (key, value) in call.items.iter() {
             log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
-            let add_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
+            let add_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/button[contains(text(), 'Add item')]", key);
             self.client
                 .find(Locator::XPath(&add_item))
                 .await?
                 .click()
                 .await?;
 
-            let last_item = format!("//div[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
+            let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
             let mut input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
