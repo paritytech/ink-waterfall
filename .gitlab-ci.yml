@@ -160,11 +160,11 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   <<:                              *vault-secrets
   script:
     - *clone-repo
-      # - *start-substrate-contracts-node
+    - *start-substrate-contracts-node
     - *build-contracts
-    # - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
   after_script:
-    # - *shutdown-substrate-contracts-node
+    - *shutdown-substrate-contracts-node
   dependencies:
     - parent-vars
 
