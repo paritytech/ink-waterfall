@@ -56,7 +56,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
                 .push_value("callee", &flipper_contract_addr)
                 .push_value("selector", "0x633aa551") // `flip`
                 .push_value("input", "0x00")
-                .push_value("transferred_value", "0"),
+                .push_value("transferredValue", "0"),
     )
     .await
     .expect("failed to `submit_transaction`");
@@ -130,7 +130,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
             .push_value("callee", &contract_transfer_addr)
             .push_value("selector", "0xcafebabe") // `was_it_ten`
             .push_value("input", "0x00")
-            .push_value("transferred_value", "10");
+            .push_value("transferredValue", "10");
     #[cfg(not(feature = "polkadot-js-ui"))]
     let call = call.max_gas("90000");
     ui.execute_transaction(call)
