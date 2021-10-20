@@ -187,7 +187,7 @@ polkadot-js-ui-ink-examples-compare:
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee contract-size-diff.csv
 
 
-.polkadot-js-ui-rand-extension:
+polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   script:
