@@ -252,16 +252,12 @@ impl Call {
     ///
     /// TODO: Make `val` an enum of `Boolean` and `String`.
     pub fn push_value(mut self, key: &str, val: &str) -> Self {
-        #[cfg(feature = "polkadot-js-ui")]
-        let key = key.to_case(Case::Camel);
         self.values.push((key.to_string(), val.to_string()));
         self
     }
 
     /// Adds an item.
     pub fn add_item(mut self, key: &str, val: &str) -> Self {
-        #[cfg(feature = "polkadot-js-ui")]
-        let key = key.to_case(Case::Camel);
         self.items.push((key.to_string(), val.to_string()));
         self
     }

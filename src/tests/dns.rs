@@ -75,7 +75,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
             Call::new(&contract_addr, "set_address")
                 .caller("BOB")
                 .push_value("name", name)
-                .push_value("new_address", owner2)
+                .push_value("newAddress", owner2)
                 .max_gas("25000")
         )
         .await
