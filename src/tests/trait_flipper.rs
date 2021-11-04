@@ -55,24 +55,3 @@ async fn trait_flipper_works(mut ui: Ui) -> Result<()> {
     );
     Ok(())
 }
-
-#[waterfall_test]
-async fn trait_default_constructor(mut ui: Ui) -> Result<()> {
-    // given
-    let manifest_path = utils::example_path("trait-flipper/Cargo.toml");
-    let contract_file =
-        cargo_contract::build(&manifest_path).expect("contract build failed");
-
-    // when
-    let contract_addr = ui
-        .execute_upload(Upload::new(contract_file).constructor("default"))
-        .await?;
-
-    // then
-    assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "Flip,get"))
-            .await?,
-        "false"
-    );
-    Ok(())
-}
