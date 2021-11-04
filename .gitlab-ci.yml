@@ -116,7 +116,9 @@ parent-vars:
     - echo ${TRGR_REF}
     - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
         PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
-        UPSTREAM_BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
+        # Since we write the branch name to a file we need to remove any forward slashes
+        # which may exist in the name
+        UPSTREAM_BRANCH=`echo "${PR_JSON}" | jq -r .head.ref | sed 's/\//-/g'`;
         UPSTREAM_REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
         UPSTREAM_REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
       fi
