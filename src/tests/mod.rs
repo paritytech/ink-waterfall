@@ -16,7 +16,8 @@ mod contract_terminate;
 mod contract_transfer;
 mod delegator;
 mod dns;
-mod erc1155;
+// TODO: enable again once https://github.com/paritytech/ink/issues/945 is finished.
+// mod erc1155;
 mod erc20;
 mod erc721;
 mod flipper;
