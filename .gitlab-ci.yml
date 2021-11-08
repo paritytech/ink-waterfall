@@ -108,13 +108,14 @@ parent-vars:
   variables:
       CI_IMAGE: "paritytech/tools"
   script:
-    # default values
-    - UPSTREAM_BRANCH="master"
-    - UPSTREAM_REPO="https://github.com/paritytech/ink.git"
-    - UPSTREAM_REPO_NAME="ink"
-    #
-    - echo ${TRGR_REF}
-    - if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
+    - |
+      # default values
+      UPSTREAM_BRANCH="master"
+      UPSTREAM_REPO="https://github.com/paritytech/ink.git"
+      UPSTREAM_REPO_NAME="ink"
+
+      echo ${TRGR_REF}
+      if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
         PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
         # Since we write the branch name to a file we need to remove any forward slashes
         # which may exist in the name
