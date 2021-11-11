@@ -111,6 +111,7 @@ parent-vars:
     - |
       # default values
       UPSTREAM_BRANCH="master"
+      UPSTREAM_BRANCH_REDIS_KEY="master"
       UPSTREAM_REPO="https://github.com/paritytech/ink.git"
       UPSTREAM_REPO_NAME="ink"
 
