@@ -160,11 +160,12 @@ polkadot-js-ui-ink-examples-compare:
     - jq --version
     - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
     # Deserialize comparison data
-    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
-    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' | tee $REDIS_SIZES_KEY.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' | tee $REDIS_SIZES_KEY_MASTER.csv
     - echo "Example,Not optimized,Optimized" > contract-size-diff.csv
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
-    - csv2md < contract-size-diff.csv > contract-size-diff.md
+    - contract-size-diff.csv
+    - csv2md --pretty < contract-size-diff.csv > contract-size-diff.md
     - cat contract-size-diff.md
     - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
     - COMMENT=$(cat contract-size-diff-nl.md)
@@ -185,7 +186,7 @@ polkadot-js-ui-ink-examples-compare:
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
         -d $"{
-            \"body\": \"#### 📊📈 🤖 Did the contract size change?  🤖📉 📊\\n${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}).\"
+            \"body\": \"#### 📊 📈 🤖 Did the contract size change? 🤖 📉 📊\\n${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}).\"
         }")'
     - echo "api response ${RESP}"
     - COMMENT_ID=$(echo $RESP | jq -r .id)
