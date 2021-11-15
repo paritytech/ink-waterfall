@@ -168,25 +168,23 @@ polkadot-js-ui-ink-examples-compare:
         sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' |
         sed 's/^/`/' | sed 's/,/`,/' |
         tee pure-contract-size-diff.csv
+
     # Append the original optimized size to the end of each line
-    - cat $REDIS_SIZES_KEY.csv | egrep --only-matching ', [0-9]+\.[0-9]+$'
     - |
         cat $REDIS_SIZES_KEY.csv |
         egrep --only-matching ', [0-9]+\.[0-9]+$' |
-        sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' > total-optimized-size.csv
-    - cat total-optimized-size.csv
-    - cat pure-contract-size-diff.csv
-    - paste -d "" pure-contract-size-diff.csv total-optimized-size.csv > combined.csv
-    - cat combined.csv
-    - echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" > contract-size-diff.csv
+        sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' |
+        tee total-optimized-size.csv
+    - paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
+
+    - echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-size-diff.csv
     - cat combined.csv >> contract-size-diff.csv
-    - csv2md --pretty < contract-size-diff.csv > contract-size-diff.md
-    - cat contract-size-diff.md
+    - csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
+
     # Replace new lines and align left
-    - cat contract-size-diff.md | sed 's/|---/|:---/g' | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
+    - cat contract-size-diff.md | sed 's/|---/|:---/g' | sed 's/$/\\n/g' | tr -d '\n' | tee contract-size-diff-nl.md
     - COMMENT=$(cat contract-size-diff-nl.md)
-    - echo $COMMENT
-    - TRGR_REF=1015
+
     - 'COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
         jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
     - echo $COMMENT_URL
