@@ -169,7 +169,8 @@ polkadot-js-ui-ink-examples-compare:
         tee --append contract-size-diff.csv'
     - csv2md --pretty < contract-size-diff.csv > contract-size-diff.md
     - cat contract-size-diff.md
-    - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
+    # Replace new lines and align left
+    - cat contract-size-diff.md | sed 's/---/:---/g' | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
     - COMMENT=$(cat contract-size-diff-nl.md)
     - echo $COMMENT
     - TRGR_REF=1015
