@@ -172,7 +172,7 @@ polkadot-js-ui-ink-examples-compare:
     - |
         cat $REDIS_SIZES_KEY.csv |
         egrep --only-matching ', [0-9]+\.[0-9]+$' |
-        sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' |
+        sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g'
         > total-optimized-size.csv
     - cat pure-contract-size-diff.csv
     - cat total-optimized-size.csv
