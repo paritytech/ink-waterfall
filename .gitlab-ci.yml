@@ -170,17 +170,17 @@ polkadot-js-ui-ink-examples-compare:
     - COMMENT=$(cat contract-size-diff-nl.md)
     - echo $COMMENT
     - TRGR_REF=1015
-    - 'COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
-        jq ".[] | select(.user.login == \"paritytech-ci\") | .id" | head -n1)'
-    - echo $COMMENT_ID
+    - 'COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
+        jq ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
+    - echo $COMMENT_URL
     - VERB="PUT"
-    - POSSIBLY_COMMENT_ID="/${COMMENT_ID}"
-    - if [ -z "$COMMENT_ID" ]; then VERB="POST"; POSSIBLY_COMMENT_ID=""; fi
+    - 'if [ -z "$COMMENT_URL" ]; then
+         VERB="POST";
+         COMMENT_URL="https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments";
+       fi'
     - echo $VERB
-    - echo $POSSIBLY_COMMENT_ID
-    - URL="https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments${POSSIBLY_COMMENT_ID}"
-    - echo $URL
-    - 'RESP=$(curl -X "${VERB}" $URL
+    - echo $COMMENT_URL
+    - 'RESP=$(curl -X "${VERB}" $COMMENT_URL
         -H "Cookie: logged_in=no"
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
