@@ -165,8 +165,8 @@ polkadot-js-ui-ink-examples-compare:
     - csv2md < contract-size-diff.csv > contract-size-diff.md
     - COMMENT=`cat contract-size-diff.md`
     - echo $COMMENT
-    - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d'\n'`
-    - echo $COMMENT
+    - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'`
+    - echo -e $COMMENT
     - TRGR_REF=1015
     - COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments | \
         jq ".[] | select(.user.login == 'paritytech-ci') | .id" | head -n1)
