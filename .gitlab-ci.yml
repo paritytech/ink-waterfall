@@ -195,8 +195,9 @@ polkadot-js-ui-ink-examples-compare:
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
     - csv2md < contract-size-diff.csv > contract-size-diff.md
     - COMMENT=`cat contract-size-diff.md`
+    - TRGR_REF=1015
     - 'if [ -z "$COMMENT_ID" ]; then
-        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/ink/ink/pulls/comments/${TRGR_REF}"
+        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/ink/ink/pulls/${TRGR_REF}/comments/"
           -H "Cookie: logged_in=no"
           -H "Authorization: token ${GITHUB_TOKEN}"
           -H "Content-Type: application/json; charset=utf-8"
