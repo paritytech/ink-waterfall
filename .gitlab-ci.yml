@@ -212,7 +212,13 @@ polkadot-js-ui-ink-examples-compare:
 
     # Replace `\n` so that it works propely when submitted to the GitHub API.
     # Also align the table text right.
-    - cat contract-size-diff.md | sed 's/---|/---:|/g' | sed 's/$/\\n/g' | tr -d '\n' | tee contract-size-diff-nl.md
+    - |
+        cat contract-size-diff.md |
+        sed 's/---|/---:|/g' |
+        sed --regexp-extended 's/(-+)\:/:\1/' |
+        sed 's/$/\\n/g' |
+        tr -d '\n' |
+        tee contract-size-diff-nl.md
     - COMMENT=$(cat contract-size-diff-nl.md)
 
     # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
