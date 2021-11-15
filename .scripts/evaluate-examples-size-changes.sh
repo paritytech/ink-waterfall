@@ -62,6 +62,6 @@ curl -X "${VERB}" "${COMMENT_URL}" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
-\"body\": \"## 🦑 📈 Example Contracts ‒ Size Change Report 📉 🦑\\n \
+\"body\": \"## 🦑 📈 ink! Example Contracts ‒ Size Change Report 📉 🦑\\n \
 ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\" \
     }"
