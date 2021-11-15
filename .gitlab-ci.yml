@@ -177,7 +177,7 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   dependencies:
     - parent-vars
 
-polkadot-js-ui-ink-examples-compare:
+evaluate-ink-examples-size-changes:
   stage:                           compare-build
   <<:                              *kubernetes-env
   <<:                              *vault-secrets
