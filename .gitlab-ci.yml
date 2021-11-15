@@ -165,14 +165,20 @@ polkadot-js-ui-ink-examples-compare:
     - csv2md < contract-size-diff.csv > contract-size-diff.md
     - COMMENT=`cat contract-size-diff.md`
     - echo $COMMENT
+    - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d'\n'`
+    - echo $COMMENT
     - TRGR_REF=1015
-    - 'if [ -z "$COMMENT_ID" ]; then
-        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments"
+    - COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments | \
+        jq ".[] | select(.user.login == 'paritytech-ci') | .id" | head -n1)
+    - VERB="PUT"
+    - if [ -z "$COMMENT_ID" ]; then VERB="POST"; fi
+    - echo $VERB
+    - 'RESP=$(curl -X "${VERB}" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments"
           -H "Cookie: logged_in=no"
           -H "Authorization: token ${GITHUB_TOKEN}"
           -H "Content-Type: application/json; charset=utf-8"
           -d $"{
-              \"body\": \"Results:\"
+              \"body\": \"Results: $COMMENT\"
           }");
           echo "api response ${RESP}";
           COMMENT_ID=$(echo $RESP | jq -r .id);
