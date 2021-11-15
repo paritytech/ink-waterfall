@@ -165,10 +165,8 @@ polkadot-js-ui-ink-examples-compare:
     - echo "Example,Not optimized,Optimized" > contract-size-diff.csv
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
     - csv2md < contract-size-diff.csv > contract-size-diff.md
-    - COMMENT=`cat contract-size-diff.md`
-    - echo $COMMENT
     - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'`
-    - echo -e $COMMENT
+    - echo $COMMENT
     - TRGR_REF=1015
     - 'COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
         jq ".[] | select(.user.login == \"paritytech-ci\") | .id" | head -n1)'
@@ -180,13 +178,12 @@ polkadot-js-ui-ink-examples-compare:
           -H "Authorization: token ${GITHUB_TOKEN}"
           -H "Content-Type: application/json; charset=utf-8"
           -d $"{
-              \"body\": \"Results: $COMMENT\"
+              \"body\": \"Results:\\n$COMMENT\"
           }");
-          echo "api response ${RESP}";
-          COMMENT_ID=$(echo $RESP | jq -r .id);
-          echo "comment id of created comment ${COMMENT_ID}";
-          echo ${COMMENT_ID} > comment-id;
-        fi'
+       echo "api response ${RESP}";
+       COMMENT_ID=$(echo $RESP | jq -r .id);
+       echo "comment id of created comment ${COMMENT_ID}";
+       echo ${COMMENT_ID} > comment-id;'
 
 
 build_badge:
