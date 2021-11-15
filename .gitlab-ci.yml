@@ -207,12 +207,12 @@ polkadot-js-ui-ink-examples-compare:
     - paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
 
     - echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-size-diff.csv
-    - cat combined.csv | sed 's/+0.00 kb/‒/g' | tee --append contract-size-diff.csv
+    - cat combined.csv | sed 's/+0.00 kb//g' | tee --append contract-size-diff.csv
     - csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
     # Replace `\n` so that it works propely when submitted to the GitHub API.
-    # Also align the table text left.
-    - cat contract-size-diff.md | sed 's/|---/|:---/g' | sed 's/$/\\n/g' | tr -d '\n' | tee contract-size-diff-nl.md
+    # Also align the table text right.
+    - cat contract-size-diff.md | sed 's/---|/---:|/g' | sed 's/$/\\n/g' | tr -d '\n' | tee contract-size-diff-nl.md
     - COMMENT=$(cat contract-size-diff-nl.md)
 
     # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
