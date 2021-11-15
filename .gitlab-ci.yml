@@ -79,9 +79,9 @@ workflow:
     - kubernetes-parity-build
 
 
-.if-trigger-ref-is-master:           &if-trigger-ref-is-master
+.if-trigger-ref-valid:            &if-trigger-ref-valid
   before_script:
-    - if [ "$TRGR_REF" == "master" ]; then
+    - if [ "$TRGR_REF" == "master" || -z "$TRGR_REF" ]; then
         echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER.";
         echo "Exiting gracefully.";
         exit 0;
@@ -168,7 +168,7 @@ polkadot-js-ui-ink-examples-compare:
   <<:                              *vault-secrets
   # Comparison is made only if a parent (trigger) was created by a PR.
   # Otherwise we would be comparing `master` with `master`.
-  <<:                              *if-trigger-ref-is-master
+  <<:                              *if-trigger-ref-valid
   script:
     - echo ${TRGR_REF}
     - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
