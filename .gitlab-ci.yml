@@ -82,9 +82,9 @@ workflow:
 .if-trigger-ref-is-master:           &if-trigger-ref-is-master
   before_script:
     - if [ "$TRGR_REF" == "master" ]; then
-        echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER."
-        echo "Exiting gracefully."
-        exit 0
+        echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER.";
+        echo "Exiting gracefully.";
+        exit 0;
       fi
 
 .clone-repo:                       &clone-repo
