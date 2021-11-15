@@ -177,15 +177,6 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   dependencies:
     - parent-vars
 
-evaluate-ink-examples-size-changes:
-  stage:                           compare-build
-  <<:                              *kubernetes-env
-  <<:                              *vault-secrets
-  # Comparison is made only if a parent (trigger) was created by a PR.
-  # Otherwise we would be comparing `master` with `master`.
-  <<:                              *if-trigger-ref-valid
-  script:
-    - ./scripts/evaluate-examples-size-changes.sh
 
 polkadot-js-ui-rand-extension:
   stage:                           test
@@ -196,6 +187,17 @@ polkadot-js-ui-rand-extension:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - *shutdown-substrate-contracts-node-rand-extension
+
+
+evaluate-ink-examples-size-changes:
+  stage:                           compare-build
+  <<:                              *kubernetes-env
+  <<:                              *vault-secrets
+  # Comparison is made only if a parent (trigger) was created by a PR.
+  # Otherwise we would be comparing `master` with `master`.
+  <<:                              *if-trigger-ref-valid
+  script:
+    - ./.scripts/evaluate-examples-size-changes.sh
 
 
 build_badge:
