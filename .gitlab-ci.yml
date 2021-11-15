@@ -193,7 +193,7 @@ polkadot-js-ui-ink-examples-compare:
     - |
         csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv |
         sort |
-        awk -F", " '{printf "`%s`,%.2f kb,%.2f kb\n", $1, $2, $3}' |
+        awk -F"," '{printf "`%s`,%.2f kb,%.2f kb\n", $1, $2, $3}' |
         tee pure-contract-size-diff.csv
 
     # Append the original optimized size (i.e. not the delta) to the end of each line
