@@ -171,7 +171,7 @@ polkadot-js-ui-ink-examples-compare:
     - echo $COMMENT
     - TRGR_REF=1015
     - 'COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
-        jq --raw ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
+        jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
     - echo $COMMENT_URL
     - VERB="PUT"
     - 'if [ -z "$COMMENT_URL" ]; then
@@ -185,7 +185,7 @@ polkadot-js-ui-ink-examples-compare:
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
         -d $"{
-            \"body\": \"Results:\\n$COMMENT\"
+            \"body\": \"#### 📊📈 🤖 Did the contract size change?  🤖📉 📊\\n${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}).\"
         }")'
     - echo "api response ${RESP}"
     - COMMENT_ID=$(echo $RESP | jq -r .id)
