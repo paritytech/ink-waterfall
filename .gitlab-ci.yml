@@ -33,7 +33,7 @@ workflow:
       vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
       file:                        false
     GITHUB_TOKEN:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_TOKEN@kv
+      vault:                       cicd/gitlab/ink/GITHUB_TOKEN@kv
       file:                        false
 
 
