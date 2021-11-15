@@ -172,10 +172,13 @@ polkadot-js-ui-ink-examples-compare:
     - TRGR_REF=1015
     - 'COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
         jq ".[] | select(.user.login == \"paritytech-ci\") | .id" | head -n1)'
+    - echo $COMMENT_ID
     - VERB="PUT"
-    - if [ -z "$COMMENT_ID" ]; then VERB="POST"; fi
+    - POSSIBLY_COMMENT_ID="/{COMMENT_ID}"
+    - if [ -z "$COMMENT_ID" ]; then VERB="POST"; POSSIBLY_COMMENT_ID=""; fi
     - echo $VERB
-    - 'RESP=$(curl -X "${VERB}" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments"
+    - echo $POSSIBLY_COMMENT_ID
+    - 'RESP=$(curl -X "${VERB}" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments${POSSIBLY_COMMENT_ID}"
         -H "Cookie: logged_in=no"
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
