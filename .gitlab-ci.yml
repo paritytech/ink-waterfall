@@ -104,7 +104,7 @@ workflow:
   - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
 
-# needed vars have to be "exported" in a earlier stage
+# Needed vars have to be "exported" in an earlier stage
 parent-vars:
   stage:                                             declare-vars
   <<:                                                *kubernetes-env
@@ -197,7 +197,7 @@ polkadot-js-ui-ink-examples-compare:
         sed 's/^/`/' | sed 's/,/`,/' |
         tee pure-contract-size-diff.csv
 
-    # Append the original optimized size to the end of each line
+    # Append the original optimized size (i.e. not the delta) to the end of each line
     - |
         cat $REDIS_SIZES_KEY.csv |
         egrep --only-matching ', [0-9]+\.[0-9]+$' |
@@ -209,10 +209,13 @@ polkadot-js-ui-ink-examples-compare:
     - cat combined.csv >> contract-size-diff.csv
     - csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
-    # Replace new lines and align left
+    # Replace `\n` so that it works propely when submitted to the GitHub API.
+    # Also align the table text left.
     - cat contract-size-diff.md | sed 's/|---/|:---/g' | sed 's/$/\\n/g' | tr -d '\n' | tee contract-size-diff-nl.md
     - COMMENT=$(cat contract-size-diff-nl.md)
 
+    # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
+    # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
     - 'COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
         jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
     - echo $COMMENT_URL
@@ -224,15 +227,14 @@ polkadot-js-ui-ink-examples-compare:
     - echo $VERB
     - echo $COMMENT_URL
     - UPDATED=$(TZ='Europe/Berlin' date)
-    - 'RESP=$(curl -X "${VERB}" "${COMMENT_URL}"
+    - 'curl -X "${VERB}" "${COMMENT_URL}"
         -H "Cookie: logged_in=no"
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
         -d $"{
             \"body\": \"## 🦑 📈 Example Contracts ‒ Size Change Report 📉 🦑\\n
             ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\"
-        }")'
-    - echo "api response ${RESP}"
+        }"'
 
 polkadot-js-ui-rand-extension:
   stage:                           test
