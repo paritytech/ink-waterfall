@@ -195,7 +195,7 @@ polkadot-js-ui-ink-examples-compare:
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
         -d $"{
-            \"body\": \"### 🦑 📊 📈 🤖 Contract Size Change Report 🤖 📉 📊 🦑\\n
+            \"body\": \"### 🦑 📈 Contract Size Change Report 📉 🦑\\n
             ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\"
         }")'
     - echo "api response ${RESP}"
