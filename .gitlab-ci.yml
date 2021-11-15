@@ -180,7 +180,8 @@ polkadot-js-ui-ink-examples-compare:
        fi'
     - echo $VERB
     - echo $COMMENT_URL
-    - 'RESP=$(curl -X "${VERB}" $COMMENT_URL
+    - 'RESP=$(curl -X "${VERB}" "${COMMENT_URL}"
+        --silent
         -H "Cookie: logged_in=no"
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
