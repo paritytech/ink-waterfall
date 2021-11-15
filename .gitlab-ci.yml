@@ -178,7 +178,9 @@ polkadot-js-ui-ink-examples-compare:
     - if [ -z "$COMMENT_ID" ]; then VERB="POST"; POSSIBLY_COMMENT_ID=""; fi
     - echo $VERB
     - echo $POSSIBLY_COMMENT_ID
-    - 'RESP=$(curl -X "${VERB}" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments${POSSIBLY_COMMENT_ID}"
+    - URL="https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments${POSSIBLY_COMMENT_ID}"
+    - echo $URL
+    - 'RESP=$(curl -X "${VERB}" $URL
         -H "Cookie: logged_in=no"
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
