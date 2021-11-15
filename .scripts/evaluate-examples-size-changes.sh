@@ -57,11 +57,13 @@ fi
 echo $VERB
 echo $COMMENT_URL
 UPDATED=$(TZ='Europe/Berlin' date)
+CC_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract [^-]*")
 curl -X "${VERB}" "${COMMENT_URL}" \
     -H "Cookie: logged_in=no" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Size Change Report 📉 🦑\\n \
+These are the results of building the \`example/*\` contracts from this branch with \`$CC_VERSION\`. \\n\\n\
 ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\" \
     }"
