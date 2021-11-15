@@ -181,11 +181,9 @@ polkadot-js-ui-ink-examples-compare:
   stage:                           compare-build
   <<:                              *kubernetes-env
   <<:                              *vault-secrets
-  # Comparison is made only if a parent (trigger) was created on PRs. Otherwise we would
-  # would be comparing `master` with `master`.
-  #
-  # TODO: While we lack comparison data for master, lets "compare" everything
-  # <<:                              *if-trigger-ref-is-master
+  # Comparison is made only if a parent (trigger) was created by a PR.
+  # Otherwise we would would be comparing `master` with `master`.
+  <<:                              *if-trigger-ref-is-master
   script:
     - echo ${TRGR_REF}
     - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
