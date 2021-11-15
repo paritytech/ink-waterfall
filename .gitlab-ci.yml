@@ -163,7 +163,7 @@ polkadot-js-ui-ink-examples-compare:
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
     - echo "Example,Not optimized,Optimized" > contract-size-diff.csv
-    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' | tee --append contract-size-diff.csv
+    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' | | sed 's/^/`/' | sed 's/,/`,/g' | tee --append contract-size-diff.csv
     - csv2md --pretty < contract-size-diff.csv > contract-size-diff.md
     - cat contract-size-diff.md
     - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
@@ -186,7 +186,7 @@ polkadot-js-ui-ink-examples-compare:
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
         -d $"{
-            \"body\": \"#### 🦑 📊 📈 🤖 Did the contract size change? 🤖 📉 📊 🦑\\n${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}).\nLast updated: ${UPDATED}.\"
+            \"body\": \"### 🦑 📊 📈 🤖 Contract Size Change Report 🤖 📉 📊 🦑\\n${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}).\n\nLast updated: ${UPDATED}.\"
         }")'
     - echo "api response ${RESP}"
     - COMMENT_ID=$(echo $RESP | jq -r .id)
