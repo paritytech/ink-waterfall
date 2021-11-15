@@ -6,7 +6,6 @@
 
 stages:
   - declare-vars
-  - test
   - compare-build
 
 variables:
@@ -163,20 +162,6 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
 
 
-polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
-  stage:                           test
-  <<:                              *docker-env
-  <<:                              *vault-secrets
-  script:
-    - *clone-repo
-    - *start-substrate-contracts-node
-    - *build-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
-  after_script:
-    - *shutdown-substrate-contracts-node
-  dependencies:
-    - parent-vars
-
 polkadot-js-ui-ink-examples-compare:
   stage:                           compare-build
   <<:                              *kubernetes-env
@@ -235,17 +220,6 @@ polkadot-js-ui-ink-examples-compare:
             \"body\": \"## 🦑 📈 Example Contracts ‒ Size Change Report 📉 🦑\\n
             ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\"
         }"'
-
-polkadot-js-ui-rand-extension:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-    - *clone-repo
-    - *start-substrate-contracts-node-rand-extension
-    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
-  after_script:
-    - *shutdown-substrate-contracts-node-rand-extension
-
 
 build_badge:
   stage:                           compare-build
