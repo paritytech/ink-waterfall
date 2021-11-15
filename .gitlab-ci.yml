@@ -170,7 +170,8 @@ polkadot-js-ui-ink-examples-compare:
     - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'`
     - echo -e $COMMENT
     - TRGR_REF=1015
-    - COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments | jq ".[] | select(.user.login == 'paritytech-ci') | .id" | head -n1)
+    - 'COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
+        jq ".[] | select(.user.login == \'paritytech-ci\') | .id" | head -n1)'
     - VERB="PUT"
     - if [ -z "$COMMENT_ID" ]; then VERB="POST"; fi
     - echo $VERB
