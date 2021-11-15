@@ -197,7 +197,7 @@ polkadot-js-ui-ink-examples-compare:
     - COMMENT=`cat contract-size-diff.md`
     - TRGR_REF=1015
     - 'if [ -z "$COMMENT_ID" ]; then
-        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/ink/ink/pulls/${TRGR_REF}/comments/"
+        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}/comments/"
           -H "Cookie: logged_in=no"
           -H "Authorization: token ${GITHUB_TOKEN}"
           -H "Content-Type: application/json; charset=utf-8"
