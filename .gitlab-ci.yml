@@ -196,7 +196,7 @@ polkadot-js-ui-ink-examples-compare:
     - csv2md < contract-size-diff.csv > contract-size-diff.md
     - COMMENT=`cat contract-size-diff.md`
     - 'if [ -z "$COMMENT_ID" ]; then
-        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/substrate-contracts-node/releases"
+        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/ink/ink/pulls/comments/${TRGR_REF}"
           --fail-with-body
           -H "Cookie: logged_in=no"
           -H "Authorization: token ${GITHUB_TOKEN}"
