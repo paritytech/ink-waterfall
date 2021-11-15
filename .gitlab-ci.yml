@@ -202,7 +202,7 @@ polkadot-js-ui-ink-examples-compare:
           -H "Authorization: token ${GITHUB_TOKEN}"
           -H "Content-Type: application/json; charset=utf-8"
           -d $"{
-              \"body\": \"Results:\n${COMMENT}\",
+              \"body\": \"Results:\",
           }");
           echo "api response ${RESP}";
           COMMENT_ID=$(echo $RESP | jq -r .id);
