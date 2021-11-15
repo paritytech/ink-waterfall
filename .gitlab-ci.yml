@@ -166,8 +166,8 @@ polkadot-js-ui-ink-examples-compare:
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
     - csv2md < contract-size-diff.csv > contract-size-diff.md
     - cat contract-size-diff.md
-    - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'
-    - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'`
+    - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff.md
+    - COMMENT=$(cat contract-size-diff.md)
     - echo $COMMENT
     - TRGR_REF=1015
     - 'COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
@@ -176,16 +176,16 @@ polkadot-js-ui-ink-examples-compare:
     - if [ -z "$COMMENT_ID" ]; then VERB="POST"; fi
     - echo $VERB
     - 'RESP=$(curl -X "${VERB}" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments"
-          -H "Cookie: logged_in=no"
-          -H "Authorization: token ${GITHUB_TOKEN}"
-          -H "Content-Type: application/json; charset=utf-8"
-          -d $"{
-              \"body\": \"Results:\\n$COMMENT\"
-          }");
-       echo "api response ${RESP}";
-       COMMENT_ID=$(echo $RESP | jq -r .id);
-       echo "comment id of created comment ${COMMENT_ID}";
-       echo ${COMMENT_ID} > comment-id;'
+        -H "Cookie: logged_in=no"
+        -H "Authorization: token ${GITHUB_TOKEN}"
+        -H "Content-Type: application/json; charset=utf-8"
+        -d $"{
+            \"body\": \"Results:\\n$COMMENT\"
+        }")'
+    - echo "api response ${RESP}"
+    - COMMENT_ID=$(echo $RESP | jq -r .id)
+    - echo "comment id of created comment ${COMMENT_ID}"
+    - echo ${COMMENT_ID} > comment-id
 
 
 build_badge:
