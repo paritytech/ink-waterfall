@@ -173,6 +173,7 @@ polkadot-js-ui-ink-examples-compare:
     - VERB="PUT"
     - if [ -z "$COMMENT_ID" ]; then VERB="POST"; fi
     - echo $VERB
+    - apt-get install -y --no-install-recommends jq
     - 'RESP=$(curl -X "${VERB}" "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments"
           -H "Cookie: logged_in=no"
           -H "Authorization: token ${GITHUB_TOKEN}"
