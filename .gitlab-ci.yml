@@ -182,7 +182,7 @@ polkadot-js-ui-ink-examples-compare:
   <<:                              *kubernetes-env
   <<:                              *vault-secrets
   # Comparison is made only if a parent (trigger) was created by a PR.
-  # Otherwise we would would be comparing `master` with `master`.
+  # Otherwise we would be comparing `master` with `master`.
   <<:                              *if-trigger-ref-is-master
   script:
     - echo ${TRGR_REF}
