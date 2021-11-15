@@ -199,6 +199,7 @@ polkadot-js-ui-ink-examples-compare:
     # Append the original optimized size (i.e. not the delta) to the end of each line
     - |
         cat $REDIS_SIZES_KEY.csv | sort | uniq |
+        egrep --only-matching ', [0-9]+\.[0-9]+$' |
         awk -F", " '{printf "%.2f kb\n", $2}' |
         tee total-optimized-size.csv
     - paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
