@@ -187,8 +187,7 @@ polkadot-js-ui-ink-examples-compare:
   # TODO: While we lack comparison data for master, lets "compare" everything
   # <<:                              *if-trigger-ref-is-master
   script:
-    - apt-get install -y --no-install-recommends jq
-    - jq --version
+    - echo ${TRGR_REF}
     - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
     # Deserialize comparison data
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sort | tee $REDIS_SIZES_KEY.csv
