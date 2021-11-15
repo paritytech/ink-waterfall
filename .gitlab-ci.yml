@@ -173,7 +173,7 @@ polkadot-js-ui-ink-examples-compare:
     - 'COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
         jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
     - echo $COMMENT_URL
-    - VERB="PUT"
+    - VERB="PATCH"
     - 'if [ -z "$COMMENT_URL" ]; then
          VERB="POST";
          COMMENT_URL="https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments";
