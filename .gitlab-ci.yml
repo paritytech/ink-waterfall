@@ -32,6 +32,9 @@ workflow:
     REDISCLI_AUTH:
       vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
       file:                        false
+    GITHUB_TOKEN:
+      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_TOKEN@kv
+      file:                        false
 
 
 .default-refs:                      &default-refs
@@ -188,10 +191,24 @@ polkadot-js-ui-ink-examples-compare:
     # Deserialize comparison data
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
-    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee contract-size-diff.csv
-    - COMMENT=`csv2md < contract-size-diff.csv`
-    - echo $COMMENT
-    # TODO [#4]: Post the results of this script on GitHub
+    - echo "Example,Not optimized,Optimized" > contract-size-diff.csv
+    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
+    - csv2md < contract-size-diff.csv > contract-size-diff.md
+    - COMMENT=`cat contract-size-diff.md`
+    - 'if [ -z "$COMMENT_ID" ]; then
+        RESP=$(curl -X "POST" "https://api.github.com/repos/paritytech/substrate-contracts-node/releases"
+          --fail-with-body
+          -H "Cookie: logged_in=no"
+          -H "Authorization: token ${GITHUB_TOKEN}"
+          -H "Content-Type: application/json; charset=utf-8"
+          -d $"{
+              \"body\": \"Results:\n${COMMENT}\",
+          }");
+          echo "api response ${RESP}";
+          COMMENT_ID=$(echo $RESP | jq -r .id);
+          echo "comment id of created comment ${COMMENT_ID}";
+          echo ${COMMENT_ID} > comment-id;
+        fi'
 
 
 polkadot-js-ui-rand-extension:
