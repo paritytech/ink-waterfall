@@ -188,7 +188,6 @@ polkadot-js-ui-ink-examples-compare:
     # Deserialize comparison data
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
-    - cargo install --git https://github.com/HCastano/csv-comparator
     # TODO [#4]: Post the results of this script on GitHub
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee contract-size-diff.csv
 
