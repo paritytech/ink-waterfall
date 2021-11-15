@@ -166,8 +166,8 @@ polkadot-js-ui-ink-examples-compare:
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
     - csv2md < contract-size-diff.csv > contract-size-diff.md
     - cat contract-size-diff.md
-    - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff.md
-    - COMMENT=$(cat contract-size-diff.md)
+    - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
+    - COMMENT=$(cat contract-size-diff-nl.md)
     - echo $COMMENT
     - TRGR_REF=1015
     - 'COMMENT_ID=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
