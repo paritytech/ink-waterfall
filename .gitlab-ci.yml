@@ -165,6 +165,8 @@ polkadot-js-ui-ink-examples-compare:
     - echo "Example,Not optimized,Optimized" > contract-size-diff.csv
     - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee --append contract-size-diff.csv
     - csv2md < contract-size-diff.csv > contract-size-diff.md
+    - cat contract-size-diff.md
+    - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'
     - COMMENT=`cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n'`
     - echo $COMMENT
     - TRGR_REF=1015
