@@ -168,9 +168,12 @@ polkadot-js-ui-ink-examples-compare:
         sed 's/^/`/' | sed 's/,/`,/' |
         tee pure-contract-size-diff.csv
     # Append the original optimized size to the end of each line
-    - cat $REDIS_SIZES_KEY.csv
     - cat $REDIS_SIZES_KEY.csv | egrep --only-matching ', [0-9]+\.[0-9]+$'
-    - cat $REDIS_SIZES_KEY.csv | egrep --only-matching ', [0-9]+\.[0-9]+$' | > total-optimized-size.csv
+    - |
+        cat $REDIS_SIZES_KEY.csv |
+        egrep --only-matching ', [0-9]+\.[0-9]+$'
+        sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' |
+        > total-optimized-size.csv
     - paste -d "," pure-contract-size-diff.csv total-optimized-size.csv > combined.csv
     - echo "Example,Δ Original Size,Δ Optimized Size,Total Optimized Size" > contract-size-diff.csv
     - cat combined.csv > contract-size-diff.csv
