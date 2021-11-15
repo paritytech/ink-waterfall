@@ -163,7 +163,10 @@ polkadot-js-ui-ink-examples-compare:
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
     - echo "Example,Not optimized,Optimized" > contract-size-diff.csv
-    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' | | sed 's/^/`/' | sed 's/,/`,/g' | tee --append contract-size-diff.csv
+    - 'csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv |
+        sed --regexp-extended 's/[0-9]+\.[0-9]+/& kb/g' |
+        sed 's/^/`/' | sed 's/,/`,/g' |
+        tee --append contract-size-diff.csv'
     - csv2md --pretty < contract-size-diff.csv > contract-size-diff.md
     - cat contract-size-diff.md
     - cat contract-size-diff.md | sed 's/$/\\n/g' | tr -d '\n' > contract-size-diff-nl.md
