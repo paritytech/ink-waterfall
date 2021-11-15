@@ -171,7 +171,7 @@ polkadot-js-ui-ink-examples-compare:
     - echo $COMMENT
     - TRGR_REF=1015
     - 'COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments |
-        jq ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
+        jq --raw ".[] | select(.user.login == \"paritytech-ci\") | .url" | head -n1)'
     - echo $COMMENT_URL
     - VERB="PUT"
     - 'if [ -z "$COMMENT_URL" ]; then
@@ -181,7 +181,6 @@ polkadot-js-ui-ink-examples-compare:
     - echo $VERB
     - echo $COMMENT_URL
     - 'RESP=$(curl -X "${VERB}" "${COMMENT_URL}"
-        --silent
         -H "Cookie: logged_in=no"
         -H "Authorization: token ${GITHUB_TOKEN}"
         -H "Content-Type: application/json; charset=utf-8"
