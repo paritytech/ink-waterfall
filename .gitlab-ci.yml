@@ -194,7 +194,6 @@ polkadot-js-ui-ink-examples-compare:
         csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv |
         sort |
         awk -F"," '{printf "`%s`,%.2f kb,%.2f kb\n", $1, $2, $3}' |
-        sed 's/,0.00/,±0.00/g' |
         sed --regexp-extended 's/^([0-9])/,+\1/g' |
         sed --regexp-extended 's/,([0-9])/,+\1/g' |
         tee pure-contract-size-diff.csv
@@ -208,7 +207,7 @@ polkadot-js-ui-ink-examples-compare:
     - paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
 
     - echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-size-diff.csv
-    - cat combined.csv | tee --append contract-size-diff.csv
+    - cat combined.csv | sed 's/+0.00 kb/‒/g' | tee --append contract-size-diff.csv
     - csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
     # Replace `\n` so that it works propely when submitted to the GitHub API.
