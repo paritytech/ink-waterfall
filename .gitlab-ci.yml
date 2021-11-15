@@ -174,7 +174,7 @@ polkadot-js-ui-ink-examples-compare:
         jq ".[] | select(.user.login == \"paritytech-ci\") | .id" | head -n1)'
     - echo $COMMENT_ID
     - VERB="PUT"
-    - POSSIBLY_COMMENT_ID="/{COMMENT_ID}"
+    - POSSIBLY_COMMENT_ID="/${COMMENT_ID}"
     - if [ -z "$COMMENT_ID" ]; then VERB="POST"; POSSIBLY_COMMENT_ID=""; fi
     - echo $VERB
     - echo $POSSIBLY_COMMENT_ID
