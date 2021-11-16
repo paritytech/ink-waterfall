@@ -19,6 +19,7 @@ echo "$BASELINE_FILE will be compared to $COMPARISON_FILE"
 csv-comparator $BASELINE_FILE $COMPARISON_FILE | \
   sort | \
   awk -F"," '{printf "`%s`,%.2f K,%.2f K\n", $1, $2, $3}' | \
+  # prepend a plus in front of all positive numbers
   sed --regexp-extended 's/^([0-9])/,+\1/g' | \
   sed --regexp-extended 's/,([0-9])/,+\1/g' | \
   tee pure-contract-size-diff.csv
