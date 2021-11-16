@@ -63,8 +63,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer")
             .caller("ALICE")
             .push_value("destination", "BOB")
-            .push_value("id", "123")
-            .max_gas("25000"),
+            .push_value("id", "123"),
     )
     .await
     .expect("`transfer` must succeed");
@@ -91,8 +90,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "approve")
             .caller("BOB")
             .push_value("to", "CHARLIE")
-            .push_value("id", "123")
-            .max_gas("25000"),
+            .push_value("id", "123"),
     )
     .await
     .expect("`approve` must succeed");
@@ -142,8 +140,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
             .caller("CHARLIE")
             .push_value("from", "BOB")
             .push_value("to", "DAVE")
-            .push_value("id", "123")
-            .max_gas("25000"),
+            .push_value("id", "123"),
     )
     .await
     .expect("`transfer_from` must succeed");
@@ -176,8 +173,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "burn")
             .caller("DAVE")
-            .push_value("id", "123")
-            .max_gas("25000"),
+            .push_value("id", "123"),
     )
     .await
     .expect("`burn` must succeed");
@@ -224,8 +220,7 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "set_approval_for_all")
             .caller("ALICE")
             .push_value("to", "BOB")
-            .push_value("approved", "true")
-            .max_gas("25000"),
+            .push_value("approved", "true"),
     )
     .await
     .expect("`approve_for_all` must succeed");
@@ -245,8 +240,7 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
             .caller("BOB")
             .push_value("from", "ALICE")
             .push_value("to", "CHARLIE")
-            .push_value("id", "123")
-            .max_gas("25000"),
+            .push_value("id", "123"),
     )
     .await
     .expect("`transfer` must succeed");
@@ -255,8 +249,7 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
             .caller("BOB")
             .push_value("from", "ALICE")
             .push_value("to", "CHARLIE")
-            .push_value("id", "321")
-            .max_gas("25000"),
+            .push_value("id", "321"),
     )
     .await
     .expect("`transfer` must succeed");

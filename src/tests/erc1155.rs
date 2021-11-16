@@ -119,8 +119,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
             .push_value("from", "CHARLIE")
             .push_value("to", "ALICE")
             .push_value("tokenId", "1")
-            .push_value("value", "41")
-            .max_gas("250000"),
+            .push_value("value", "41"),
     )
     .await
     .expect("failed to execute transaction");
@@ -159,8 +158,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
             .add_item("tokenIds", "1")
             .add_item("tokenIds", "2")
             .add_item("values", "41000000000000")
-            .add_item("values", "99000000000000")
-            .max_gas("250000"),
+            .add_item("values", "99000000000000"),
     )
     .await
     .expect("failed to execute transaction");
@@ -213,7 +211,6 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
                     .push_value("to", "ALICE")
                     .push_value("tokenId", "1")
                     .push_value("value", "41")
-                    .max_gas("250000")
             )
             .await
             .is_err()

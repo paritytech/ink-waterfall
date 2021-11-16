@@ -51,8 +51,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "set_address")
             .caller("ALICE")
             .push_value("name", name)
-            .push_value("newAddress", owner)
-            .max_gas("25000"),
+            .push_value("newAddress", owner),
     )
     .await
     .expect("failed to execute `set_address` transaction");
@@ -79,7 +78,6 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
                     .caller("BOB")
                     .push_value("name", name)
                     .push_value("newAddress", owner2)
-                    .max_gas("25000")
             )
             .await
             .is_err()
@@ -90,8 +88,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer")
             .caller("ALICE")
             .push_value("name", name)
-            .push_value("to", "BOB")
-            .max_gas("25000"),
+            .push_value("to", "BOB"),
     )
     .await
     .expect("failed to execute `transfer` to BOB transaction");
@@ -99,8 +96,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "set_address")
             .caller("BOB")
             .push_value("name", name)
-            .push_value("newAddress", owner2)
-            .max_gas("25000"),
+            .push_value("newAddress", owner2),
     )
     .await
     .expect("failed to execute `set_address` transaction from BOB");
