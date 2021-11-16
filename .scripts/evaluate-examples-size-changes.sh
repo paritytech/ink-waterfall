@@ -43,8 +43,8 @@ cat contract-size-diff.md | \
   sed --regexp-extended 's/(-+)\:/:\1/' | \
   sed 's/$/\\n/g' | \
   tr -d '\n' | \
-  tee contract-size-diff-nl.md
-COMMENT=$(cat contract-size-diff-nl.md)
+  tee contract-size-diff-newlines.md
+COMMENT=$(cat contract-size-diff-newlines.md)
 
 # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
