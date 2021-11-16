@@ -1,16 +1,22 @@
 #!/bin/bash
 
-# Evaluates size changes of the ink! examples.
+# Evaluates size changes of the ink! examples and posts the results
+# as a comment on GitHub.
+#
+# Usage:
+#   ./evaluate-examples-size-changes.sh
+#     <path_to_baseline.csv> <path_to_size_change.csv>
+#     <github_url_to_comments_of_pr>
 
 set -eux
-echo ${TRGR_REF}
-echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
 
-# Deserialize comparison data
-redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sort | tee $REDIS_SIZES_KEY.csv
-redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | sort | tee $REDIS_SIZES_KEY_MASTER.csv
+BASELINE_FILE=$1
+COMPARISON_FILE=$2
+PR_COMMENTS_URL=$3
 
-csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | \
+echo "$BASELINE_FILE will be compared to $COMPARISON_FILE"
+
+csv-comparator $BASELINE_FILE $COMPARISON_FILE | \
   sort | \
   awk -F"," '{printf "`%s`,%.2f kb,%.2f kb\n", $1, $2, $3}' | \
   sed --regexp-extended 's/^([0-9])/,+\1/g' | \
@@ -18,7 +24,7 @@ csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | \
   tee pure-contract-size-diff.csv
 
 # Append the original optimized size (i.e. not the delta) to the end of each line
-cat $REDIS_SIZES_KEY.csv | \
+cat $COMPARISON_FILE | \
   sort | uniq | \
   egrep --only-matching ', [0-9]+\.[0-9]+$' | \
   awk -F", " '{printf ",%.2f kb\n", $2}' | \
@@ -42,23 +48,23 @@ COMMENT=$(cat contract-size-diff-nl.md)
 
 # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
-COMMENT_URL=$(curl --silent https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments | \
+POSSIBLY_COMMENT_URL=$(curl --silent $PR_URL | \
   jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | \
   head -n1
 )
 
-echo $COMMENT_URL
-VERB="PATCH"
-
-if [ -z "$COMMENT_URL" ]; then
-   VERB="POST";
-   COMMENT_URL="https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments";
+VERB="POST"
+if [ ! -z "$POSSIBLY_COMMENT_URL" ]; then
+   VERB="PATCH";
+   PR_COMMENTS_URL="$POSSIBLY_COMMENT_URL"
 fi
+
 echo $VERB
-echo $COMMENT_URL
+echo $PR_COMMENTS_URL
+
 UPDATED=$(TZ='Europe/Berlin' date)
 CC_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract [^-]*")
-curl -X "${VERB}" "${COMMENT_URL}" \
+curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Cookie: logged_in=no" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \

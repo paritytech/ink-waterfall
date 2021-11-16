@@ -197,7 +197,11 @@ evaluate-ink-examples-size-changes:
   # Otherwise we would be comparing `master` with `master`.
   <<:                              *if-trigger-ref-valid
   script:
-    - ./.scripts/evaluate-examples-size-changes.sh
+    # Deserialize comparison data
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sort | tee $REDIS_SIZES_KEY.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | sort | tee $REDIS_SIZES_KEY_MASTER.csv
+    - PR_COMMENTS_URL=https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments
+    - ./.scripts/evaluate-examples-size-changes.sh $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv $PR_COMMENTS_URL
 
 
 build_badge:
