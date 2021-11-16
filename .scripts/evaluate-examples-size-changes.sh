@@ -4,8 +4,8 @@
 # as a comment on GitHub.
 #
 # Usage:
-#   ./evaluate-examples-size-changes.sh
-#     <path_to_baseline.csv> <path_to_size_change.csv>
+#   ./evaluate-examples-size-changes.sh \
+#     <path_to_baseline.csv> <path_to_size_change.csv> \
 #     <github_url_to_comments_of_pr>
 
 set -eux
