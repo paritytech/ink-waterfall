@@ -48,10 +48,11 @@ COMMENT=$(cat contract-size-diff-nl.md)
 
 # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
-POSSIBLY_COMMENT_URL=$(curl --silent $PR_URL | \
+POSSIBLY_COMMENT_URL=$(curl --silent $PR_COMMENTS_URL | \
   jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | \
   head -n1
 )
+echo $POSSIBLY_COMMENT_URL
 
 VERB="POST"
 if [ ! -z "$POSSIBLY_COMMENT_URL" ]; then
