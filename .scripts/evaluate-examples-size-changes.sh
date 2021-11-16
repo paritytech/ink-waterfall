@@ -27,7 +27,7 @@ csv-comparator $BASELINE_FILE $COMPARISON_FILE | \
 cat $COMPARISON_FILE | \
   sort | uniq | \
   egrep --only-matching ', [0-9]+\.[0-9]+$' | \
-  awk -F", " '{printf ",%.2f kb\n", $2}' | \
+  awk -F", " '{printf ",%.2f K\n", $2}' | \
   tee total-optimized-size.csv
 
 paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
