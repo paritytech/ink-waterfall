@@ -33,7 +33,7 @@ cat $COMPARISON_FILE | \
 paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
 
 echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-size-diff.csv
-cat combined.csv | sed 's/+0.00 kb//g' | tee --append contract-size-diff.csv
+cat combined.csv | sed 's/+0.00 K//g' | tee --append contract-size-diff.csv
 csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
 # Replace `\n` so that it works propely when submitted to the GitHub API.
