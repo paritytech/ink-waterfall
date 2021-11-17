@@ -48,7 +48,7 @@ cat contract-size-diff.md | \
 COMMENT=$(cat contract-size-diff-newlines.md)
 
 if [ -z "$COMMENT" ]; then
-  COMMENT="No size change was observed."
+  COMMENT="_No size change was observed._"
 fi
 
 # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
