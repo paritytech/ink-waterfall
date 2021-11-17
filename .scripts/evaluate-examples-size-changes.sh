@@ -48,7 +48,7 @@ cat contract-size-diff.md | \
 COMMENT=$(cat contract-size-diff-newlines.md)
 
 if [ -z "$COMMENT" ]; then
-  COMMENT="_No size change was observed._"
+  COMMENT="_No size changes were observed._"
 fi
 
 # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
@@ -76,6 +76,6 @@ curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Size Change Report 📉 🦑\\n \
-These are the results of building the \`examples/*\` contracts from this branch with \`$CC_VERSION\`. \\n\\n\
+These are the results of building the \`examples/*\` contracts from this branch with \`$CC_VERSION\`: \\n\\n\
 ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\" \
     }"
