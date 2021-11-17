@@ -47,6 +47,10 @@ cat contract-size-diff.md | \
   tee contract-size-diff-newlines.md
 COMMENT=$(cat contract-size-diff-newlines.md)
 
+if [ -z "$COMMENT" ]; then
+  COMMENT="No size change was observed."
+fi
+
 # If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
 POSSIBLY_COMMENT_URL=$(curl --silent $PR_COMMENTS_URL | \
