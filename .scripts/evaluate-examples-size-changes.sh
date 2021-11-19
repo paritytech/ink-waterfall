@@ -8,7 +8,7 @@
 #     <path_to_baseline.csv> <path_to_size_change.csv> \
 #     <github_url_to_comments_of_pr>
 
-set -eux
+set -eu
 
 BASELINE_FILE=$1
 COMPARISON_FILE=$2
