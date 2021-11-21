@@ -3,6 +3,7 @@ name = "waterfall"
 version = "0.1.0"
 authors = ["Michael Mueller <mich@elmueller.net>"]
 edition = "2021"
+rust-version = "1.56.1"
 
 [dependencies]
 async-trait = "0.1.50"
