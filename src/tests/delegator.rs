@@ -72,30 +72,24 @@ async fn delegator_works(mut ui: Ui) -> Result<()> {
         "0"
     );
     ui.execute_transaction(
-        Call::new(&delegator_addr, "change")
-            .push_value("by: i32", "13")
-            .max_gas("5000"),
+        Call::new(&delegator_addr, "change").push_value("by: i32", "13"),
     )
     .await
     .expect("failed to execute transaction");
     assert_eq!(
-        ui.execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
-            .await?,
+        ui.execute_rpc(Call::new(&delegator_addr, "get")).await?,
         "13"
     );
-    ui.execute_transaction(Call::new(&delegator_addr, "switch").max_gas("5000"))
+    ui.execute_transaction(Call::new(&delegator_addr, "switch"))
         .await
         .expect("failed to execute transaction");
     ui.execute_transaction(
-        Call::new(&delegator_addr, "change")
-            .push_value("by: i32", "3")
-            .max_gas("5000"),
+        Call::new(&delegator_addr, "change").push_value("by: i32", "3"),
     )
     .await
     .expect("failed to execute transaction");
     assert_eq!(
-        ui.execute_rpc(Call::new(&delegator_addr, "get").max_gas("5000"))
-            .await?,
+        ui.execute_rpc(Call::new(&delegator_addr, "get")).await?,
         "10"
     );
     Ok(())

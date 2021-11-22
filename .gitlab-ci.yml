@@ -32,6 +32,9 @@ workflow:
     REDISCLI_AUTH:
       vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
       file:                        false
+    GITHUB_TOKEN:
+      vault:                       cicd/gitlab/parity/ink/GITHUB_TOKEN@kv
+      file:                        false
 
 
 .default-refs:                      &default-refs
@@ -77,12 +80,12 @@ workflow:
     - kubernetes-parity-build
 
 
-.if-trigger-ref-is-master:           &if-trigger-ref-is-master
+.if-trigger-ref-valid:            &if-trigger-ref-valid
   before_script:
-    - if [ "$TRGR_REF" == "master" ]; then
-        echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER."
-        echo "Exiting gracefully."
-        exit 0
+    - if [ "$TRGR_REF" == "master" ] || [ -z "$TRGR_REF" ]; then
+        echo "It makes no sense to compare $REDIS_SIZES_KEY to $REDIS_SIZES_KEY_MASTER.";
+        echo "Exiting gracefully.";
+        exit 0;
       fi
 
 .clone-repo:                       &clone-repo
@@ -101,7 +104,7 @@ workflow:
   - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
 
 
-# needed vars have to be "exported" on a earlier stage
+# Needed vars have to be "exported" in an earlier stage
 parent-vars:
   stage:                                             declare-vars
   <<:                                                *kubernetes-env
@@ -131,12 +134,12 @@ parent-vars:
     - echo "UPSTREAM_REPO_NAME=${UPSTREAM_REPO_NAME}" | tee -a parent-vars.env
 
     # REDIS_SIZES_KEY (e.g. ink-waterfall::ink::foo-add-feature::sizes)
-    # defines a Redis key name where contract sizes will be stored frpm a upstrem above
+    #   defines a Redis key name where contract sizes will be stored from an upstream above.
     - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::sizes" | tee -a parent-vars.env
 
     # REDIS_SIZES_KEY_MASTER (e.g. ink-waterfall::ink::master::sizes)
-    #  defines a Redis key name for a upstream's master reference branch. contracts sizes stored there will be used for
-    #  a comparison with contract sizes stored in REDIS_SIZES_KEY
+    #   defines a Redis key name for an upstream's master reference branch.
+    #   contract sizes stored there will be used for a comparison with contract sizes stored in REDIS_SIZES_KEY.
     - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::sizes" | tee -a parent-vars.env
   artifacts:
     reports:
@@ -174,24 +177,6 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   dependencies:
     - parent-vars
 
-polkadot-js-ui-ink-examples-compare:
-  stage:                           compare-build
-  <<:                              *kubernetes-env
-  <<:                              *vault-secrets
-  # Comparison is made only if a parent (trigger) was created on PRs. Otherwise we would
-  # would be comparing `master` with `master`.
-  #
-  # TODO: While we lack comparison data for master, lets "compare" everything
-  # <<:                              *if-trigger-ref-is-master
-  script:
-    - echo "$REDIS_SIZES_KEY will be compared to $REDIS_SIZES_KEY_MASTER"
-    # Deserialize comparison data
-    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | tee $REDIS_SIZES_KEY.csv
-    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | tee $REDIS_SIZES_KEY_MASTER.csv
-    - cargo install --git https://github.com/HCastano/csv-comparator
-    # TODO [#4]: Post the results of this script on GitHub
-    - csv-comparator $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv | tee contract-size-diff.csv
-
 
 polkadot-js-ui-rand-extension:
   stage:                           test
@@ -202,6 +187,21 @@ polkadot-js-ui-rand-extension:
     - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
   after_script:
     - *shutdown-substrate-contracts-node-rand-extension
+
+
+evaluate-ink-examples-size-changes:
+  stage:                           compare-build
+  <<:                              *kubernetes-env
+  <<:                              *vault-secrets
+  # Comparison is made only if a parent (trigger) was created by a PR.
+  # Otherwise we would be comparing `master` with `master`.
+  <<:                              *if-trigger-ref-valid
+  script:
+    # Deserialize comparison data
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sort | tee $REDIS_SIZES_KEY.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | sort | tee $REDIS_SIZES_KEY_MASTER.csv
+    - PR_COMMENTS_URL=https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments
+    - ./.scripts/evaluate-examples-size-changes.sh $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv $PR_COMMENTS_URL
 
 
 build_badge:
