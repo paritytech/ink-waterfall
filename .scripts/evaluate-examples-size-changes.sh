@@ -37,17 +37,23 @@ echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-
 cat combined.csv | sed 's/+0.00 K//g' | tee --append contract-size-diff.csv
 csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
-# Replace `\n` so that it works propely when submitted to the GitHub API.
-# Also align the table text right.
+if cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"; then
+  DID_SIZE_CHANGE=true
+else
+  DID_SIZE_CHANGE=false
+fi
+
 cat contract-size-diff.md | \
+  # Align the table text right.
   sed 's/---|/---:|/g' | \
   sed --regexp-extended 's/(-+)\:/:\1/' | \
+  # Replace `\n` so that it works properly when submitted to the GitHub API.
   sed 's/$/\\n/g' | \
   tr -d '\n' | \
   tee contract-size-diff-newlines.md
 COMMENT=$(cat contract-size-diff-newlines.md)
 
-if [ -z "$COMMENT" ]; then
+if [ ! $DID_SIZE_CHANGE ]; then
   COMMENT="_No size changes were observed._"
 fi
 
