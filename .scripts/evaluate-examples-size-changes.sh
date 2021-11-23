@@ -37,11 +37,16 @@ echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-
 cat combined.csv | sed 's/+0.00 K//g' | tee --append contract-size-diff.csv
 csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
+echo "diff:"
+cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"
+
 if cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"; then
   DID_SIZE_CHANGE=true
 else
   DID_SIZE_CHANGE=false
 fi
+
+echo "did size change? " $DID_SIZE_CHANGE
 
 cat contract-size-diff.md | \
   # Align the table text right.
@@ -54,6 +59,7 @@ cat contract-size-diff.md | \
 COMMENT=$(cat contract-size-diff-newlines.md)
 
 if [ ! $DID_SIZE_CHANGE ]; then
+  echo "No size changes observed"
   COMMENT="_No size changes were observed._"
 fi
 
