@@ -41,9 +41,9 @@ echo "diff:"
 cat contract-size-diff.csv | tail -n+2
 
 if cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"; then
-  DID_SIZE_CHANGE=true
+  DID_SIZE_CHANGE="true"
 else
-  DID_SIZE_CHANGE=false
+  DID_SIZE_CHANGE="false"
 fi
 
 echo "did size change? " $DID_SIZE_CHANGE
@@ -58,7 +58,7 @@ cat contract-size-diff.md | \
   tee contract-size-diff-newlines.md
 COMMENT=$(cat contract-size-diff-newlines.md)
 
-if [ ! $DID_SIZE_CHANGE ]; then
+if [ "$DID_SIZE_CHANGE" == "false" ]; then
   echo "No size changes observed"
   COMMENT="_No size changes were observed._"
 fi
