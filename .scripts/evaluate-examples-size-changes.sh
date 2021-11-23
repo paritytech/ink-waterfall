@@ -38,7 +38,7 @@ cat combined.csv | sed 's/+0.00 K//g' | tee --append contract-size-diff.csv
 csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
 
 echo "diff:"
-cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"
+cat contract-size-diff.csv | tail -n+2
 
 if cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"; then
   DID_SIZE_CHANGE=true
