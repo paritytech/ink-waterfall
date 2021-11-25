@@ -211,9 +211,13 @@ impl Events {
 
     /// Returns `true` if the `event` is contained in these events.
     pub fn contains(&self, event: &str) -> bool {
-        self.events
-            .iter()
-            .any(|evt| evt.header.contains(event) || evt.status.contains(event))
+        self.events.iter().any(|evt| {
+            assert!(
+                !evt.header.contains("OutOfGas") && !evt.status.contains("OutOfGas"),
+                "Found OutOfGas!"
+            );
+            evt.header.contains(event) || evt.status.contains(event)
+        })
     }
 }
 
