@@ -30,6 +30,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use fantoccini::Locator;
+use std::path::PathBuf;
 
 #[async_trait]
 impl ContractsUi for crate::uis::Ui {
@@ -1168,6 +1169,124 @@ impl ContractsUi for crate::uis::Ui {
             (false, false) => panic!("ERROR: Neither 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
             (true, true) => panic!("ERROR: Both 'ExtrinsicSuccess' nor 'ExtrinsicFailed' was found in status messages!"),
         }
+    }
+
+    /// Updates the metadata which the UI uses for interacting with the contract
+    /// at `contract_addr` to `new_abi`.
+    async fn update_metadata(
+        &mut self,
+        contract_addr: &String,
+        new_abi: &PathBuf,
+    ) -> Result<String> {
+        let log_id = format!("{}", test_name(),);
+        log::info!(
+            "[{}] opening url for updating metadata of {}: {:?}",
+            log_id,
+            contract_addr,
+            url()
+        );
+        self.client.goto(&url()).await?;
+
+        // Firefox might not load if the website at that address is already open due to e.g.
+        // a prior `execute_transaction` call in the test. Hence we refresh just to be sure
+        // that it's a clean, freshly loaded page in front of us.
+        self.client.refresh().await?;
+
+        log::info!("[{}] waiting for page to become visible", log_id);
+        self.client
+            .wait_for_find(Locator::XPath("//div[@class = 'menuSection']"))
+            .await?;
+
+        std::thread::sleep(std::time::Duration::from_secs(3));
+
+        log::info!("[{}] injecting jquery", log_id);
+        // The `inject` script will retry to load jQuery every 10 seconds.
+        // This is because the CI sometimes has spurious network errors.
+        let inject = String::from(
+            "(function (){\
+                    var d = document;\
+                    if (!d.getElementById('jquery')) {\
+                        function load_jquery() {\
+                            var d = document;\
+                            var s = d.createElement('script');\
+                            s.src = 'https://code.jquery.com/jquery-3.6.0.min.js';\
+                            s.id = 'jquery';\
+                            d.body.appendChild(s);\
+                        }\
+                        var jTimer = setInterval(function() {\
+                            load_jquery();\
+                        }, 10000);\
+                        load_jquery();\
+                        (function() {\
+                            var nTimer = setInterval(function() {\
+                                if (window.jQuery) {\
+                                    $('body').append('<div id=\"jquery-ready\"></div');\
+                                    clearInterval(nTimer);\
+                                    clearInterval(jTimer);\
+                                }\
+                            }, 100);\
+                        })();\
+                    }\
+                })();",
+        );
+        self.client.execute(&*inject, Vec::new()).await?;
+
+        log::info!("[{}] waiting for jquery", log_id);
+        self.client
+            .wait_for_find(Locator::Css("#jquery-ready"))
+            .await?;
+
+        log::info!("[{}] click 'Add an existing contract'", log_id);
+        self.client
+            .wait_for_find(Locator::XPath(
+                "//button[contains(text(),'Add an existing contract')]",
+            ))
+            .await?
+            .click()
+            .await?;
+
+        log::info!("[{}] entering contract address {:?}", log_id, contract_addr);
+        let path = "//input[@data-testid = 'contract address']";
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .clear()
+            .await?;
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .send_keys(&contract_addr)
+            .await?;
+
+        log::info!("[{}] uploading {:?}", log_id, new_abi);
+        let mut upload = self
+            .client
+            .find(Locator::XPath("//input[@type = 'file']"))
+            .await?;
+        upload.send_keys(&new_abi.display().to_string()).await?;
+        self.client
+            .execute("$(\"input[type = 'file']\").trigger('change')", Vec::new())
+            .await?;
+
+        log::info!(
+            "[{}] wait for upload of {:?} to be finished",
+            log_id,
+            new_abi
+        );
+        self.client
+            .wait_for_find(Locator::XPath("//div[contains(text(), 'Constructors (')]"))
+            .await?;
+
+        std::thread::sleep(std::time::Duration::from_secs(2));
+
+        log::info!("[{}] click save on {:?}", log_id, new_abi);
+        self.client
+            .find(Locator::XPath("//button[contains(text(), 'Save')]"))
+            .await?
+            .click()
+            .await?;
+
+        Ok(String::from(""))
     }
 }
 

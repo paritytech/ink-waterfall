@@ -81,6 +81,13 @@ pub trait ContractsUi {
         &mut self,
         call: Call,
     ) -> self::TransactionResult<Events>;
+
+    /// Updates the metadata
+    async fn update_metadata(
+        &mut self,
+        contract_addr: &String,
+        new_abi: &PathBuf,
+    ) -> self::Result<String>;
 }
 
 /// Holds everything necessary to interact with the user interface.
@@ -252,6 +259,10 @@ impl Call {
     ///
     /// TODO: Make `val` an enum of `Boolean` and `String`.
     pub fn push_value(mut self, key: &str, val: &str) -> Self {
+        // the `polkadot-js` ui displays method names in camel-case
+        #[cfg(feature = "polkadot-js-ui")]
+        let key = key.to_case(Case::Camel);
+
         self.values.push((key.to_string(), val.to_string()));
         self
     }
@@ -324,6 +335,10 @@ impl Upload {
     ///
     /// TODO: Make `val` an enum of `Boolean` and `String`.
     pub fn push_initial_value(mut self, key: &str, val: &str) -> Self {
+        // the `polkadot-js` ui displays method names in camel-case
+        #[cfg(feature = "polkadot-js-ui")]
+        let key = key.to_case(Case::Camel);
+
         self.initial_values.push((key.to_string(), val.to_string()));
         self
     }
