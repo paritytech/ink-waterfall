@@ -236,7 +236,7 @@ pub struct Call {
 }
 
 impl Call {
-    /// Creates a new `Transaction` instance.
+    /// Creates a new `Call` instance.
     pub fn new(contract_address: &str, method: &str) -> Self {
         let method = method.to_string();
 
