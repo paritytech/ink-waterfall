@@ -278,6 +278,7 @@ impl Call {
     }
 
     /// Sets the maximum gas allowed.
+    #[allow(dead_code)]
     pub fn max_gas(mut self, max_gas: &str) -> Self {
         self.max_gas_allowed = Some(max_gas.to_string());
         self
