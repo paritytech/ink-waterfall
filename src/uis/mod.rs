@@ -246,7 +246,10 @@ impl Call {
 
         // the `polkadot-js` ui displays method names in camel-case
         #[cfg(feature = "polkadot-js-ui")]
-        let method = method.to_case(Case::Camel).replace(":", ": ");
+        let method = method
+            .to_case(Case::Camel)
+            .replace(":", ": ")
+            .replace(": I32", ": i32");
 
         Self {
             contract_address: contract_address.to_string(),
@@ -265,7 +268,10 @@ impl Call {
     pub fn push_value(mut self, key: &str, val: &str) -> Self {
         // the `polkadot-js` ui displays method names in camel-case
         #[cfg(feature = "polkadot-js-ui")]
-        let key = key.to_case(Case::Camel).replace(":", ": ");
+        let key = key
+            .to_case(Case::Camel)
+            .replace(":", ": ")
+            .replace(": I32", ": i32");
 
         self.values.push((key.to_string(), val.to_string()));
         self
@@ -342,7 +348,10 @@ impl Upload {
     pub fn push_initial_value(mut self, key: &str, val: &str) -> Self {
         // the `polkadot-js` ui displays method names in camel-case
         #[cfg(feature = "polkadot-js-ui")]
-        let key = key.to_case(Case::Camel).replace(":", ": ");
+        let key = key
+            .to_case(Case::Camel)
+            .replace(":", ": ")
+            .replace(": I32", ": i32");
 
         self.initial_values.push((key.to_string(), val.to_string()));
         self
