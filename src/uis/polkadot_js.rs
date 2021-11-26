@@ -1013,7 +1013,7 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("[{}] get estimated gas", log_id);
         let max_gas_input_path = "//*[contains(text(),'max gas allowed')]/ancestor::div[1]/div//input[@type = 'text']";
-        let mut max_gas_input = self
+        let max_gas_input = self
             .client
             .wait_for_find(Locator::XPath(max_gas_input_path))
             .await?
