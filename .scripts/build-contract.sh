@@ -6,10 +6,10 @@
 # Usage: `./build-contract.sh <path_to_contract>`
 
 set -eux
+set -o pipefail
 
 CONTRACT=$(basename $1)
-cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json > /tmp/size_$CONTRACT
-SIZE_OUT=$(cat /tmp/size_$CONTRACT)
+SIZE_OUT=$(cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json) || exit $?
 ORIGINAL_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.original_size')
 OPTIMIZED_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.optimized_size')
 
