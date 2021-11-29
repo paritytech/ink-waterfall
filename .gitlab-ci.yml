@@ -158,7 +158,9 @@ parent-vars:
       echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} | 
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
-  - parallel -j 2 < /tmp/cmds
+  - echo /tmp/cmds && cat /tmp/cmds
+  # Exit when the first job fails. Kill running jobs
+  - parallel --halt now,fail=1 -j 2 < /tmp/cmds
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
 
