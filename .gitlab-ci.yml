@@ -161,7 +161,7 @@ parent-vars:
     done
   - echo /tmp/cmds && cat /tmp/cmds
   # Exit when the first job fails. Kill running jobs
-  - parallel --halt-on-error -j 2 < /tmp/cmds
+  - parallel --halt-on-error 2 -j 2 < /tmp/cmds
   - echo $?
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
