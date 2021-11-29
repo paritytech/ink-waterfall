@@ -8,7 +8,7 @@
 set -eux
 
 CONTRACT=$(basename $1)
-SIZE_OUT=$(cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json) || $?
+SIZE_OUT=$(cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json) || exit $?
 ORIGINAL_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.original_size')
 OPTIMIZED_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.optimized_size')
 
