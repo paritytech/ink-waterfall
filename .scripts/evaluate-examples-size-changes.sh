@@ -16,6 +16,12 @@ PR_COMMENTS_URL=$3
 
 echo "$BASELINE_FILE will be compared to $COMPARISON_FILE"
 
+echo "BASELINE_FILE:"
+cat $BASELINE_FILE
+
+echo "COMPARISON_FILE:"
+cat $COMPARISON_FILE
+
 csv-comparator $BASELINE_FILE $COMPARISON_FILE | \
   sort | \
   awk -F"," '{printf "`%s`,%.2f K,%.2f K\n", $1, $2, $3}' | \
@@ -26,7 +32,7 @@ csv-comparator $BASELINE_FILE $COMPARISON_FILE | \
 
 # Append the original optimized size (i.e. not the delta) to the end of each line
 cat $COMPARISON_FILE | \
-  sort | uniq | \
+  sort | \
   awk -F", " '{printf ",%.2f K\n", $2}' | \
   tee total-optimized-size.csv
 
