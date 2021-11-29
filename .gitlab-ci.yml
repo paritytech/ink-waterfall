@@ -155,17 +155,13 @@ parent-vars:
       echo "set -o pipefail; ./.scripts/build-contract.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
+  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} |
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
+    done
   # Exit when the first job fails. Kill running jobs
   - parallel --halt-on-error now,fail=1 -j 2 -a /tmp/cmds --joblog /tmp/log
   - cat /tmp/log
-  # The delegator sub-contracts cannot be build in parallel, since they use each
-  # other as dependencies and it somehow messes up the linking process if they're
-  # build at the same time.
-  - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      ./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} |
-      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}
-      && cargo clean --manifest-path=${INK_EXAMPLES_PATH}/delegator/${contract}/Cargo.toml;
-    done
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
 
