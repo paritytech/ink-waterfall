@@ -194,6 +194,7 @@ parent-vars:
       ./.scripts/extract-gas-usage.sh ${example};
     done
   - for example in ${INK_EXAMPLES_PATH}/*/; do
+      if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
       ./.scripts/extract-gas-usage.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
