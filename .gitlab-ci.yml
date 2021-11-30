@@ -136,11 +136,14 @@ parent-vars:
     # REDIS_SIZES_KEY (e.g. ink-waterfall::ink::foo-add-feature::sizes)
     #   defines a Redis key name where contract sizes will be stored from an upstream above.
     - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::sizes" | tee -a parent-vars.env
+    - echo "REDIS_GAS_USAGE_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::gas_usage" | tee -a parent-vars.env
+    - echo "REDIS_GAS_USAGE_RAND_EXT_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::gas_usage_rand_ext" | tee -a parent-vars.env
 
     # REDIS_SIZES_KEY_MASTER (e.g. ink-waterfall::ink::master::sizes)
     #   defines a Redis key name for an upstream's master reference branch.
     #   contract sizes stored there will be used for a comparison with contract sizes stored in REDIS_SIZES_KEY.
     - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::sizes" | tee -a parent-vars.env
+    - echo "REDIS_GAS_USAGE_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::gas_usage" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
@@ -160,8 +163,24 @@ parent-vars:
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   # Exit when the first job fails. Kill running jobs
-  - parallel --halt-on-error now,fail=1 -j 2 -a /tmp/cmds --joblog /tmp/log
-  - cat /tmp/log
+  - parallel --halt-on-error now,fail=1 -j 2 -a /tmp/cmds --joblog /tmp/joblog
+  - cat /tmp/joblog
+  # all ci/cd keys need to have ttl
+  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
+
+
+.store-gas-usage-to-redis:         &store-gas-usage-to-redis
+  - set -o pipefail
+  # delete old list items if the key has existed previously
+  - redis-cli -u $GITLAB_REDIS_URI del $REDIS_GAS_USAGE_KEY
+  - echo "Data will be written to $REDIS_GAS_USAGE_KEY"
+  - for example in ${INK_EXAMPLES_PATH}/*/; do
+      ./.scripts/extract-gas-usage.sh ${example};
+    done
+  - for example in ${INK_EXAMPLES_PATH}/*/; do
+      ./.scripts/extract-gas-usage.sh ${example} |
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${STORAGE};
+    done
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
 
@@ -174,7 +193,10 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
     - *clone-repo
     - *start-substrate-contracts-node
     - *build-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui 2>&1 |
+        tee /tmp/waterfall.log
+    - STORAGE=${REDIS_GAS_USAGE_KEY}
+    - *store-gas-usage-to-redis
   after_script:
     - *shutdown-substrate-contracts-node
   dependencies:
@@ -187,7 +209,10 @@ polkadot-js-ui-rand-extension:
   script:
     - *clone-repo
     - *start-substrate-contracts-node-rand-extension
-    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension
+    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension 2>&1 |
+        tee /tmp/waterfall.log
+    - STORAGE=${REDIS_GAS_USAGE_RAND_EXT_KEY}
+    - *store-gas-usage-to-redis
   after_script:
     - *shutdown-substrate-contracts-node-rand-extension
 

@@ -29,7 +29,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "delegator")]
 async fn delegator_works(mut ui: Ui) -> Result<()> {
     // given
     let accumulator_path =

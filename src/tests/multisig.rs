@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "multisig")]
 async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
@@ -101,7 +101,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
     Ok(())
 }
 
-#[waterfall_test]
+#[waterfall_test(example = "multisig")]
 async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");

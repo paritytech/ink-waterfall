@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "rand-extension")]
 #[ignore]
 async fn rand_extension(mut ui: Ui) -> Result<()> {
     // given

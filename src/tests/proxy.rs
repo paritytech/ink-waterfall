@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "proxy")]
 async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");

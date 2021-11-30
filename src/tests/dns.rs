@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "dns")]
 async fn dns_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("dns/Cargo.toml");

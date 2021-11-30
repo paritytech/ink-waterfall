@@ -28,7 +28,17 @@ use quote::quote;
 /// }
 /// ```
 #[proc_macro_attribute]
-pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn waterfall_test(waterfall_attrs: TokenStream, item: TokenStream) -> TokenStream {
+    let example = waterfall_attrs
+        .into_iter()
+        .find_map(|item| {
+            if let proc_macro::TokenTree::Literal(lit) = item {
+                return Some(format!("{}", lit.to_string().replace("\"", "")))
+            }
+            None
+        })
+        .expect("example param must exist");
+
     let item_fn =
         syn::parse2::<syn::ItemFn>(item.into()).expect("no item_fn can be parsed");
     let fn_name = &item_fn.sig.ident;
@@ -46,7 +56,8 @@ pub fn waterfall_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
         async #vis fn #fn_name () #ret {
             log::debug!("setting up test for {}", stringify!(#fn_name));
             crate::TEST_NAME.with(|test_name| {
-                *test_name.borrow_mut() = String::from(stringify!(#fn_name));
+                let str = format!("example: {}, test: {}", #example, stringify!(#fn_name));
+                *test_name.borrow_mut() = String::from(str);
             });
             crate::INIT.call_once(|| {
                 env_logger::init();

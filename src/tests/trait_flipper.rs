@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "trait-flipper")]
 async fn trait_flipper_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("trait-flipper/Cargo.toml");

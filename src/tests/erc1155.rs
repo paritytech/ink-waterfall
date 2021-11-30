@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "erc1155")]
 async fn erc1155(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc1155/Cargo.toml");
@@ -219,7 +219,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     Ok(())
 }
 
-#[waterfall_test]
+#[waterfall_test(example = "erc1155")]
 async fn erc1155_approvals(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc1155/Cargo.toml");

@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "flipper")]
 async fn flipper_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
@@ -56,7 +56,7 @@ async fn flipper_works(mut ui: Ui) -> Result<()> {
     Ok(())
 }
 
-#[waterfall_test]
+#[waterfall_test(example = "flipper")]
 async fn flipper_default_constructor(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");

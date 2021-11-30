@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "erc20")]
 async fn erc20(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc20/Cargo.toml");
@@ -68,7 +68,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     Ok(())
 }
 
-#[waterfall_test]
+#[waterfall_test(example = "erc20")]
 async fn erc20_allowances(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc20/Cargo.toml");

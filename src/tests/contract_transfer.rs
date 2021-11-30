@@ -28,7 +28,7 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test]
+#[waterfall_test(example = "contract-transfer")]
 async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("contract-transfer/Cargo.toml");
@@ -58,7 +58,7 @@ async fn contract_must_transfer_value_to_sender(mut ui: Ui) -> Result<()> {
     Ok(())
 }
 
-#[waterfall_test]
+#[waterfall_test(example = "contract-transfer")]
 #[cfg_attr(feature = "polkadot-js-ui", ignore)]
 async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
     // given
