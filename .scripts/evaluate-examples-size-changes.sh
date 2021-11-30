@@ -37,12 +37,12 @@ cat $GAS_COMPARISON_FILE
 # TODO Move to Docker container
 cargo install --force --git https://github.com/paritytech/ink-waterfall.git csv-comparator
 
-echo " ,Δ Optimized Size,Δ Used Gas,Total Optimized Size, Total Used Gas" | tee /tmp/diffs.csv
+echo " ,Δ Optimized Size,Δ Used Gas,Total Optimized Size, Total Used Gas" | tee diffs.csv
 csv-comparator $BASELINE_FILE $COMPARISON_FILE $GAS_BASELINE_FILE $GAS_COMPARISON_FILE  | \
   # Remove 0.00 for display purposes
   sed 's/+0.00 K//g' |
   sed 's/-0.00 K//g' |
-  tee --append /tmp/diffs.csv
+  tee --append diffs.csv
 
 csv2md --pretty < diffs.csv | tee diffs.md
 
