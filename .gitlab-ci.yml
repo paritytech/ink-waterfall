@@ -89,7 +89,8 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
-  - git clone --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+  - PAST_MONTH=$(date -d "-1 month" +%Y-%m-%d)
+  - git clone --shallow-since=${PAST_MONTH} --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
   - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &

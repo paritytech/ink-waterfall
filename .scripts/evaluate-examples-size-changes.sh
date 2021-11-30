@@ -10,6 +10,7 @@
 #     <github_url_to_comments_of_pr>
 
 set -eu
+set -o pipefail
 
 PR_COMMENTS_URL=$1
 BASELINE_FILE=$2
@@ -93,6 +94,15 @@ fi
 echo $VERB
 echo $PR_COMMENTS_URL
 
+INK_MASTER_HEAD=$(curl -s "https://api.github.com/repos/paritytech/ink/commits/master" | jq -r .sha)
+HEAD_IN_BRANCH=$(cd ./ink/ && git log | grep -q $INK_MASTER_HEAD; echo $?)
+
+MASTER_AHEAD=""
+if [ "$HEAD_IN_BRANCH" == "1" ]; then
+  echo "ink! master is ahead"
+  MASTER_AHEAD="**The ink! master is ahead of your branch, this might skew the results.**\n\n"
+fi
+
 UPDATED=$(TZ='Europe/Berlin' date)
 CC_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract .*-x86" | sed -s 's/-x86//')
 curl -X ${VERB} ${PR_COMMENTS_URL} \
@@ -101,6 +111,6 @@ curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Size Change Report 📉 🦑\\n \
-These are the results of building the \`examples/*\` contracts from this branch with \`$CC_VERSION\`: \\n\\n\
+${MASTER_AHEAD}These are the results of building the \`examples/*\` contracts from this branch with \`$CC_VERSION\`: \\n\\n\
 ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\" \
     }"
