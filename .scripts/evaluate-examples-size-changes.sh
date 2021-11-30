@@ -32,7 +32,7 @@ echo "GAS_BASELINE_FILE:"
 cat $GAS_BASELINE_FILE
 
 echo "GAS_COMPARISON_FILE:"
-cat $CAT_COMPARISON_FILE
+cat $GAS_COMPARISON_FILE
 
 # TODO Move to Docker container
 cargo install --force --git https://github.com/paritytech/ink-waterfall.git csv-comparator
