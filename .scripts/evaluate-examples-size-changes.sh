@@ -41,6 +41,8 @@ echo " ,Δ Optimized Size,Δ Used Gas,Total Optimized Size, Total Used Gas" | te
 csv-comparator $BASELINE_FILE $COMPARISON_FILE $GAS_BASELINE_FILE $GAS_COMPARISON_FILE  | \
   # Remove 0.00 for display purposes
   sed 's/,0.00 K,/,,/g' |
+  sed 's/,+0.00 K,/,,/g' |
+  sed 's/,-0.00 K,/,,/g' |
   sed 's/,0,/,,/g' |
   tee --append diffs.csv
 
