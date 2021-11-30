@@ -177,8 +177,8 @@ fn main() -> Result<()> {
         let human_readable_row = (
             row.name,
             optimized_size,
-            row.total_size,
             gas_usage,
+            row.total_size,
             row.total_gas_usage,
         );
         wtr.serialize(human_readable_row)?;

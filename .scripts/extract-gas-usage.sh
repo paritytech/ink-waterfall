@@ -10,17 +10,11 @@ set -o pipefail
 set -x
 
 EXAMPLE=$(basename $1)
-echo $EXAMPLE
-
-cat /tmp/waterfall.log |
-  grep "example: $EXAMPLE , " |
-  egrep --only-matching "estimated gas for transaction is [0-9]*" |
-  egrep --only-matching "[0-9]*"
 
 USAGE=$(cat /tmp/waterfall.log |
   grep "example: $EXAMPLE , " |
   egrep --only-matching "estimated gas for transaction is [0-9]*" |
   egrep --only-matching "[0-9]*" |
-  awk '{s+=$1} END {print s}') || exit $?
+  awk '{s+=$1} END {print s}')
 
 echo "$EXAMPLE, $USAGE"
