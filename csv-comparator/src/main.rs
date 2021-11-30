@@ -13,7 +13,7 @@ use serde::{
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 type OptimizedSize = f32;
-type GasUsage = u128;
+type GasUsage = i128;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct Row {
@@ -73,6 +73,12 @@ impl CsvComparator {
             .map(|(k, _)| (k.clone(), ()))
             .collect();
         self.new_sizes.iter().for_each(|(k, _)| {
+            all_contracts.insert(k.clone(), ());
+        });
+        self.old_gas_usage.iter().for_each(|(k, _)| {
+            all_contracts.insert(k.clone(), ());
+        });
+        self.new_gas_usage.iter().for_each(|(k, _)| {
             all_contracts.insert(k.clone(), ());
         });
 
@@ -255,6 +261,40 @@ mod tests {
                 total_size: optimized_size,
                 gas_usage: 0,
                 total_gas_usage: 0,
+            }
+        );
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn gas_usage_diff() {
+        // given
+        let old_sizes: HashMap<String, OptimizedSize> = HashMap::new();
+        let new_sizes: HashMap<String, OptimizedSize> = HashMap::new();
+        let mut old_gas_usage: HashMap<String, GasUsage> = HashMap::new();
+        let mut new_gas_usage: HashMap<String, GasUsage> = HashMap::new();
+        old_gas_usage.insert("erc1155".to_string(), 54079);
+        new_gas_usage.insert("erc1155".to_string(), 53915);
+        let comparator = CsvComparator {
+            old_sizes,
+            new_sizes,
+            old_gas_usage,
+            new_gas_usage,
+        };
+
+        // when
+        let res = comparator.get_diffs().expect("getting diffs failed");
+
+        // then
+        let mut iter = res.iter();
+        assert_eq!(
+            iter.next().expect("first diff entry must exist"),
+            &Row {
+                name: "erc1155".to_string(),
+                optimized_size: 0.00,
+                total_size: 0.00,
+                gas_usage: -164,
+                total_gas_usage: 53915,
             }
         );
         assert_eq!(iter.next(), None);
