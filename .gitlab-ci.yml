@@ -136,6 +136,7 @@ parent-vars:
     # REDIS_SIZES_KEY (e.g. ink-waterfall::ink::foo-add-feature::sizes)
     #   defines a Redis key name where contract sizes will be stored from an upstream above.
     - echo "REDIS_SIZES_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::sizes" | tee -a parent-vars.env
+    - echo "REDIS_SIZES_RAND_EXT_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::sizes_rand_ext" | tee -a parent-vars.env
     - echo "REDIS_GAS_USAGE_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::gas_usage" | tee -a parent-vars.env
     - echo "REDIS_GAS_USAGE_RAND_EXT_KEY=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::${UPSTREAM_BRANCH_REDIS_KEY}::gas_usage_rand_ext" | tee -a parent-vars.env
 
@@ -143,13 +144,15 @@ parent-vars:
     #   defines a Redis key name for an upstream's master reference branch.
     #   contract sizes stored there will be used for a comparison with contract sizes stored in REDIS_SIZES_KEY.
     - echo "REDIS_SIZES_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::sizes" | tee -a parent-vars.env
+    - echo "REDIS_SIZES_RAND_EXT_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::sizes_rand_ext" | tee -a parent-vars.env
     - echo "REDIS_GAS_USAGE_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::gas_usage" | tee -a parent-vars.env
+    - echo "REDIS_GAS_USAGE_RAND_EXT_KEY_MASTER=${CI_PROJECT_NAME}::${UPSTREAM_REPO_NAME}::master::gas_usage_rand_ext" | tee -a parent-vars.env
   artifacts:
     reports:
       dotenv: parent-vars.env
 
 
-.build-contracts:                  &build-contracts
+.build-ink-example-contracts:                  &build-ink-example-contracts
   - set -o pipefail
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
@@ -169,6 +172,17 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
 
 
+.build-rand-extension-contract:                  &build-rand-extension-contract
+  - set -o pipefail
+  # delete old list items if the key has existed previously
+  - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_RAND_EXT_KEY
+  - echo "Data will be written to $REDIS_SIZES_RAND_EXT_KEY"
+  - ./.scripts/build-contract.sh ./ink/examples/rand-extension/ |
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}"
+  # all ci/cd keys need to have ttl
+  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_RAND_EXT_KEY $GITLAB_REDIS_TTL
+
+
 .store-ink-examples-gas-usage-to-redis:         &store-ink-examples-gas-usage-to-redis
   - set -o pipefail
   # delete old list items if the key has existed previously
@@ -184,18 +198,18 @@ parent-vars:
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
   # all ci/cd keys need to have ttl
-  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
+  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_GAS_USAGE_KEY $GITLAB_REDIS_TTL
 
 
 .store-rand-ext-gas-usage-to-redis:         &store-rand-ext-gas-usage-to-redis
   - set -o pipefail
   # delete old list items if the key has existed previously
-  - redis-cli -u $GITLAB_REDIS_URI del $REDIS_GAS_USAGE_KEY
+  - redis-cli -u $GITLAB_REDIS_URI del $REDIS_GAS_USAGE_RAND_EXT_KEY
   - echo "Data will be written to $REDIS_GAS_USAGE_KEY"
   - ./.scripts/extract-gas-usage.sh "rand-extension";
   - ./.scripts/extract-gas-usage.sh "rand-extension" | redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_RAND_EXT_KEY}
   # all ci/cd keys need to have ttl
-  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_KEY $GITLAB_REDIS_TTL
+  - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_GAS_USAGE_RAND_EXT_KEY $GITLAB_REDIS_TTL
 
 
 polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
@@ -205,7 +219,7 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   script:
     - *clone-repo
     - *start-substrate-contracts-node
-    - *build-contracts
+    - *build-ink-example-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui 2>&1 |
         tee /tmp/waterfall.log
     - *store-ink-examples-gas-usage-to-redis
@@ -218,10 +232,12 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
 polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
+  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node-rand-extension
-    - cargo test --features headless,polkadot-js-ui -- --ignored rand_extension 2>&1 |
+    - *build-rand-extension-contract
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --features headless,polkadot-js-ui -- --ignored rand_extension 2>&1 |
         tee /tmp/waterfall.log
     - *store-rand-ext-gas-usage-to-redis
   after_script:
@@ -238,11 +254,15 @@ evaluate-ink-examples-size-changes:
   script:
     # Deserialize comparison data
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sort | tee $REDIS_SIZES_KEY.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_RAND_EXT 0 -1 | sort | tee --append $REDIS_SIZES_KEY.csv
+
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_MASTER 0 -1 | sort | tee $REDIS_SIZES_KEY_MASTER.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY_RAND_EXT_MASTER 0 -1 | sort | tee --append $REDIS_SIZES_KEY_MASTER.csv
 
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_GAS_USAGE_KEY 0 -1 | sort | tee $REDIS_GAS_USAGE_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_GAS_USAGE_RAND_EXT_KEY 0 -1 | sort | tee --append $REDIS_GAS_USAGE_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_GAS_USAGE_KEY_MASTER 0 -1 | sort | tee $REDIS_GAS_USAGE_KEY_MASTER.csv
+    - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_GAS_USAGE_RAND_EXT_KEY_MASTER 0 -1 | sort | tee --append $REDIS_GAS_USAGE_KEY_MASTER.csv
 
     - PR_COMMENTS_URL=https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments
     - ./.scripts/evaluate-examples-size-changes.sh $PR_COMMENTS_URL
