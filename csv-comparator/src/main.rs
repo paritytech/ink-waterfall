@@ -182,7 +182,7 @@ fn main() -> Result<()> {
         let gas_usage = format!("{}{}", prefix_gas, row.gas_usage);
         let total_size = format!("{:.2} K", row.total_size);
         let human_readable_row = (
-            row.name,
+            format!("`{}`", row.name),
             optimized_size,
             gas_usage,
             total_size,
