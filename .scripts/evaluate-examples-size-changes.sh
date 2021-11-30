@@ -91,7 +91,7 @@ echo $VERB
 echo $PR_COMMENTS_URL
 
 UPDATED=$(TZ='Europe/Berlin' date)
-CC_VERSION=$(cargo-contract --version)
+CC_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract .*-x86" | sed -s 's/-x86//')
 curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Cookie: logged_in=no" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
