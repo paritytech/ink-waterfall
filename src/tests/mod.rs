@@ -26,3 +26,4 @@ mod proxy;
 mod rand_extension;
 mod trait_erc20;
 mod trait_flipper;
+mod trait_incrementer;
