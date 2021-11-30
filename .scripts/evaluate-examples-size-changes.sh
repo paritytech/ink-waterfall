@@ -40,8 +40,8 @@ cargo install --force --git https://github.com/paritytech/ink-waterfall.git csv-
 echo " ,Δ Optimized Size,Δ Used Gas,Total Optimized Size, Total Used Gas" | tee diffs.csv
 csv-comparator $BASELINE_FILE $COMPARISON_FILE $GAS_BASELINE_FILE $GAS_COMPARISON_FILE  | \
   # Remove 0.00 for display purposes
-  sed 's/,0.00 K,//g' |
-  sed 's/,0,//g' |
+  sed 's/,0.00 K,/,,/g' |
+  sed 's/,0,/,,/g' |
   tee --append diffs.csv
 
 csv2md --pretty < diffs.csv | tee diffs.md
