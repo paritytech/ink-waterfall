@@ -10,6 +10,11 @@ set -o pipefail
 
 EXAMPLE=$(basename $1)
 
+cat /tmp/waterfall.log |
+  grep "example: $EXAMPLE , " |
+  egrep --only-matching "estimated gas for transaction is [0-9]*" |
+  egrep --only-matching "[0-9]*"
+
 USAGE=$(cat /tmp/waterfall.log |
   grep "example: $EXAMPLE , " |
   egrep --only-matching "estimated gas for transaction is [0-9]*" |
