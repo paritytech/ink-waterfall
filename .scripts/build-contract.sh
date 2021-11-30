@@ -10,7 +10,6 @@ set -o pipefail
 
 CONTRACT=$(basename $1)
 SIZE_OUT=$(cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json) || exit $?
-ORIGINAL_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.original_size')
 OPTIMIZED_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.optimized_size')
 
-echo -n "${CONTRACT}, ${ORIGINAL_SIZE}, ${OPTIMIZED_SIZE}"
+echo -n "${CONTRACT}, ${OPTIMIZED_SIZE}"

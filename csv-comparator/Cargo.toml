@@ -1,0 +1,12 @@
+[package]
+name = "csv-comparator"
+version = "0.1.0"
+edition = "2018"
+authors = ["Hernando Castano <hernando@hcastano.com>", "Michael Mueller <mich@elmueller.net>"]
+license = "MIT"
+readme = "README.md"
+publish = false
+
+[dependencies]
+csv = "1.1"
+serde = { version = "1.0", features = ["derive"] }

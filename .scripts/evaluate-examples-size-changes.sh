@@ -5,7 +5,8 @@
 #
 # Usage:
 #   ./evaluate-examples-size-changes.sh \
-#     <path_to_baseline.csv> <path_to_size_change.csv> \
+#     <path_to_size_baseline.csv> <path_to_size_change.csv> \
+#     <path_to_gas_usage_baseline.csv> <path_to_gas_usage_change.csv> \
 #     <github_url_to_comments_of_pr>
 
 set -eu
@@ -25,30 +26,30 @@ cat $BASELINE_FILE
 echo "COMPARISON_FILE:"
 cat $COMPARISON_FILE
 
-csv-comparator $BASELINE_FILE $COMPARISON_FILE | \
-  sort | \
-  awk -F"," '{printf "`%s`,%.2f K,%.2f K\n", $1, $2, $3}' | \
-  # prepend a plus in front of all positive numbers
-  sed --regexp-extended 's/^([0-9])/,+\1/g' | \
-  sed --regexp-extended 's/,([0-9])/,+\1/g' | \
-  tee pure-contract-size-diff.csv
+echo "$GAS_BASELINE_FILE will be compared to $GAS_COMPARISON_FILE"
 
-# Append the original optimized size (i.e. not the delta) to the end of each line
-cat $COMPARISON_FILE | \
-  sort | \
-  awk -F", " '{printf ",%.2f K\n", $2}' | \
-  tee total-optimized-size.csv
+echo "GAS_BASELINE_FILE:"
+cat $GAS_BASELINE_FILE
 
-paste -d "" pure-contract-size-diff.csv total-optimized-size.csv | tee combined.csv
+echo "GAS_COMPARISON_FILE:"
+cat $CAT_COMPARISON_FILE
 
-echo " ,Δ Original Size,Δ Optimized Size,Total Optimized Size" | tee contract-size-diff.csv
-cat combined.csv | sed 's/+0.00 K//g' | tee --append contract-size-diff.csv
-csv2md --pretty < contract-size-diff.csv | tee contract-size-diff.md
+# TODO Move to Docker container
+cargo install --git https://github.com/paritytech/ink-waterfall.git csv-comparator
+
+echo " ,Δ Optimized Size,Δ Used Gas,Total Optimized Size, Total Used Gas" | tee /tmp/diffs.csv
+csv-comparator $BASELINE_FILE $COMPARISON_FILE $GAS_BASELINE_FILE $GAS_COMPARISON_FILE  | \
+  # Remove 0.00 for display purposes
+  sed 's/+0.00 K//g' |
+  sed 's/-0.00 K//g' |
+  tee --append /tmp/diffs.csv
+
+csv2md --pretty < diffs.csv | tee diffs.md
 
 echo "diff:"
-cat contract-size-diff.csv | tail -n+2
+cat diffs.csv | tail -n+2
 
-if cat contract-size-diff.csv | tail -n+2 | grep -v ",,,"; then
+if cat diffs.csv | tail -n+2 | grep -v ",,,,,"; then
   DID_SIZE_CHANGE="true"
 else
   DID_SIZE_CHANGE="false"
@@ -56,15 +57,16 @@ fi
 
 echo "did size change? " $DID_SIZE_CHANGE
 
-cat contract-size-diff.md | \
-  # Align the table text right.
+cat diffs.md | \
+  # Align the column texts right.
   sed 's/---|/---:|/g' | \
+  # Align first column left.
   sed --regexp-extended 's/(-+)\:/:\1/' | \
   # Replace `\n` so that it works properly when submitted to the GitHub API.
   sed 's/$/\\n/g' | \
   tr -d '\n' | \
-  tee contract-size-diff-newlines.md
-COMMENT=$(cat contract-size-diff-newlines.md)
+  tee diffs-processed.md
+COMMENT=$(cat diffs-processed.md)
 
 if [ "$DID_SIZE_CHANGE" == "false" ]; then
   echo "No size changes observed"

@@ -7,8 +7,10 @@
 
 set -eu
 set -o pipefail
+set -x
 
 EXAMPLE=$(basename $1)
+echo $EXAMPLE
 
 cat /tmp/waterfall.log |
   grep "example: $EXAMPLE , " |
