@@ -172,13 +172,14 @@ fn main() -> Result<()> {
     for row in comparator.get_diffs()? {
         let prefix_opt = if row.optimized_size > 0.0 { "+" } else { "" };
         let prefix_gas = if row.gas_usage > 0 { "+" } else { "" };
-        let optimized_size = format!("{}{:.2}", prefix_opt, row.optimized_size);
-        let gas_usage = format!("{}{:.2}", prefix_gas, row.gas_usage);
+        let optimized_size = format!("{}{:.2} K", prefix_opt, row.optimized_size);
+        let gas_usage = format!("{}{}", prefix_gas, row.gas_usage);
+        let total_size = format!("{:.2} K", row.total_size);
         let human_readable_row = (
             row.name,
             optimized_size,
             gas_usage,
-            row.total_size,
+            total_size,
             row.total_gas_usage,
         );
         wtr.serialize(human_readable_row)?;
