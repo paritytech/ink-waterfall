@@ -100,7 +100,7 @@ HEAD_IN_BRANCH=$(cd ./ink/ && git log | grep -q $INK_MASTER_HEAD; echo $?)
 MASTER_AHEAD=""
 if [ "$HEAD_IN_BRANCH" == "1" ]; then
   echo "ink! master is ahead"
-  MASTER_AHEAD="⚠️ **The ink! `master` is ahead of your branch, this might skew the comparison data below.**\n\n"
+  MASTER_AHEAD="⚠️ **The ink! \`master\` is ahead of your branch, this might skew the comparison data below.**\n\n"
 fi
 
 UPDATED=$(TZ='Europe/Berlin' date)
