@@ -35,9 +35,6 @@ cat $GAS_BASELINE_FILE
 echo "GAS_COMPARISON_FILE:"
 cat $GAS_COMPARISON_FILE
 
-# TODO Move to Docker container
-cargo install --force --git https://github.com/paritytech/ink-waterfall.git csv-comparator
-
 echo " ,Δ Optimized Size,Δ Used Gas,Total Optimized Size, Total Used Gas" | tee diffs.csv
 csv-comparator $BASELINE_FILE $COMPARISON_FILE $GAS_BASELINE_FILE $GAS_COMPARISON_FILE  | \
   # Remove 0.00 for display purposes

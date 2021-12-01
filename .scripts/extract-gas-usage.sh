@@ -7,7 +7,6 @@
 
 set -eu
 set -o pipefail
-set -x
 
 EXAMPLE=$(basename $1)
 
