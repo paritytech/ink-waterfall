@@ -10,3 +10,4 @@ publish = false
 [dependencies]
 csv = "1.1"
 serde = { version = "1.0", features = ["derive"] }
+thousands = "0.2.0"

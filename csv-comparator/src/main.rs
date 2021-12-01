@@ -4,6 +4,7 @@ use std::{
     fs::File,
     io,
 };
+use thousands::Separable;
 
 use serde::{
     Deserialize,
@@ -184,9 +185,9 @@ fn main() -> Result<()> {
         let human_readable_row = (
             format!("`{}`", row.name),
             optimized_size,
-            gas_usage,
+            gas_usage.separate_with_commas().replace(",", "_"),
             total_size,
-            row.total_gas_usage,
+            row.total_gas_usage.separate_with_commas().replace(",", "_"),
         );
         wtr.serialize(human_readable_row)?;
     }

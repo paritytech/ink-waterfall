@@ -108,7 +108,7 @@ curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
-\"body\": \"## 🦑 📈 ink! Example Contracts ‒ Size Change Report 📉 🦑\\n \
+\"body\": \"## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑\\n \
 ${MASTER_AHEAD}These are the results when building the \`examples/*\` contracts from this branch with \`$CC_VERSION\` and comparing them to ink! \`master\`: \\n\\n\
 ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\" \
     }"
