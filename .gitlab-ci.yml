@@ -89,6 +89,9 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
+  - git clone --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+
+.clone-repo-past-month:            &clone-repo-past-month
   - PAST_MONTH=$(date -d "-1 month" +%Y-%m-%d)
   - git clone --shallow-since=${PAST_MONTH} --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
@@ -254,6 +257,8 @@ evaluate-ink-examples-size-changes:
   # Otherwise we would be comparing `master` with `master`.
   <<:                              *if-trigger-ref-valid
   script:
+    - *clone-repo-past-month
+
     # Deserialize comparison data
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_KEY 0 -1 | sort | tee $REDIS_SIZES_KEY.csv
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_SIZES_RAND_EXT_KEY 0 -1 | sort | tee --append $REDIS_SIZES_KEY.csv
