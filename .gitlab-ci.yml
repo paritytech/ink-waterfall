@@ -249,7 +249,7 @@ polkadot-js-ui-rand-extension:
     - *shutdown-substrate-contracts-node-rand-extension
 
 
-evaluate-ink-examples-size-changes:
+evaluate-ink-examples-changes:
   stage:                           compare-build
   <<:                              *kubernetes-env
   <<:                              *vault-secrets
@@ -272,7 +272,7 @@ evaluate-ink-examples-size-changes:
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_GAS_USAGE_RAND_EXT_KEY_MASTER 0 -1 | sort | tee --append $REDIS_GAS_USAGE_KEY_MASTER.csv
 
     - PR_COMMENTS_URL=https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments
-    - ./.scripts/evaluate-examples-size-changes.sh $PR_COMMENTS_URL
+    - ./.scripts/evaluate-examples-changes.sh $PR_COMMENTS_URL
         $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv
         $REDIS_GAS_USAGE_KEY_MASTER.csv $REDIS_GAS_USAGE_KEY.csv
 
