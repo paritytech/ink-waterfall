@@ -43,6 +43,7 @@ csv-comparator $BASELINE_FILE $COMPARISON_FILE $GAS_BASELINE_FILE $GAS_COMPARISO
   sed 's/,-0.00 K,/,,/g' |
   sed 's/,0,/,,/g' |
   sed 's/,0$/,/g' |
+  sort |
   tee --append diffs.csv
 
 csv2md --pretty < diffs.csv | tee diffs.md
