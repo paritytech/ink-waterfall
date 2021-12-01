@@ -100,7 +100,7 @@ HEAD_IN_BRANCH=$(cd ./ink/ && git log | grep -q $INK_MASTER_HEAD; echo $?)
 MASTER_AHEAD=""
 if [ "$HEAD_IN_BRANCH" == "1" ]; then
   echo "ink! master is ahead"
-  MASTER_AHEAD="⚠️ **The ink! master is ahead of your branch, this might skew the results.**\n\n"
+  MASTER_AHEAD="⚠️ **The ink! `master` is ahead of your branch, this might skew the comparison data below.**\n\n"
 fi
 
 UPDATED=$(TZ='Europe/Berlin' date)
@@ -111,6 +111,6 @@ curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Size Change Report 📉 🦑\\n \
-${MASTER_AHEAD}These are the results of building the \`examples/*\` contracts from this branch with \`$CC_VERSION\`: \\n\\n\
+${MASTER_AHEAD}These are the results when building the \`examples/*\` contracts from this branch with \`$CC_VERSION\` and comparing them to ink! \`master\`: \\n\\n\
 ${COMMENT}\n\n[Link to the run](https://gitlab.parity.io/parity/ink-waterfall/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${UPDATED}\" \
     }"
