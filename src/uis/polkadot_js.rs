@@ -29,7 +29,11 @@ use crate::{
     },
 };
 use async_trait::async_trait;
-use fantoccini::Locator;
+use fantoccini::{
+    error,
+    Client,
+    Locator,
+};
 use std::path::PathBuf;
 
 #[async_trait]
@@ -103,13 +107,10 @@ impl ContractsUi for crate::uis::Ui {
         std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] click upload", log_id);
-        self.client
-            .wait_for_find(Locator::XPath(
-                "//button[contains(text(),'Upload & deploy code')]",
-            ))
-            .await?
-            .click()
-            .await?;
+        self.click(Locator::XPath(
+            "//button[contains(text(),'Upload & deploy code')]",
+        ))
+        .await?;
 
         log::info!("[{}] injecting jquery", log_id);
         // The `inject` script will retry to load jQuery every 10 seconds.
@@ -1301,6 +1302,37 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         Ok(String::from(""))
+    }
+}
+
+impl crate::uis::Ui {
+    /// Clicks on the `locator`, if an error occurs we retry ten times with a sleep
+    /// of two seconds in between.
+    ///
+    /// This was introduced to retry on these spurious UI errors:
+    ///
+    /// ```json
+    /// Standard(WebDriverError { error: ElementClickIntercepted,
+    /// message: "Element <button class=\"ui--Button hasLabel Button-sc-l9wqp0-0 fUpXVx\">
+    /// is not clickable at point (750,216) because another element
+    /// <div class=\"ui--InputFile error InputFile-sc-vhlvx4-0 jqSBqi\"> obscures it",
+    /// stack: "", delete_session: false })
+    /// ```
+    async fn click(
+        &mut self,
+        locator: Locator<'_>,
+    ) -> std::result::Result<Client, error::CmdError> {
+        let mut possibly_err = self.client.wait_for_find(locator).await?.click().await;
+
+        const MAX_ATTEMPTS: usize = 10;
+        let mut attempt = 0;
+        while possibly_err.is_err() && attempt < MAX_ATTEMPTS {
+            std::thread::sleep(std::time::Duration::from_secs(2));
+            possibly_err = self.client.wait_for_find(locator).await?.click().await;
+            attempt = attempt + 1;
+        }
+
+        possibly_err
     }
 }
 
