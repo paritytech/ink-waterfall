@@ -18,27 +18,15 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
-  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
-  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
 
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
 
-.vault-secrets:                    &vault-secrets
-  secrets:
-    REDISCLI_AUTH:
-      vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
-      file:                        false
-    GITHUB_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/GITHUB_TOKEN@kv
-      file:                        false
-
 
 .default-refs:                      &default-refs
-  rules: 
+  rules:
   - if: $CI_PIPELINE_SOURCE == "web"
   - if: $CI_PIPELINE_SOURCE == "schedule"
   - if: $CI_COMMIT_REF_NAME == "master"
@@ -220,7 +208,6 @@ parent-vars:
 polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
-  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node
@@ -237,7 +224,6 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
 polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
-  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node-rand-extension
@@ -254,7 +240,6 @@ polkadot-js-ui-rand-extension:
 evaluate-ink-examples-changes:
   stage:                           compare-build
   <<:                              *kubernetes-env
-  <<:                              *vault-secrets
   # Comparison is made only if a parent (trigger) was created by a PR.
   # Otherwise we would be comparing `master` with `master`.
   <<:                              *if-trigger-ref-valid
