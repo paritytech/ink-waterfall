@@ -43,18 +43,18 @@ async fn trait_erc20(mut ui: Ui) -> Result<()> {
         )
         .await?;
     let total_supply = ui
-        .execute_rpc(Call::new(&contract_addr, "BaseErc20,total_supply"))
+        .execute_rpc(Call::new(&contract_addr, "baseErc20::total_supply"))
         .await?;
     assert!(total_supply == "1,000,000,000,000,000" || total_supply == "1.0000 kUnit");
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "BaseErc20,balance_of").push_value("owner", "bob"),
+            Call::new(&contract_addr, "baseErc20::balanceOf").push_value("owner", "bob"),
         )
         .await?;
     assert!(balance == "1,000,000,000,000,000" || balance == "1.0000 kUnit");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "BaseErc20,transfer")
+        Call::new(&contract_addr, "baseErc20::transfer")
             .caller("BOB")
             .push_value("to", "ALICE")
             .push_value("value", "500"),
@@ -64,7 +64,7 @@ async fn trait_erc20(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "BaseErc20,balance_of")
+            Call::new(&contract_addr, "baseErc20::balanceOf")
                 .push_value("owner", "ALICE"),
         )
         .await?;
@@ -95,7 +95,7 @@ async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
     assert!(
         true || ui
             .execute_transaction(
-                Call::new(&contract_addr, "BaseErc20,transfer_from")
+                Call::new(&contract_addr, "baseErc20::transferFrom")
                     .caller("ALICE")
                     .push_value("from: AccountId", "BOB")
                     .push_value("to: AccountId", "ALICE")
@@ -107,7 +107,7 @@ async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
 
     // Bob approves Alice being able to withdraw up the `value` amount on his behalf.
     ui.execute_transaction(
-        Call::new(&contract_addr, "BaseErc20,approve")
+        Call::new(&contract_addr, "baseErc20::approve")
             .caller("BOB")
             .push_value("spender", "ALICE")
             .push_value("value", "600"),
@@ -116,7 +116,7 @@ async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
     .expect("`approve` must succeed");
     let allowance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "BaseErc20,allowance")
+            Call::new(&contract_addr, "baseErc20::allowance")
                 .push_value("owner", "BOB")
                 .push_value("spender", "ALICE"),
         )
@@ -125,24 +125,24 @@ async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
 
     // Alice tries again to transfer tokens on behalf ob Bob
     ui.execute_transaction(
-        Call::new(&contract_addr, "BaseErc20,transfer_from")
+        Call::new(&contract_addr, "baseErc20::transferFrom")
             .caller("ALICE")
             .push_value("from: AccountId", "BOB")
             .push_value("to: AccountId", "ALICE")
             .push_value("value", "400"),
     )
     .await
-    .expect("second `transfer_from` must succeed");
+    .expect("second `transferFrom` must succeed");
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "BaseErc20,balance_of")
+            Call::new(&contract_addr, "baseErc20::balanceOf")
                 .push_value("owner", "ALICE"),
         )
         .await?;
     assert!(balance == "400,000,000,000,000" || balance == "400.0000 Unit");
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "BaseErc20,balance_of").push_value("owner", "BOB"),
+            Call::new(&contract_addr, "baseErc20::balanceOf").push_value("owner", "BOB"),
         )
         .await?;
     assert!(balance == "600,000,000,000,000" || balance == "600.0000 Unit");
@@ -154,7 +154,7 @@ async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
     assert!(
         true || ui
             .execute_transaction(
-                Call::new(&contract_addr, "BaseErc20,transfer_from")
+                Call::new(&contract_addr, "baseErc20::transferFrom")
                     .caller("ALICE")
                     .push_value("from: AccountId", "BOB")
                     .push_value("to: AccountId", "ALICE")
@@ -167,7 +167,7 @@ async fn trait_erc20_allowances(mut ui: Ui) -> Result<()> {
     // Balance of Bob must have stayed the same
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "BaseErc20,balance_of").push_value("owner", "BOB"),
+            Call::new(&contract_addr, "baseErc20::balanceOf").push_value("owner", "BOB"),
         )
         .await?;
     assert!(balance == "600,000,000,000,000" || balance == "600.0000 Unit");

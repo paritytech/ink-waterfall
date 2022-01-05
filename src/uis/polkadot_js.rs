@@ -839,7 +839,7 @@ impl ContractsUi for crate::uis::Ui {
         );
 
         log::info!("[{}] open exec details", log_id);
-        let path = format!("//span[@class = 'ui--MessageSignature-name' and (text() = '{}' or text() = '{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]/button", call.method, call.method.to_lowercase());
+        let path = format!("//span[@class = 'ui--MessageSignature-name' and (text() = '{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]/button", call.method);
         self.client
             .find(Locator::XPath(&path))
             .await?

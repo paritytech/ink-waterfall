@@ -37,19 +37,19 @@ async fn trait_flipper_works(mut ui: Ui) -> Result<()> {
 
     let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "Flip,get"))
+        ui.execute_rpc(Call::new(&contract_addr, "flip::get"))
             .await?,
         "false"
     );
 
     // when
-    ui.execute_transaction(Call::new(&contract_addr, "Flip,flip"))
+    ui.execute_transaction(Call::new(&contract_addr, "flip::flip"))
         .await
         .expect("failed to execute transaction");
 
     // then
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "Flip,get"))
+        ui.execute_rpc(Call::new(&contract_addr, "flip::get"))
             .await?,
         "true"
     );

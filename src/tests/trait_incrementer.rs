@@ -39,7 +39,7 @@ async fn trait_incrementer_works(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(contract_file).push_initial_value("initValue", "13"))
         .await?;
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "incrementGet"))
+        ui.execute_rpc(Call::new(&contract_addr, "increment::get"))
             .await?,
         "13"
     );
@@ -51,15 +51,15 @@ async fn trait_incrementer_works(mut ui: Ui) -> Result<()> {
 
     // then
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "incrementGet"))
+        ui.execute_rpc(Call::new(&contract_addr, "increment::get"))
             .await?,
         "27"
     );
-    ui.execute_transaction(Call::new(&contract_addr, "resetReset"))
+    ui.execute_transaction(Call::new(&contract_addr, "reset::reset"))
         .await
         .expect("failed to execute transaction");
     assert_eq!(
-        ui.execute_rpc(Call::new(&contract_addr, "incrementGet"))
+        ui.execute_rpc(Call::new(&contract_addr, "increment::get"))
             .await?,
         "0"
     );
