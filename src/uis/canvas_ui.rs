@@ -280,35 +280,6 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
         }
 
-        log::info!("[{}] set endowment to {}", log_id, upload_input.endowment);
-        let mut input = self
-            .client
-            .find(Locator::XPath(
-                "//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/input",
-            ))
-            .await?;
-        input.clear().await?;
-        input.send_keys(&upload_input.endowment).await?;
-
-        log::info!("[{}] click endowment list box", log_id);
-        self.client
-            .wait().for_element(Locator::XPath("//label/*[contains(text(),'Endowment')]/ancestor::div[1]//*/div[@role='listbox']"))
-            .await?;
-
-        log::info!(
-            "[{}] click endowment unit option {}",
-            log_id,
-            upload_input.endowment_unit,
-        );
-        let path = format!(
-            "//div[@role='option']/span[contains(text(),'{}')]",
-            upload_input.endowment_unit
-        );
-        self.client
-            .wait()
-            .for_element(Locator::XPath(&path))
-            .await?;
-
         // the react toggle button cannot be clicked if it is not in view
         self.client
             .execute(

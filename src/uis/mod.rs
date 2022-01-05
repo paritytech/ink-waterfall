@@ -315,10 +315,6 @@ pub struct Upload {
     initial_values: Vec<(String, String)>,
     /// Items to add as instantiation values.
     items: Vec<(String, String)>,
-    /// Initial endowment of the contract.
-    endowment: String,
-    /// Unit for initial endowment of the contract.
-    endowment_unit: String,
     /// Maximum allowed gas.
     #[allow(dead_code)]
     max_allowed_gas: String,
@@ -335,8 +331,6 @@ impl Upload {
             contract_path,
             initial_values: Vec::new(),
             items: Vec::new(),
-            endowment: "1000".to_string(),
-            endowment_unit: "Unit".to_string(),
             max_allowed_gas: "5000".to_string(),
             constructor: None,
             caller: None,
@@ -368,13 +362,6 @@ impl Upload {
     #[allow(dead_code)]
     pub fn contract_path(mut self, path: PathBuf) -> Self {
         self.contract_path = path;
-        self
-    }
-
-    /// Sets the initial endowment.
-    pub fn endowment(mut self, endowment: &str, unit: &str) -> Self {
-        self.endowment = endowment.to_string();
-        self.endowment_unit = unit.to_string();
         self
     }
 

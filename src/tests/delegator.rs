@@ -59,7 +59,6 @@ async fn delegator_works(mut ui: Ui) -> Result<()> {
     let delegator_addr = ui
         .execute_upload(
             Upload::new(delegator_path)
-                .endowment("100000", "Unit")
                 .push_initial_value("accumulatorCodeHash", &accumulator_hash)
                 .push_initial_value("adderCodeHash", &adder_hash)
                 .push_initial_value("subberCodeHash", &subber_hash),

@@ -289,35 +289,6 @@ impl ContractsUi for crate::uis::Ui {
             input.send_keys(&format!("{}\n", value)).await?;
         }
 
-        log::info!("[{}] set endowment to {}", log_id, upload_input.endowment);
-        let mut input = self
-            .client
-            .find(Locator::XPath(
-                "//div/*[contains(text(),'endowment')]/ancestor::div[1]//*/input",
-            ))
-            .await?;
-        input.clear().await?;
-        input.send_keys(&upload_input.endowment).await?;
-
-        log::info!("[{}] click endowment list box", log_id);
-        self.client
-            .wait().for_element(Locator::XPath("//div/*[contains(text(),'endowment')]/ancestor::div[1]//*/div[@role='listbox']"))
-            .await?;
-
-        log::info!(
-            "[{}] click endowment unit option {}",
-            log_id,
-            upload_input.endowment_unit
-        );
-        let path = format!(
-            "//div[@role='option']/span[contains(text(),'{}')]",
-            upload_input.endowment_unit
-        );
-        self.client
-            .wait()
-            .for_element(Locator::XPath(&path))
-            .await?;
-
         log::info!("[{}] click deploy", log_id);
         self.client
             .find(Locator::XPath("//button[contains(text(),'Deploy')]"))
