@@ -246,7 +246,7 @@ impl Call {
 
         // the `polkadot-js` ui displays method names in camel-case
         #[cfg(feature = "polkadot-js-ui")]
-        let method = method.replace(": I32", ": i32");
+        let method = method.to_case(Case::Camel).replace(": I32", ": i32");
 
         Self {
             contract_address: contract_address.to_string(),
