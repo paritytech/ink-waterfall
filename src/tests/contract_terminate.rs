@@ -43,7 +43,7 @@ async fn contract_terminate_works(mut ui: Ui) -> Result<()> {
         .await
         .expect("failed to execute transaction");
     assert!(events.contains("system.KilledAccount"));
-    assert!(events.contains("balances.Transfer"));
+    assert!(events.contains("balances.Withdraw"));
     assert!(events.contains("contracts.Terminated"));
 
     // then
