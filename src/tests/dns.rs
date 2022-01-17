@@ -35,7 +35,9 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui
+        .execute_upload(Upload::new(contract_file).caller("ALICE"))
+        .await?;
 
     // when registering and setting an address and name
     let name = "0x0000000000000000000000000000000000000000000000000000000000000001";

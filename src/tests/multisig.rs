@@ -43,6 +43,7 @@ async fn multisig_works_with_flipper_transaction(mut ui: Ui) -> Result<()> {
     let contract_addr = ui
         .execute_upload(
             Upload::new(contract_file)
+                .caller("ALICE")
                 .push_initial_value("requirement", "2")
                 .add_item("owners", "ALICE")
                 .add_item("owners", "BOB")
@@ -116,6 +117,7 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
     let contract_addr = ui
         .execute_upload(
             Upload::new(contract_file)
+                .caller("ALICE")
                 .push_initial_value("requirement", "2")
                 .add_item("owners", "ALICE")
                 .add_item("owners", "BOB")
