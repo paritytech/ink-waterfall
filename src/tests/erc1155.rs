@@ -35,7 +35,9 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui
+        .execute_upload(Upload::new(contract_file).caller("BOB"))
+        .await?;
 
     ui.execute_transaction(
         Call::new(&contract_addr, "create")
@@ -47,7 +49,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of")
+            Call::new(&contract_addr, "erc1155::balance_of")
                 .push_value("owner", "BOB")
                 .push_value("tokenId", "1"),
         )
@@ -65,7 +67,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of")
+            Call::new(&contract_addr, "erc1155::balance_of")
                 .push_value("owner", "CHARLIE")
                 .push_value("tokenId", "1"),
         )
@@ -74,7 +76,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of_batch")
+            Call::new(&contract_addr, "erc1155::balance_of_batch")
                 .add_item("owners", "BOB")
                 .add_item("owners", "CHARLIE")
                 .add_item("tokenIds", "0")
@@ -88,7 +90,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let is_approved_for_all = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,is_approved_for_all")
+            Call::new(&contract_addr, "erc1155::is_approved_for_all")
                 .push_value("owner", "CHARLIE")
                 .push_value("operator", "DAVE"),
         )
@@ -96,7 +98,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     assert_eq!(is_approved_for_all, "false");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "Erc1155,set_approval_for_all")
+        Call::new(&contract_addr, "erc1155::set_approval_for_all")
             .caller("CHARLIE")
             .push_value("operator", "DAVE")
             .push_value("approved", "true"),
@@ -106,7 +108,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let is_approved_for_all = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,is_approved_for_all")
+            Call::new(&contract_addr, "erc1155::is_approved_for_all")
                 .push_value("owner", "CHARLIE")
                 .push_value("operator", "DAVE"),
         )
@@ -114,7 +116,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     assert_eq!(is_approved_for_all, "true");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "Erc1155,safe_transfer_from")
+        Call::new(&contract_addr, "erc1155::safe_transfer_from")
             .caller("DAVE")
             .push_value("from", "CHARLIE")
             .push_value("to", "ALICE")
@@ -126,7 +128,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of")
+            Call::new(&contract_addr, "erc1155::balance_of")
                 .push_value("owner", "CHARLIE")
                 .push_value("tokenId", "1"),
         )
@@ -135,7 +137,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of")
+            Call::new(&contract_addr, "erc1155::balance_of")
                 .push_value("owner", "ALICE")
                 .push_value("tokenId", "1"),
         )
@@ -151,7 +153,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     .expect("failed to execute transaction");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "Erc1155,safe_batch_transfer_from")
+        Call::new(&contract_addr, "erc1155::safe_batch_transfer_from")
             .caller("ALICE")
             .push_value("from", "ALICE")
             .push_value("to", "FERDIE")
@@ -165,7 +167,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of")
+            Call::new(&contract_addr, "erc1155::balance_of")
                 .push_value("owner", "FERDIE")
                 .push_value("tokenId", "1"),
         )
@@ -174,7 +176,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,balance_of")
+            Call::new(&contract_addr, "erc1155::balance_of")
                 .push_value("owner", "FERDIE")
                 .push_value("tokenId", "2"),
         )
@@ -182,7 +184,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     assert!(balance == "99,000,000,000,000" || balance == "99.0000 Unit");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "Erc1155,set_approval_for_all")
+        Call::new(&contract_addr, "erc1155::set_approval_for_all")
             .caller("CHARLIE")
             .push_value("operator", "DAVE")
             .push_value("approved", "false"),
@@ -192,7 +194,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
 
     let is_approved_for_all = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,is_approved_for_all")
+            Call::new(&contract_addr, "erc1155::is_approved_for_all")
                 .push_value("owner", "CHARLIE")
                 .push_value("operator", "DAVE"),
         )
@@ -205,7 +207,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     assert!(
         true || ui
             .execute_transaction(
-                Call::new(&contract_addr, "Erc1155,safe_transfer_from")
+                Call::new(&contract_addr, "erc1155::safe_transfer_from")
                     .caller("DAVE")
                     .push_value("from", "CHARLIE")
                     .push_value("to", "ALICE")
@@ -226,11 +228,13 @@ async fn erc1155_approvals(mut ui: Ui) -> Result<()> {
     let contract_file =
         cargo_contract::build(&manifest_path).expect("contract build failed");
 
-    let contract_addr = ui.execute_upload(Upload::new(contract_file)).await?;
+    let contract_addr = ui
+        .execute_upload(Upload::new(contract_file).caller("BOB"))
+        .await?;
 
     let is_approved_for_all = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,is_approved_for_all")
+            Call::new(&contract_addr, "erc1155::is_approved_for_all")
                 .push_value("owner", "CHARLIE")
                 .push_value("operator", "DAVE"),
         )
@@ -238,7 +242,7 @@ async fn erc1155_approvals(mut ui: Ui) -> Result<()> {
     assert_eq!(is_approved_for_all, "false");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "Erc1155,set_approval_for_all")
+        Call::new(&contract_addr, "erc1155::set_approval_for_all")
             .caller("CHARLIE")
             .push_value("operator", "DAVE")
             .push_value("approved", "true"),
@@ -248,7 +252,7 @@ async fn erc1155_approvals(mut ui: Ui) -> Result<()> {
 
     let is_approved_for_all = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,is_approved_for_all")
+            Call::new(&contract_addr, "erc1155::is_approved_for_all")
                 .push_value("owner", "CHARLIE")
                 .push_value("operator", "DAVE"),
         )
@@ -256,7 +260,7 @@ async fn erc1155_approvals(mut ui: Ui) -> Result<()> {
     assert_eq!(is_approved_for_all, "true");
 
     ui.execute_transaction(
-        Call::new(&contract_addr, "Erc1155,set_approval_for_all")
+        Call::new(&contract_addr, "erc1155::set_approval_for_all")
             .caller("CHARLIE")
             .push_value("operator", "DAVE")
             .push_value("approved", "false"),
@@ -266,7 +270,7 @@ async fn erc1155_approvals(mut ui: Ui) -> Result<()> {
 
     let is_approved_for_all = ui
         .execute_rpc(
-            Call::new(&contract_addr, "Erc1155,is_approved_for_all")
+            Call::new(&contract_addr, "erc1155::is_approved_for_all")
                 .push_value("owner", "CHARLIE")
                 .push_value("operator", "DAVE"),
         )
