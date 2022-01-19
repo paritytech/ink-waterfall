@@ -1109,7 +1109,11 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            let mut contents = el.find_all(Locator::XPath("//div")).await?;
+            let mut contents = el
+                .find_all(Locator::XPath(
+                    "//div[contains(@class, 'header') or contains(@class, 'status')]",
+                ))
+                .await?;
             for content in contents.iter_mut() {
                 let status = content.html(true).await?;
                 log::info!("[{}] found status message {:?}", log_id, status);
