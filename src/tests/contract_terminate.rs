@@ -50,7 +50,7 @@ async fn contract_terminate_works(mut ui: Ui) -> Result<()> {
     let err = ui
         .execute_transaction(Call::new(&contract_addr, "terminate_me"))
         .await
-        .expect_err("successfully executed transaction, but expected it to_fail");
+        .expect_err("successfully executed transaction, but expected it to fail");
     match err {
         TransactionError::ExtrinsicFailed(events) => {
             assert!(events.contains("contracts.ContractNotFound"))

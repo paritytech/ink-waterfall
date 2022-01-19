@@ -1041,7 +1041,7 @@ impl ContractsUi for crate::uis::Ui {
         for waited in 0..21 {
             std::thread::sleep(std::time::Duration::from_secs(3));
             res = self.client.find(
-                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
+                Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[contains(text(),'system.ExtrinsicSuccess') or contains(text(), 'system.ExtrinsicFailed')]")
             ).await;
             if res.is_ok() {
                 log::info!(
@@ -1099,7 +1099,7 @@ impl ContractsUi for crate::uis::Ui {
         let statuses = self
             .client
             .find_all(Locator::XPath(
-                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']//div[@class = 'header']//div",
+                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
             ))
             .await?;
         log::info!(
@@ -1109,12 +1109,15 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            let txt = el.html(true).await?.to_string().replace("\"", "");
-            log::info!("[{}] found status message {:?}", log_id, txt);
-            statuses_processed.push(Event {
-                header: String::from(""),
-                status: txt,
-            });
+            let mut contents = el.find_all(Locator::XPath("//div")).await?;
+            for content in contents.iter_mut() {
+                let status = content.html(true).await?;
+                log::info!("[{}] found status message {:?}", log_id, status);
+                statuses_processed.push(Event {
+                    header: String::from(""),
+                    status,
+                });
+            }
         }
         let events = Events::new(statuses_processed);
 
