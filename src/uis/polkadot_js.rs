@@ -367,24 +367,18 @@ impl ContractsUi for crate::uis::Ui {
         let statuses = self
             .client
             .find_all(Locator::XPath(
-                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
+                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']//div[@class = 'header']//div",
             ))
             .await?;
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
             // the switch of status vs. header is intentional here
-            el.find(Locator::XPath("div[@class = 'header']"))
-                .await?
-                .text()
-                .await?
-                .split("\n")
-                .for_each(|status| {
-                    statuses_processed.push(Event {
-                        // TODO remove `header` as a field altogether
-                        header: String::from(""),
-                        status: status.to_string(),
-                    });
-                });
+            let txt = el.html(true).await?.to_string().replace("\"", "");
+            statuses_processed.push(Event {
+                // TODO remove `header` as a field altogether
+                header: String::from(""),
+                status: txt,
+            });
         }
         for status in &statuses_processed {
             log::info!("[{}] upload: found status {:?}", log_id, status,);
@@ -1068,7 +1062,7 @@ impl ContractsUi for crate::uis::Ui {
                 let statuses = self
                     .client
                     .find_all(Locator::XPath(
-                        "//div[contains(@class, 'ui--Status')]//div[@class = 'desc' or @class = 'header']",
+                        "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']//div[@class = 'header']//div",
                     ))
                     .await?;
                 log::info!(
@@ -1078,11 +1072,8 @@ impl ContractsUi for crate::uis::Ui {
                     call.method
                 );
                 for mut el in statuses {
-                    log::info!(
-                        "[{}] transaction retry, text: {:?}",
-                        log_id,
-                        el.text().await?
-                    );
+                    let txt = el.html(true).await?.to_string().replace("\"", "");
+                    log::info!("[{}] transaction retry, text: {:?}", log_id, txt,);
                 }
 
                 if waited == 20 {
@@ -1108,7 +1099,7 @@ impl ContractsUi for crate::uis::Ui {
         let statuses = self
             .client
             .find_all(Locator::XPath(
-                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']",
+                "//div[contains(@class, 'ui--Status')]//div[@class = 'desc']//div[@class = 'header']//div",
             ))
             .await?;
         log::info!(
@@ -1118,20 +1109,12 @@ impl ContractsUi for crate::uis::Ui {
         );
         let mut statuses_processed = Vec::new();
         for mut el in statuses {
-            let mut contents = el
-                .find_all(Locator::XPath(
-                    "div[@class = 'status' or @class = 'header']",
-                ))
-                .await?;
-            for content in contents.iter_mut() {
-                content.text().await?.split("\n").for_each(|m| {
-                    log::info!("[{}] found status message {:?}", log_id, m);
-                    statuses_processed.push(Event {
-                        header: String::from(""),
-                        status: m.to_string(),
-                    });
-                });
-            }
+            let txt = el.html(true).await?.to_string().replace("\"", "");
+            log::info!("[{}] found status message {:?}", log_id, txt);
+            statuses_processed.push(Event {
+                header: String::from(""),
+                status: txt,
+            });
         }
         let events = Events::new(statuses_processed);
 
