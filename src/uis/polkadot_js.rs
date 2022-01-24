@@ -419,16 +419,6 @@ impl ContractsUi for crate::uis::Ui {
             events.events
         );
 
-        log::info!("[{}] click dismiss", log_id);
-        self.client
-            .wait()
-            .for_element(Locator::XPath(
-                "//*[contains(text(),'Dismiss all notifications')]",
-            ))
-            .await?
-            .click()
-            .await?;
-
         // wait for disappearance animation to finish instead
         // otherwise the notifications might occlude buttons
         log::info!("[{}] wait for animation to finish", log_id);
@@ -1124,16 +1114,6 @@ impl ContractsUi for crate::uis::Ui {
             }
         }
         let events = Events::new(statuses_processed);
-
-        log::info!("[{}] click dismiss", log_id);
-        self.client
-            .wait()
-            .for_element(Locator::XPath(
-                "//*[contains(text(),'Dismiss all notifications')]",
-            ))
-            .await?
-            .click()
-            .await?;
 
         if events.contains("Priority is too low") {
             log::info!(
