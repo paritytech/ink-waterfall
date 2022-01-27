@@ -75,10 +75,10 @@ if [ "$DID_SIZE_CHANGE" == "false" ]; then
   COMMENT="_No size changes were observed._"
 fi
 
-# If there is already a comment by the user `paritytech-ci` in the ink! PR which triggered
+# If there is already a comment by the user `paritytech-cicd-pr` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
 POSSIBLY_COMMENT_URL=$(curl --silent $PR_COMMENTS_URL | \
-  jq -r ".[] | select(.user.login == \"paritytech-ci\") | .url" | \
+  jq -r ".[] | select(.user.login == \"paritytech-cicd-pr\") | .url" | \
   head -n1
 )
 echo $POSSIBLY_COMMENT_URL
@@ -105,7 +105,7 @@ UPDATED=$(TZ='Europe/Berlin' date)
 CC_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract .*-x86" | sed -s 's/-x86//')
 curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Cookie: logged_in=no" \
-    -H "Authorization: token ${GITHUB_TOKEN}" \
+    -H "Authorization: token ${GITHUB_PR_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑\\n \
