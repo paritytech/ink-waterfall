@@ -32,7 +32,7 @@ workflow:
     REDISCLI_AUTH:
       vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
       file:                        false
-    GITHUB_TOKEN:
+    GITHUB_PR_TOKEN:
       vault:                       cicd/gitlab/parity/$CI_PROJECT_PATH/GITHUB_PR_TOKEN@kv
       file:                        false
 

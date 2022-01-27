@@ -105,7 +105,7 @@ UPDATED=$(TZ='Europe/Berlin' date)
 CC_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract .*-x86" | sed -s 's/-x86//')
 curl -X ${VERB} ${PR_COMMENTS_URL} \
     -H "Cookie: logged_in=no" \
-    -H "Authorization: token ${GITHUB_TOKEN}" \
+    -H "Authorization: token ${GITHUB_PR_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
     -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑\\n \
