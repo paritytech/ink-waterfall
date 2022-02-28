@@ -640,6 +640,16 @@ impl ContractsUi for crate::uis::Ui {
             }
         }
 
+        // reset items which are already set as default by the ui
+        let remove_item = "//button[not(contains(@class, 'isDisabled')) and contains(text(), 'Remove item')]";
+        while { self.client.find(Locator::XPath(&remove_item)).await.is_ok() } {
+            self.client
+                .find(Locator::XPath(&remove_item))
+                .await?
+                .click()
+                .await?;
+        }
+
         // possibly add items
         for (key, value) in call.items.iter() {
             log::info!("[{}] adding item '{}' for '{}'", log_id, value, key);
@@ -971,6 +981,16 @@ impl ContractsUi for crate::uis::Ui {
         }
 
         std::thread::sleep(std::time::Duration::from_secs(2));
+
+        // reset items which are already set as default by the ui
+        let remove_item = "//button[not(contains(@class, 'isDisabled')) and contains(text(), 'Remove item')]";
+        while { self.client.find(Locator::XPath(&remove_item)).await.is_ok() } {
+            self.client
+                .find(Locator::XPath(&remove_item))
+                .await?
+                .click()
+                .await?;
+        }
 
         // possibly add items
         for (key, value) in call.items.iter() {

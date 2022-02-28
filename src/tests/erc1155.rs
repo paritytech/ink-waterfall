@@ -29,7 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "erc1155")]
-async fn erc1155(mut ui: Ui) -> Result<()> {
+async fn foo_erc1155(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("erc1155/Cargo.toml");
     let contract_file =
@@ -84,8 +84,8 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
         )
         .await?;
     assert!(
+        // [ BOB TokenId 0, BOB TokenId 1, CHARLIE TokenId 0, CHARLIE TokenId 1 ]
         balance == "[ 0 123,000,000,000,000 0 341,000,000,000,000 ]"
-            || balance == "0:\n0\n1:\n123000000000000\n2:\n0\n3:\n341000000000000"
     );
 
     let is_approved_for_all = ui
