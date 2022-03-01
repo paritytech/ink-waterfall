@@ -52,6 +52,9 @@ requirement. By default the published versions of those projects are used
 ## Run it locally
 
 ```bash
+# Create a link to ink! in the local examples of the `ink-waterfall`.
+ln -s /path/to/ink/ ./examples/ink
+
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 substrate-contracts-node --tmp --dev > /tmp/substrate-contracts-node.log 2>&1 &
 

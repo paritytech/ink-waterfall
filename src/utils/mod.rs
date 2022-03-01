@@ -29,11 +29,20 @@ pub fn test_name() -> String {
 }
 
 /// Returns the full path to the ink! example directory for `example`.
+///
+/// This method will first try to look the example up in `INK_EXAMPLES_PATH`.
+/// If not found there, it will fall back to `./examples/` ++ `example`.
 pub fn example_path(example: &str) -> PathBuf {
     let examples_path = std::env::var("INK_EXAMPLES_PATH")
         .expect("env variable `INK_EXAMPLES_PATH` must be set");
-    let path = PathBuf::from(examples_path);
-    path.join(example)
+    let mut path = PathBuf::from(examples_path).join(example);
+
+    // Check if path exists, if not assume it's a local example to `ink-waterfall`.
+    if !path.exists() {
+        path = PathBuf::from("./examples/").join(example);
+    }
+
+    path
 }
 
 /// Extracts the `source.hash` field from the contract bundle.
