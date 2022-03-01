@@ -642,7 +642,7 @@ impl ContractsUi for crate::uis::Ui {
 
         // reset items which are already set as default by the ui
         let remove_item = "//button[not(contains(@class, 'isDisabled')) and contains(text(), 'Remove item')]";
-        while { self.client.find(Locator::XPath(&remove_item)).await.is_ok() } {
+        while self.client.find(Locator::XPath(&remove_item)).await.is_ok() {
             self.client
                 .find(Locator::XPath(&remove_item))
                 .await?
@@ -984,7 +984,7 @@ impl ContractsUi for crate::uis::Ui {
 
         // reset items which are already set as default by the ui
         let remove_item = "//button[not(contains(@class, 'isDisabled')) and contains(text(), 'Remove item')]";
-        while { self.client.find(Locator::XPath(&remove_item)).await.is_ok() } {
+        while self.client.find(Locator::XPath(&remove_item)).await.is_ok() {
             self.client
                 .find(Locator::XPath(&remove_item))
                 .await?
