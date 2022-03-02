@@ -97,17 +97,13 @@ workflow:
   - git clone --shallow-since=${PAST_MONTH} --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
-  - RUST_LOG=trace substrate-contracts-node --dev -lruntime::contracts=trace > /tmp/substrate-contracts-node.log 2>&1 &
+  - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
 .start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
   - substrate-contracts-node-rand-extension --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
-  - date
-  - ps aux | grep substrate
-  - pgrep -f substrate
   - pkill -f "substrate-contracts-node --dev"
-  - echo "pkill returned " $?
 
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
   - pkill -f "substrate-contracts-node-rand-extension --dev"
@@ -202,16 +198,13 @@ parent-vars:
       echo $example;
       ./.scripts/extract-gas-usage.sh ${example};
     done
-  - echo "Pushing to Redis now"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
       ./.scripts/extract-gas-usage.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
-  - echo "Pushed to Redis"
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_GAS_USAGE_KEY $GITLAB_REDIS_TTL
-  - echo "Did set TTL"
 
 
 .store-rand-ext-gas-usage-to-redis:         &store-rand-ext-gas-usage-to-redis
@@ -235,12 +228,7 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
     - *build-ink-example-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui 2>&1 |
         tee /tmp/waterfall.log
-    - ps aux | grep substrate
-    - pgrep -f substrate
     - *store-ink-examples-gas-usage-to-redis
-    - echo "here"
-    - ps aux | grep substrate
-    - pgrep -f substrate
   after_script:
     - *shutdown-substrate-contracts-node
   dependencies:
