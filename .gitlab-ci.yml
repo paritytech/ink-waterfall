@@ -102,6 +102,8 @@ workflow:
   - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
+  - ps aux | grep substrate
+  - tail -n100 /tmp/substrate-contracts-node.log
   - pkill -f "substrate-contracts-node --tmp --dev"
   - echo "pkill returned " $?
 
