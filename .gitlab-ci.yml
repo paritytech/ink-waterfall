@@ -103,6 +103,7 @@ workflow:
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
   - pkill -f "substrate-contracts-node --tmp --dev"
+  - echo "pkill returned " $?
 
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
   - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
