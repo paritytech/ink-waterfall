@@ -103,9 +103,9 @@ workflow:
   - substrate-contracts-node-rand-extension --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
-  - ps aux | grep substrate
-  - tail -n200 /tmp/substrate-contracts-node.log
   - date
+  - ps aux | grep substrate
+  - pgrep -f substrate
   - pkill -f "substrate-contracts-node --dev"
   - echo "pkill returned " $?
 
@@ -232,7 +232,11 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
     - *build-ink-example-contracts
     - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 4 --features headless,polkadot-js-ui 2>&1 |
         tee /tmp/waterfall.log
+    - ps aux | grep substrate
+    - pgrep -f substrate
     - *store-ink-examples-gas-usage-to-redis
+    - ps aux | grep substrate
+    - pgrep -f substrate
   after_script:
     - *shutdown-substrate-contracts-node
   dependencies:
