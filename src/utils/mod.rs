@@ -38,6 +38,8 @@ pub fn example_path(example: &str) -> PathBuf {
     let mut path = PathBuf::from(examples_path).join(example);
 
     // Check if path exists, if not assume it's a local example to `ink-waterfall`.
+    // This is done as a fallback if the waterfall tests are run locally.
+    // For the CI we copy all `ink-waterfall/examples/` to the `INK_EXAMPLES_PATH`.
     if !path.exists() {
         path = PathBuf::from("./examples/").join(example);
     }
