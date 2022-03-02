@@ -96,19 +96,19 @@ workflow:
   - git clone --shallow-since=${PAST_MONTH} --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
-  - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
+  - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
 .start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
-  - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
+  - substrate-contracts-node-rand-extension --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
   - ps aux | grep substrate
   - tail -n100 /tmp/substrate-contracts-node.log
-  - pkill -f "substrate-contracts-node --tmp --dev"
+  - pkill -f "substrate-contracts-node --dev"
   - echo "pkill returned " $?
 
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
-  - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
+  - pkill -f "substrate-contracts-node-rand-extension --dev"
 
 
 # Needed vars have to be "exported" in an earlier stage
