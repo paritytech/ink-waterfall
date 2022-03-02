@@ -8,7 +8,11 @@
 set -eu
 set -o pipefail
 
-EXAMPLE=$(basename $1)
+COUNT=$(grep --count "example: $EXAMPLE, " /tmp/waterfall.log) || true
+if [ "$COUNT" -eq "0" ]; then
+  echo "$EXAMPLE, $USAGE"
+  exit 0;
+fi
 
 USAGE=$(cat /tmp/waterfall.log |
   grep "example: $EXAMPLE, " |
