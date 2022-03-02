@@ -89,7 +89,8 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
-  - git clone --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+  - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+  - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .clone-repo-past-month:            &clone-repo-past-month
   - PAST_MONTH=$(date -d "-1 month" +%Y-%m-%d)
@@ -104,6 +105,7 @@ workflow:
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
   - ps aux | grep substrate
   - tail -n200 /tmp/substrate-contracts-node.log
+  - date
   - pkill -f "substrate-contracts-node --dev"
   - echo "pkill returned " $?
 
