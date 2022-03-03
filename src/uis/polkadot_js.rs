@@ -184,7 +184,8 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] choose {:?}", log_id, caller);
             let path = format!("//div[@name = '{}']", caller);
             self.client
-                .find(Locator::XPath(&path))
+                .wait()
+                .for_element(Locator::XPath(&path))
                 .await?
                 .click()
                 .await?;
@@ -441,7 +442,8 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("[{}] getting contract address", log_id);
         let addr = self
             .client
-            .find(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
+            .wait()
+            .for_element(Locator::XPath("//div[@class = 'ui--AddressMenu-addr']"))
             .await?
             .text()
             .await?;
@@ -835,7 +837,8 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("[{}] open exec details", log_id);
         let path = format!("//span[@class = 'ui--MessageSignature-name' and (text() = '{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]/button", call.method);
         self.client
-            .find(Locator::XPath(&path))
+            .wait()
+            .for_element(Locator::XPath(&path))
             .await?
             .click()
             .await?;

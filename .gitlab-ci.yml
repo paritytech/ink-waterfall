@@ -18,23 +18,11 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
-  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
-  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
 
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
-
-.vault-secrets:                    &vault-secrets
-  secrets:
-    REDISCLI_AUTH:
-      vault:                       cicd/gitlab/parity/REDIS_AUTH@kv
-      file:                        false
-    GITHUB_PR_TOKEN:
-      vault:                       cicd/gitlab/parity/${CI_PROJECT_NAME}/GITHUB_PR_TOKEN@kv
-      file:                        false
 
 
 .default-refs:                      &default-refs
@@ -89,23 +77,24 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
-  - git clone --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+  - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+  - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .clone-repo-past-month:            &clone-repo-past-month
   - PAST_MONTH=$(date -d "-1 month" +%Y-%m-%d)
   - git clone --shallow-since=${PAST_MONTH} --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
-  - substrate-contracts-node --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
+  - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
 .start-substrate-contracts-node-rand-extension:      &start-substrate-contracts-node-rand-extension
-  - substrate-contracts-node-rand-extension --tmp --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
+  - substrate-contracts-node-rand-extension --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node-rand-extension.log 2>&1 &
 
 .shutdown-substrate-contracts-node:                  &shutdown-substrate-contracts-node
-  - pkill -f "substrate-contracts-node --tmp --dev"
+  - pkill -f "substrate-contracts-node --dev"
 
 .shutdown-substrate-contracts-node-rand-extension:   &shutdown-substrate-contracts-node-rand-extension
-  - pkill -f "substrate-contracts-node-rand-extension --tmp --dev"
+  - pkill -f "substrate-contracts-node-rand-extension --dev"
 
 
 # Needed vars have to be "exported" in an earlier stage
@@ -225,7 +214,6 @@ parent-vars:
 polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
-  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node
@@ -242,7 +230,6 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
 polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
-  <<:                              *vault-secrets
   script:
     - *clone-repo
     - *start-substrate-contracts-node-rand-extension
@@ -259,7 +246,6 @@ polkadot-js-ui-rand-extension:
 evaluate-ink-examples-changes:
   stage:                           compare-build
   <<:                              *kubernetes-env
-  <<:                              *vault-secrets
   # Comparison is made only if a parent (trigger) was created by a PR.
   # Otherwise we would be comparing `master` with `master`.
   <<:                              *if-trigger-ref-valid

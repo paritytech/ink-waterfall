@@ -10,6 +10,15 @@ set -o pipefail
 
 EXAMPLE=$(basename $1)
 
+# We need to account for the case when an example cannot be found in the log.
+# This can be the case when e.g. somebody adds a new ink! example in an ink! PR,
+# but the `ink-waterfall` not yet containing any test for this new example.
+COUNT=$(grep --count "example: $EXAMPLE, " /tmp/waterfall.log) || true
+if [ "$COUNT" -eq "0" ]; then
+  echo "$EXAMPLE, 0"
+  exit 0;
+fi
+
 USAGE=$(cat /tmp/waterfall.log |
   grep "example: $EXAMPLE, " |
   # This next line is an unfortunate hack that we need to have
