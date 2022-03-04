@@ -52,6 +52,9 @@ requirement. By default the published versions of those projects are used
 ## Run it locally
 
 ```bash
+# Create a link to ink! in the local examples of the `ink-waterfall`.
+ln -s /path/to/ink/ ./examples/ink
+
 export INK_EXAMPLES_PATH=/path/to/ink/examples/
 substrate-contracts-node --tmp --dev > /tmp/substrate-contracts-node.log 2>&1 &
 
@@ -100,8 +103,8 @@ supply `--features polkadot-js-ui` to `cargo test`.
 
 * `INK_EXAMPLES_PATH` ‒ Path to the ink! examples folder. Must be set.
 * `UI_URL` ‒ URL of the UI to use. Defaults to the live interface for the chosen UI.
-* `WATERFALL_CLOSE_BROWSER` ‒ Do not close browser window at the end of a test run.
-  Defaults to `true`. Set it to `false` to prevent closing .
+* `WATERFALL_CLOSE_BROWSER` ‒ Close browser window at the end of a test run.
+  Defaults to `true`. Set it to `false` to prevent closing.
 * `WATERFALL_SKIP_CONTRACT_BUILD` ‒ Do not build the contracts, re-use existing artifacts
   from their `target` folder. Defaults to `false`. Set it to `true` to skip building.
 * `NODE_PORT` ‒ Port under which the `substrate-contracts-node` is running. Defaults to `9944`.

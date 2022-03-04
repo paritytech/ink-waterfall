@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod contract_introspection;
 mod contract_terminate;
 mod contract_transfer;
 mod delegator;
