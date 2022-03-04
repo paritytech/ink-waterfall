@@ -156,8 +156,8 @@ parent-vars:
   - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../.$INK_EXAMPLES_PATH|g" {} \;
 
   - echo ${INK_EXAMPLES_PATH}
-  - cat ./examples/contract-introspection/Cargo.toml
-  - cat ./examples/flipper/Cargo.toml
+  - cat ./ink/examples/contract-introspection/Cargo.toml
+  - cat ./ink/examples/flipper/Cargo.toml
 
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
