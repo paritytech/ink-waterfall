@@ -150,8 +150,12 @@ parent-vars:
   # Copy the local `ink-waterfall` example contracts into `INK_EXAMPLES_PATH`
   # so that they are build and can be tested as well. They'll also show up
   # in the regression bot statistics then.
-  - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../.$INK_EXAMPLES_PATH|g" {} \;
+  - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../../|g" {} \;
   - cp -r ./examples/* ${INK_EXAMPLES_PATH}
+
+  - cat ./ink/examples/contract-introspection/Cargo.toml
+  - cat ./ink/examples/flipper/Cargo.toml
+
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
