@@ -151,9 +151,14 @@ parent-vars:
   # so that they are build and can be tested as well. They'll also show up
   # in the regression bot statistics then.
   - cp -r ./examples/* ${INK_EXAMPLES_PATH}
-  - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../../.$INK_EXAMPLES_PATH|g" {} \;
+
+  - cat ./examples/contract-introspection/Cargo.toml
+  - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../.$INK_EXAMPLES_PATH|g" {} \;
+
   - echo ${INK_EXAMPLES_PATH}
   - cat ./examples/contract-introspection/Cargo.toml
+  - cat ./examples/flipper/Cargo.toml
+
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
