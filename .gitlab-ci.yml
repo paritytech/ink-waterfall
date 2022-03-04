@@ -151,7 +151,7 @@ parent-vars:
   # so that they are build and can be tested as well. They'll also show up
   # in the regression bot statistics then.
   - cp -r ./examples/* ${INK_EXAMPLES_PATH}
-  - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../.$INK_EXAMPLES_PATH|g" {} \;
+  - find ./examples/ -name 'Cargo.toml' -exec sed -i "s|../ink|../../.$INK_EXAMPLES_PATH|g" {} \;
   - echo ${INK_EXAMPLES_PATH}
   - cat ./examples/contract-introspection/Cargo.toml
   # delete old list items if the key has existed previously
