@@ -7,7 +7,6 @@ mod contract_introspection {
     use ink_env::{
         call::{
             build_call,
-            utils::ReturnType,
             ExecutionInput,
             Selector,
         },
@@ -43,7 +42,7 @@ mod contract_introspection {
             build_call::<DefaultEnvironment>()
                 .callee(self.env().account_id())
                 .exec_input(ExecutionInput::new(Selector::new([0x00, 0x00, 0x00, 0x01])))
-                .returns::<ReturnType<bool>>()
+                .returns::<bool>()
                 .call_flags(CallFlags::default().set_allow_reentry(true))
                 .fire()
                 .expect("failed executing call")
@@ -56,7 +55,7 @@ mod contract_introspection {
             build_call::<DefaultEnvironment>()
                 .callee(self.env().account_id())
                 .exec_input(ExecutionInput::new(Selector::new([0x00, 0x00, 0x00, 0x02])))
-                .returns::<ReturnType<bool>>()
+                .returns::<bool>()
                 .call_flags(CallFlags::default().set_allow_reentry(true))
                 .fire()
                 .expect("failed executing call")
