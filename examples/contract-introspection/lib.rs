@@ -7,6 +7,7 @@ mod contract_introspection {
     use ink_env::{
         call::{
             build_call,
+            Call,
             ExecutionInput,
             Selector,
         },
@@ -40,7 +41,7 @@ mod contract_introspection {
         #[ink(message)]
         pub fn calls_is_caller_contract(&self) -> bool {
             build_call::<DefaultEnvironment>()
-                .callee(self.env().account_id())
+                .call_type(Call::new().callee(self.env().account_id()))
                 .exec_input(ExecutionInput::new(Selector::new([0x00, 0x00, 0x00, 0x01])))
                 .returns::<bool>()
                 .call_flags(CallFlags::default().set_allow_reentry(true))
@@ -53,7 +54,7 @@ mod contract_introspection {
         #[ink(message)]
         pub fn calls_is_caller_origin(&self) -> bool {
             build_call::<DefaultEnvironment>()
-                .callee(self.env().account_id())
+                .call_type(Call::new().callee(self.env().account_id()))
                 .exec_input(ExecutionInput::new(Selector::new([0x00, 0x00, 0x00, 0x02])))
                 .returns::<bool>()
                 .call_flags(CallFlags::default().set_allow_reentry(true))
