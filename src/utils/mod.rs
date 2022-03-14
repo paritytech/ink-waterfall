@@ -14,7 +14,6 @@
 
 pub mod cargo_contract;
 
-use psutil::process::processes;
 use serde_json;
 use std::{
     fs::File,
@@ -63,23 +62,15 @@ pub fn extract_hash_from_contract_bundle(path: &PathBuf) -> String {
         .to_string()
 }
 
-/// Asserts that the `substrate-contracts-node` process is running.
+/// Asserts that some process is listening at the [`node_port`].
 pub fn assert_node_running() {
-    let processes = processes().expect("can't get processes");
-    let node_running = processes
-        .into_iter()
-        .filter_map(|pr| pr.ok())
-        .map(|p| p.cmdline())
-        .filter_map(|cmdline| cmdline.ok())
-        .filter_map(|opt| opt)
-        .any(|str| {
-            str.contains("substrate-contracts-node ")
-                || str.contains("substrate-contracts-node-rand-extension ")
-        });
-    assert!(
-        node_running,
-        "ERROR: The substrate-contracts-node node is not running!"
-    );
+    let url = format!("127.0.0.1:{}", node_port());
+    std::net::TcpStream::connect(&url).unwrap_or_else(|_| {
+        panic!(
+            "No process listening on {}. Did you start the substrate-contracts-node?",
+            url
+        )
+    });
 }
 
 /// Returns the port under which the node is running.
