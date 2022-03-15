@@ -119,7 +119,8 @@ parent-vars:
         # Since we write the branch name to a file we need to remove any forward slashes
         # which may exist in the name
         UPSTREAM_BRANCH_REDIS_KEY=`echo "${UPSTREAM_BRANCH}" | sed 's/\//-/g'`;
-        UPSTREAM_REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url`;
+        # We need to use https, the unauthenticated git protocol is no longer supported by GitHub.
+        UPSTREAM_REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url` | sed 's/git:/https:/';
         UPSTREAM_REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
       fi
     - echo "UPSTREAM_BRANCH=${UPSTREAM_BRANCH}" | tee -a parent-vars.env
