@@ -38,6 +38,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
             .expect("to_str must work")
             .replace("-", "_");
 
+        // we need to take special care of examples in sub-directories
         let name = match example_name.as_str() {
             "accumulator" => {
                 manifest_path.pop();

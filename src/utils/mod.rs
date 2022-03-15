@@ -51,8 +51,9 @@ pub fn extract_hash_from_contract_bundle(path: &PathBuf) -> String {
     let file =
         File::open(path).expect(&format!("Contract file at {:?} does not exist", path));
     let reader = BufReader::new(file);
-    let json: serde_json::Value =
-        serde_json::from_reader(reader).expect("JSON is not well-formatted");
+    let json: serde_json::Value = serde_json::from_reader(reader).unwrap_or_else(|err| {
+        panic!("JSON at {:?} is not well-formatted: {:?}", path, err)
+    });
     json.get("source")
         .expect("Unable to get 'source' field from contract JSON")
         .get("hash")
