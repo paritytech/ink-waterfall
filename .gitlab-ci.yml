@@ -43,7 +43,7 @@ workflow:
     - bash --version
     - substrate-contracts-node --version
     - cargo-contract --version
-    - ./.scripts/pre_cache.sh
+    - ./scripts/ci/pre_cache.sh
     - sccache -s
     - git show
   <<:                              *default-refs
@@ -156,11 +156,11 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      echo "set -o pipefail; ./.scripts/build-contract.sh ${example} |
+      echo "set -o pipefail; ./scripts/ci/build-contract.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-      echo "./.scripts/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} |
+      echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   # Exit when the first job fails. Kill running jobs
@@ -175,7 +175,7 @@ parent-vars:
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_RAND_EXT_KEY
   - echo "Data will be written to $REDIS_SIZES_RAND_EXT_KEY"
-  - ./.scripts/build-contract.sh ./ink/examples/rand-extension/ |
+  - ./scripts/ci/build-contract.sh ./ink/examples/rand-extension/ |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_RAND_EXT_KEY}
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_RAND_EXT_KEY $GITLAB_REDIS_TTL
@@ -189,11 +189,11 @@ parent-vars:
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
       echo $example;
-      ./.scripts/extract-gas-usage.sh ${example};
+      ./scripts/ci/extract-gas-usage.sh ${example};
     done
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
-      ./.scripts/extract-gas-usage.sh ${example} |
+      ./scripts/ci/extract-gas-usage.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
   # all ci/cd keys need to have ttl
@@ -205,8 +205,8 @@ parent-vars:
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_GAS_USAGE_RAND_EXT_KEY
   - echo "Data will be written to $REDIS_GAS_USAGE_RAND_EXT_KEY"
-  - ./.scripts/extract-gas-usage.sh "rand-extension"
-  - ./.scripts/extract-gas-usage.sh "rand-extension" | redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_RAND_EXT_KEY}
+  - ./scripts/ci/extract-gas-usage.sh "rand-extension"
+  - ./scripts/ci/extract-gas-usage.sh "rand-extension" | redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_RAND_EXT_KEY}
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_GAS_USAGE_RAND_EXT_KEY $GITLAB_REDIS_TTL
 
@@ -265,7 +265,7 @@ evaluate-ink-examples-changes:
     - redis-cli -u $GITLAB_REDIS_URI --raw lrange $REDIS_GAS_USAGE_RAND_EXT_KEY_MASTER 0 -1 | sort | tee --append $REDIS_GAS_USAGE_KEY_MASTER.csv
 
     - PR_COMMENTS_URL=https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments
-    - ./.scripts/evaluate-examples-changes.sh $PR_COMMENTS_URL
+    - ./scripts/ci/evaluate-examples-changes.sh $PR_COMMENTS_URL
         $REDIS_SIZES_KEY_MASTER.csv $REDIS_SIZES_KEY.csv
         $REDIS_GAS_USAGE_KEY_MASTER.csv $REDIS_GAS_USAGE_KEY.csv
   dependencies:
@@ -282,11 +282,11 @@ build_badge:
         - tags
   <<:                              *docker-env
   before_script:
-    - chmod +x .scripts/get-updated-badge-info.sh
+    - chmod +x ./scripts/ci/get-updated-badge-info.sh
   script:
     - echo "building badge"
   after_script:
-    - .scripts/get-updated-badge-info.sh
+    - ./scripts/ci/get-updated-badge-info.sh
   artifacts:
     paths:
         - badge.json
