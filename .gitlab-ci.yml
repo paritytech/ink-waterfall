@@ -158,6 +158,11 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
+      if [ "$example" == "./ink/examples/upgradeable-contracts/" ]; then continue; fi;
+      echo "set -o pipefail; ./scripts/ci/build-contract.sh ${example} |
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
+    done
+  - for example in ${INK_EXAMPLES_PATH}/upgradeable-contracts/*/; do
       echo "set -o pipefail; ./scripts/ci/build-contract.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
@@ -194,11 +199,18 @@ parent-vars:
   - echo "Data will be written to $REDIS_GAS_USAGE_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
+      if [ "$example" == "./ink/examples/upgradeable-contracts/" ]; then continue; fi;
       echo $example;
       ./scripts/ci/extract-gas-usage.sh ${example};
     done
+  - for example in ${INK_EXAMPLES_PATH}/upgradeable-contracts/*/; do
+      echo $example;
+      ./scripts/ci/extract-gas-usage.sh ${example} |
+      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
+    done
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
+      if [ "$example" == "./ink/examples/upgradeable-contracts/" ]; then continue; fi;
       ./scripts/ci/extract-gas-usage.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
