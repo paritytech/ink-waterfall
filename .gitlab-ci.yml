@@ -166,7 +166,7 @@ parent-vars:
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   - for contract in ${UPGRADEABLE_CONTR_SUBCONTRACT}; do
-      echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/upgradeable-contract/${contract} |
+      echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/upgradeable-contracts/delegate-calls/${contract} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   # Exit when the first job fails. Kill running jobs
