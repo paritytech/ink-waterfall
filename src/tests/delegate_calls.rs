@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Tests for the `upgradeable-contract` example.
+//! Tests for the `upgradeable-contracts/delegate-calls` example.
 
 use crate::{
     uis::{
@@ -28,12 +28,12 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test(example = "upgradeable-contract")]
-async fn upgradeable_contract_works(mut ui: Ui) -> Result<()> {
+#[waterfall_test(example = "delegate-calls")]
+async fn delegate_call_works(mut ui: Ui) -> Result<()> {
     // given
     // …we build and upload all contracts.
     let manifest_path =
-        utils::example_path("upgradeable-contract/upgradeable-flipper/Cargo.toml");
+        utils::example_path("upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml");
     let upgradeable_flipper =
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let upgradeable_flipper_hash =
@@ -42,12 +42,12 @@ async fn upgradeable_contract_works(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(upgradeable_flipper.clone()))
         .await?;
 
-    let manifest_path = utils::example_path("upgradeable-contract/Cargo.toml");
-    let upgradeable_contract =
+    let manifest_path = utils::example_path("upgradeable-contracts/delegate-calls/Cargo.toml");
+    let delegate_calls_contract =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let upgradeable_contract_addr = ui
+    let delegate_calls_contract_addr = ui
         .execute_upload(
-            Upload::new(upgradeable_contract.clone())
+            Upload::new(delegate_calls_contract.clone())
                 .caller("ALICE")
                 .push_initial_value("forward_to", &upgradeable_flipper_hash),
         )
@@ -64,45 +64,45 @@ async fn upgradeable_contract_works(mut ui: Ui) -> Result<()> {
 
     // when
     // …we change the metadata of the contract to the one of `upgradeable-flipper`.
-    ui.update_metadata(&upgradeable_contract_addr, &upgradeable_flipper)
+    ui.update_metadata(&delegate_calls_contract_addr, &upgradeable_flipper)
         .await?;
 
     // then
     // …executing some `upgradeable-flipper` rpc calls and transactions on the
-    // `upgradeable-contract` must work.
+    // `delegate-calls` must work.
     assert_eq!(
-        ui.execute_rpc(Call::new(&upgradeable_contract_addr, "get"))
+        ui.execute_rpc(Call::new(&delegate_calls_contract_addr, "get"))
             .await?,
         "false"
     );
-    ui.execute_transaction(Call::new(&upgradeable_contract_addr, "flip"))
+    ui.execute_transaction(Call::new(&delegate_calls_contract_addr, "flip"))
         .await
         .expect("failed to `submit_transaction`");
     assert_eq!(
-        ui.execute_rpc(Call::new(&upgradeable_contract_addr, "get"))
+        ui.execute_rpc(Call::new(&delegate_calls_contract_addr, "get"))
             .await?,
         "true"
     );
 
-    ui.execute_transaction(Call::new(&upgradeable_contract_addr, "flip"))
+    ui.execute_transaction(Call::new(&delegate_calls_contract_addr, "flip"))
         .await
         .expect("failed to `submit_transaction`");
     assert_eq!(
-        ui.execute_rpc(Call::new(&upgradeable_contract_addr, "get"))
+        ui.execute_rpc(Call::new(&delegate_calls_contract_addr, "get"))
             .await?,
         "false"
     );
 
     // when
-    // …we switch the metadata back from `upgradeable-flipper` to `upgradeable-contract`.
-    ui.update_metadata(&upgradeable_contract_addr, &upgradeable_contract)
+    // …we switch the metadata back from `upgradeable-flipper` to `delegate-calls`.
+    ui.update_metadata(&delegate_calls_contract_addr, &delegate_calls_contract)
         .await?;
 
     // TODO has to be disabled until https://github.com/polkadot-js/apps/issues/6603 is fixed.
     if false {
         // then
         // …nobody but the `admin` can modify the hash to which is delegated.
-        let call = Call::new(&upgradeable_contract_addr, "change_delegate_code")
+        let call = Call::new(&delegate_calls_contract_addr, "change_delegate_code")
             .caller("BOB")
             .push_value("new_code_hash", &contract_transfer_hash);
         ui.execute_transaction(call)
@@ -114,20 +114,20 @@ async fn upgradeable_contract_works(mut ui: Ui) -> Result<()> {
     if false {
         // when
         // …we switch the delegation to `contract-transfer`.
-        let call = Call::new(&upgradeable_contract_addr, "change_delegate_code")
+        let call = Call::new(&delegate_calls_contract_addr, "change_delegate_code")
             .caller("ALICE")
             .push_value("new_code_hash", &contract_transfer_hash);
         ui.execute_transaction(call).await.expect("must work");
 
         // we have to switch the metadata to `contract-transfer`
-        ui.update_metadata(&upgradeable_contract_addr, &contract_transfer)
+        ui.update_metadata(&delegate_calls_contract_addr, &contract_transfer)
             .await?;
 
         // then
         // …it must be possible to transfer value to the contract.
         let result = ui
             .execute_transaction(
-                Call::new(&upgradeable_contract_addr, "was_it_ten")
+                Call::new(&delegate_calls_contract_addr, "was_it_ten")
                     .caller("DAVE")
                     .payment("10", "pico"),
             )

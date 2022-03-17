@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Tests for the `proxy` example.
+//! Tests for the `forward-calls` example.
 
 use crate::{
     uis::{
@@ -28,8 +28,8 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test(example = "proxy")]
-async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
+#[waterfall_test(example = "forward-calls")]
+async fn forward_calls_works_with_flipper(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let flipper_bundle =
@@ -38,12 +38,12 @@ async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(flipper_bundle.clone()))
         .await?;
 
-    let manifest_path = utils::example_path("proxy/Cargo.toml");
-    let proxy_bundle =
+    let manifest_path = utils::example_path("forward_calls/Cargo.toml");
+    let forward_calls_bundle =
         cargo_contract::build(&manifest_path).expect("contract build failed");
-    let proxy_addr = ui
+    let forward_calls_addr = ui
         .execute_upload(
-            Upload::new(proxy_bundle.clone())
+            Upload::new(forward_calls_bundle.clone())
                 .caller("ALICE")
                 .push_initial_value("forward_to", &flipper_addr),
         )
@@ -56,9 +56,9 @@ async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(transfer_bundle.clone()))
         .await?;
 
-    ui.update_metadata(&proxy_addr, &flipper_bundle).await?;
+    ui.update_metadata(&forward_calls_addr, &flipper_bundle).await?;
 
-    ui.execute_transaction(Call::new(&proxy_addr, "flip"))
+    ui.execute_transaction(Call::new(&forward_calls_addr, "flip"))
         .await
         .expect("failed to `submit_transaction`");
     assert_eq!(
@@ -66,7 +66,7 @@ async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
         "true"
     );
 
-    ui.execute_transaction(Call::new(&proxy_addr, "flip"))
+    ui.execute_transaction(Call::new(&forward_calls_addr, "flip"))
         .await
         .expect("failed to `submit_transaction`");
     assert_eq!(
@@ -74,11 +74,11 @@ async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
         "false"
     );
 
-    ui.update_metadata(&proxy_addr, &proxy_bundle).await?;
+    ui.update_metadata(&forward_calls_addr, &forward_calls_bundle).await?;
 
     // TODO has to be disabled until https://github.com/polkadot-js/apps/issues/6603 is fixed.
     if false {
-        let call = Call::new(&proxy_addr, "change_forward_address")
+        let call = Call::new(&forward_calls_addr, "change_forward_address")
             .caller("BOB")
             .push_value("new_address", &transfer_addr);
         ui.execute_transaction(call)
@@ -86,18 +86,18 @@ async fn proxy_works_with_flipper(mut ui: Ui) -> Result<()> {
             .expect_err("must fail due to caller not being Alice");
     }
 
-    let call = Call::new(&proxy_addr, "change_forward_address")
+    let call = Call::new(&forward_calls_addr, "change_forward_address")
         .caller("ALICE")
         .push_value("new_address", &transfer_addr);
     ui.execute_transaction(call).await.expect("must work");
 
-    ui.update_metadata(&proxy_addr, &transfer_bundle).await?;
+    ui.update_metadata(&forward_calls_addr, &transfer_bundle).await?;
 
     // TODO has to be disabled until https://github.com/polkadot-js/apps/issues/5823 is fixed
     if false {
         let result = ui
             .execute_transaction(
-                Call::new(&proxy_addr, "was_it_ten")
+                Call::new(&forward_calls_addr, "was_it_ten")
                     .caller("DAVE")
                     .payment("10", "pico"),
             )
