@@ -121,3 +121,4 @@ before the test is finished processing them.
 The test will then fail with a `NoSucheElement` error, indicating that
 the DOM element is no longer available. The easiest fix for this is to
 limit the number of concurrent test threads via e.g. `cargo test --jobs 4`.
+
