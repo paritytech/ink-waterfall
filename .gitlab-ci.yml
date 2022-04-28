@@ -78,6 +78,8 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
+  - PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`
+  - echo $PR_JSON
   - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
   - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
@@ -235,8 +237,6 @@ parent-vars:
 polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
-  dependencies:
-    - parent-vars
   script:
     - *clone-repo
     - *start-substrate-contracts-node
@@ -246,6 +246,8 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
     - *store-ink-examples-gas-usage-to-redis
   after_script:
     - *shutdown-substrate-contracts-node
+  dependencies:
+    - parent-vars
 
 
 polkadot-js-ui-rand-extension:
