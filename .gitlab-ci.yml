@@ -235,6 +235,8 @@ parent-vars:
 polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
+  dependencies:
+    - parent-vars
   script:
     - *clone-repo
     - *start-substrate-contracts-node
@@ -244,8 +246,6 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
     - *store-ink-examples-gas-usage-to-redis
   after_script:
     - *shutdown-substrate-contracts-node
-  dependencies:
-    - parent-vars
 
 
 polkadot-js-ui-rand-extension:
