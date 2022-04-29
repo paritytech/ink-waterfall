@@ -78,6 +78,31 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
+  - |
+    # default values
+    UPSTREAM_BRANCH="master"
+    UPSTREAM_BRANCH_REDIS_KEY="master"
+    UPSTREAM_REPO="https://github.com/paritytech/ink.git"
+    UPSTREAM_REPO_NAME="ink"
+
+    echo "before " $TRGR_REF;
+    echo ${TRGR_REF}
+    if [ -n "$TRGR_REF" ] && [ "$TRGR_REF" != "master" ]; then
+      echo "in";
+      PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`;
+      echo $PR_JSON;
+      UPSTREAM_BRANCH=`echo "${PR_JSON}" | jq -r .head.ref`;
+      # Since we write the branch name to a file we need to remove any forward slashes
+      # which may exist in the name
+      UPSTREAM_BRANCH_REDIS_KEY=`echo "${UPSTREAM_BRANCH}" | sed 's/\//-/g'`;
+      # We need to use https, the unauthenticated git protocol is no longer supported by GitHub.
+      UPSTREAM_REPO=`echo "${PR_JSON}" | jq -r .head.repo.git_url` | sed 's/git:/https:/';
+      UPSTREAM_REPO_NAME=`echo "${PR_JSON}" | jq -r .head.repo.name`;
+    fi
+  - echo "UPSTREAM_BRANCH=${UPSTREAM_BRANCH}" | tee -a parent-vars.env
+  - echo "UPSTREAM_BRANCH_REDIS_KEY=${UPSTREAM_BRANCH_REDIS_KEY}" | tee -a parent-vars.env
+  - echo "UPSTREAM_REPO=${UPSTREAM_REPO}" | tee -a parent-vars.env
+  - echo "UPSTREAM_REPO_NAME=${UPSTREAM_REPO_NAME}" | tee -a parent-vars.env
   - cat parent-vars.env
   - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
   - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
