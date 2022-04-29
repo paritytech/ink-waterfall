@@ -78,8 +78,7 @@ workflow:
       fi
 
 .clone-repo:                       &clone-repo
-  - PR_JSON=`curl -s https://api.github.com/repos/paritytech/ink/pulls/${TRGR_REF}`
-  - echo $PR_JSON
+  - cat parent-vars.env
   - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
   - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
