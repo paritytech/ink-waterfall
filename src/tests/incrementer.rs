@@ -44,7 +44,7 @@ async fn incrementer_works(mut ui: Ui) -> Result<()> {
     );
 
     // when
-    ui.execute_transaction(Call::new(&contract_addr, "inc").push_value("by", "14"))
+    ui.execute_transaction(Call::new(&contract_addr, "inc").push_value("by: i32", "14"))
         .await
         .expect("failed to execute transaction");
 
