@@ -271,12 +271,7 @@ impl ContractsUi for crate::uis::Ui {
                     .await?
                     .click()
                     .await?;
-            } else if value == "ALICE"
-                || value == "CHARLIE"
-                || value == "EVE"
-                || value == "DAVE"
-                || value == "BOB"
-            {
+            } else if is_account(&value) {
                 log::info!("[{}] opening dropdown list '{}'", log_id, key);
                 let path =
                     format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
@@ -336,7 +331,17 @@ impl ContractsUi for crate::uis::Ui {
             let mut input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
-            input.send_keys(&format!("{}\n", value)).await?;
+            input.send_keys(&format!("{}\n", &value)).await?;
+
+            if is_account(&value) {
+                log::info!("[{}] choosing account option '{}''", log_id, value);
+                let path = format!("//div[contains(@class, 'active')]//*/div[contains(@class, 'selected item')]");
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+            }
         }
 
         log::info!("[{}] click deploy", log_id);
@@ -671,12 +676,7 @@ impl ContractsUi for crate::uis::Ui {
                     .await?
                     .click()
                     .await?;
-            } else if value == "ALICE"
-                || value == "CHARLIE"
-                || value == "EVE"
-                || value == "DAVE"
-                || value == "BOB"
-            {
+            } else if is_account(&value) {
                 log::info!("[{}] opening dropdown list '{}'", log_id, key);
                 let path =
                     format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
@@ -751,6 +751,16 @@ impl ContractsUi for crate::uis::Ui {
             // we need to clear a possible default input from the field
             input.clear().await?;
             input.send_keys(&format!("{}\n", &value)).await?;
+
+            if is_account(&value) {
+                log::info!("[{}] choosing account option '{}''", log_id, value);
+                let path = format!("//div[contains(@class, 'active')]//*/div[contains(@class, 'selected item')]");
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+            }
         }
 
         // click call
@@ -1047,12 +1057,7 @@ impl ContractsUi for crate::uis::Ui {
                     .await?
                     .click()
                     .await?;
-            } else if value == "ALICE"
-                || value == "CHARLIE"
-                || value == "EVE"
-                || value == "DAVE"
-                || value == "BOB"
-            {
+            } else if is_account(&value) {
                 log::info!("[{}] opening dropdown list '{}'", log_id, key);
                 let path =
                     format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
@@ -1123,12 +1128,26 @@ impl ContractsUi for crate::uis::Ui {
                 .await?
                 .click()
                 .await?;
+            log::info!("[{}] added item '{}' for '{}'", log_id, value, key);
 
             let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
             let mut input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
-            input.send_keys(&format!("{}\n", &value)).await?;
+            input.send_keys(&value).await?;
+
+            log::info!("[{}] send item '{}' for '{}'", log_id, value, key);
+
+            if is_account(&value) {
+                log::info!("[{}] choosing account option '{}''", log_id, value);
+                let path = format!("//div[contains(@class, 'active')]//*/div[contains(@class, 'selected item')]");
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+            }
+            log::info!("[{}] after '{}' for '{}'", log_id, value, key);
         }
 
         std::thread::sleep(std::time::Duration::from_secs(3));
@@ -1494,4 +1513,14 @@ fn transform_value(value: &str) -> String {
         "false" => String::from("No"),
         _ => value.to_string(),
     }
+}
+
+// Returns `true` if the `value` is an account.
+fn is_account(value: &str) -> bool {
+    value == "ALICE"
+        || value == "BOB"
+        || value == "CHARLIE"
+        || value == "DAVE"
+        || value == "EVE"
+        || value == "FERDIE"
 }
