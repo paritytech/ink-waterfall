@@ -180,12 +180,26 @@ impl ContractsUi for crate::uis::Ui {
 
             std::thread::sleep(std::time::Duration::from_secs(3));
 
-            // choose caller
-            log::info!("[{}] choose {:?}", log_id, caller);
-            let path = format!("//div[@name = '{}']", caller);
+            let key = "deployment account";
+            let value = caller;
+            log::info!(
+                "[{}] inserting '{}' into input field '{}'",
+                log_id,
+                value,
+                key
+            );
+            let path = format!(
+                "//*[contains(text(),'deployment account')]/ancestor::div[1]//*/input"
+            );
+            let mut input = self.client.find(Locator::XPath(&path)).await?;
+            // we need to clear a possible default input from the field
+            input.clear().await?;
+            input.send_keys(&value).await?;
+
+            log::info!("[{}] choosing account option '{}''", log_id, value);
+            let path = format!("//div[contains(@class, 'active')]//*/div[contains(@class, 'selected item')]");
             self.client
-                .wait()
-                .for_element(Locator::XPath(&path))
+                .find(Locator::XPath(&path))
                 .await?
                 .click()
                 .await?;

@@ -48,7 +48,7 @@ async fn trait_erc20(mut ui: Ui) -> Result<()> {
     assert!(total_supply == "1,000,000,000,000,000" || total_supply == "1.0000 kUnit");
     let balance = ui
         .execute_rpc(
-            Call::new(&contract_addr, "baseErc20::balanceOf").push_value("owner", "bob"),
+            Call::new(&contract_addr, "baseErc20::balanceOf").push_value("owner", "BOB"),
         )
         .await?;
     assert!(balance == "1,000,000,000,000,000" || balance == "1.0000 kUnit");
