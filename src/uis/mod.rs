@@ -155,7 +155,7 @@ impl Ui {
             return Ok(())
         }
         log::debug!("closing client");
-        self.client.close().await?;
+        self.client.to_owned().close().await?;
         log::debug!("closed client");
         Ok(())
     }

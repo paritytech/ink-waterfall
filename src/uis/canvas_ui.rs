@@ -552,7 +552,7 @@ impl ContractsUi for crate::uis::Ui {
                     .click()
                     .await?;
 
-                log::info!("[{}] chossing option '{}''", log_id, value);
+                log::info!("[{}] choosing option '{}''", log_id, value);
                 let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))
@@ -802,7 +802,7 @@ impl ContractsUi for crate::uis::Ui {
                     .click()
                     .await?;
 
-                log::info!("[{}] chossing option '{}''", log_id, value);
+                log::info!("[{}] choosing option '{}''", log_id, value);
                 let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))

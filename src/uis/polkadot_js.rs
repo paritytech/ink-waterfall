@@ -250,8 +250,43 @@ impl ContractsUi for crate::uis::Ui {
                     .click()
                     .await?;
 
-                log::info!("[{}] chossing option '{}''", log_id, value);
+                log::info!("[{}] choosing option '{}''", log_id, value);
                 let path = format!("//label/*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+            } else if value == "ALICE"
+                || value == "CHARLIE"
+                || value == "EVE"
+                || value == "DAVE"
+                || value == "BOB"
+            {
+                log::info!("[{}] opening dropdown list '{}'", log_id, key);
+                let path =
+                    format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+
+                log::info!(
+                    "[{}] inserting '{}' into input field '{}'",
+                    log_id,
+                    value,
+                    key
+                );
+                let path =
+                    format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
+                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                // we need to clear a possible default input from the field
+                input.clear().await?;
+                input.send_keys(&value).await?;
+
+                log::info!("[{}] choosing account option '{}''", log_id, value);
+                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
@@ -615,11 +650,48 @@ impl ContractsUi for crate::uis::Ui {
                     .click()
                     .await?;
 
-                log::info!("[{}] chossing option '{}''", log_id, value);
+                log::info!("[{}] choosing option '{}''", log_id, value);
                 let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
+                    .click()
+                    .await?;
+            } else if value == "ALICE"
+                || value == "CHARLIE"
+                || value == "EVE"
+                || value == "DAVE"
+                || value == "BOB"
+            {
+                log::info!("[{}] opening dropdown list '{}'", log_id, key);
+                let path =
+                    format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+
+                log::info!(
+                    "[{}] inserting '{}' into input field '{}'",
+                    log_id,
+                    value,
+                    key
+                );
+                let path =
+                    format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
+                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                // we need to clear a possible default input from the field
+                input.clear().await?;
+                input.send_keys(&value).await?;
+
+                log::info!("[{}] choosing account option '{}''", log_id, value);
+                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[text() = '{}']", key, value);
+                self.client
+                    .find_all(Locator::XPath(&path))
+                    .await?
+                    .get(1)
+                    .expect("second must exist")
                     .click()
                     .await?;
             } else {
@@ -638,7 +710,7 @@ impl ContractsUi for crate::uis::Ui {
                     .find(Locator::XPath(&path))
                     .await?
                     .send_keys(&value)
-                    .await?
+                    .await?;
             }
         }
 
@@ -956,11 +1028,48 @@ impl ContractsUi for crate::uis::Ui {
                     .click()
                     .await?;
 
-                log::info!("[{}] chossing option '{}''", log_id, value);
+                log::info!("[{}] choosing option '{}''", log_id, value);
                 let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[@role = 'option']/span[text() = '{}']", key, value);
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
+                    .click()
+                    .await?;
+            } else if value == "ALICE"
+                || value == "CHARLIE"
+                || value == "EVE"
+                || value == "DAVE"
+                || value == "BOB"
+            {
+                log::info!("[{}] opening dropdown list '{}'", log_id, key);
+                let path =
+                    format!("//label/*[contains(text(),'{}')]/ancestor::div[1]", key);
+                self.client
+                    .find(Locator::XPath(&path))
+                    .await?
+                    .click()
+                    .await?;
+
+                log::info!(
+                    "[{}] inserting '{}' into input field '{}'",
+                    log_id,
+                    value,
+                    key
+                );
+                let path =
+                    format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
+                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                // we need to clear a possible default input from the field
+                input.clear().await?;
+                input.send_keys(&value).await?;
+
+                log::info!("[{}] choosing account option '{}''", log_id, value);
+                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[text() = '{}']", key, value);
+                self.client
+                    .find_all(Locator::XPath(&path))
+                    .await?
+                    .get(1)
+                    .expect("second must exist")
                     .click()
                     .await?;
             } else {
@@ -1316,7 +1425,7 @@ impl crate::uis::Ui {
     async fn click(
         &mut self,
         locator: Locator<'_>,
-    ) -> std::result::Result<Client, error::CmdError> {
+    ) -> std::result::Result<(), error::CmdError> {
         let mut possibly_err =
             self.client.wait().for_element(locator).await?.click().await;
 
