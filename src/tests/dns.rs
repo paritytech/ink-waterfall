@@ -90,7 +90,7 @@ async fn dns_works(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer")
             .caller("ALICE")
             .push_value("name", name)
-            .push_value("to", "BOB"),
+            .push_value("to: AccountId", "BOB"),
     )
     .await
     .expect("failed to execute `transfer` to BOB transaction");

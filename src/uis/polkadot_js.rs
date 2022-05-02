@@ -686,12 +686,10 @@ impl ContractsUi for crate::uis::Ui {
                 input.send_keys(&value).await?;
 
                 log::info!("[{}] choosing account option '{}''", log_id, value);
-                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[text() = '{}']", key, value);
+                let path = format!("//div[@class = 'selected item']");
                 self.client
-                    .find_all(Locator::XPath(&path))
+                    .find(Locator::XPath(&path))
                     .await?
-                    .get(1)
-                    .expect("second must exist")
                     .click()
                     .await?;
             } else {
@@ -1064,12 +1062,10 @@ impl ContractsUi for crate::uis::Ui {
                 input.send_keys(&value).await?;
 
                 log::info!("[{}] choosing account option '{}''", log_id, value);
-                let path = format!("//label/*[contains(text(),'{}')]/ancestor::div[1]//*/div[text() = '{}']", key, value);
+                let path = format!("//div[@class = 'selected item']");
                 self.client
-                    .find_all(Locator::XPath(&path))
+                    .find(Locator::XPath(&path))
                     .await?
-                    .get(1)
-                    .expect("second must exist")
                     .click()
                     .await?;
             } else {

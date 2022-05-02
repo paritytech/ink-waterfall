@@ -89,7 +89,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "approve")
             .caller("BOB")
-            .push_value("to", "CHARLIE")
+            .push_value("to: AccountId", "CHARLIE")
             .push_value("id", "123"),
     )
     .await
@@ -139,7 +139,7 @@ async fn erc721(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer_from")
             .caller("CHARLIE")
             .push_value("from", "BOB")
-            .push_value("to", "DAVE")
+            .push_value("to: AccountId", "DAVE")
             .push_value("id", "123"),
     )
     .await
@@ -219,7 +219,7 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "set_approval_for_all")
             .caller("ALICE")
-            .push_value("to", "BOB")
+            .push_value("to: AccountId", "BOB")
             .push_value("approved", "true"),
     )
     .await
@@ -239,7 +239,7 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer_from")
             .caller("BOB")
             .push_value("from", "ALICE")
-            .push_value("to", "CHARLIE")
+            .push_value("to: AccountId", "CHARLIE")
             .push_value("id", "123"),
     )
     .await
@@ -248,7 +248,7 @@ async fn erc721_operator_approvals(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "transfer_from")
             .caller("BOB")
             .push_value("from", "ALICE")
-            .push_value("to", "CHARLIE")
+            .push_value("to: AccountId", "CHARLIE")
             .push_value("id", "321"),
     )
     .await

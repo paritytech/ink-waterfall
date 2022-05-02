@@ -54,7 +54,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "transfer")
             .caller("BOB")
-            .push_value("to", "ALICE")
+            .push_value("to: AccountId", "ALICE")
             .push_value("value", "500"),
     )
     .await
