@@ -18,7 +18,7 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/examples"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTR_SUBCONTRACT:   "upgradeable-flipper"
+  UPGRADEABLE_CONTR_SUBCONTRACT:   "delegate-calls/upgradeable-flipper set-code-hash/updated-incrementer"
 
 workflow:
   rules:
@@ -174,7 +174,7 @@ parent-vars:
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   - for contract in ${UPGRADEABLE_CONTR_SUBCONTRACT}; do
-      echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/upgradeable-contracts/delegate-calls/${contract} |
+      echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/upgradeable-contracts/${contract} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   # Exit when the first job fails. Kill running jobs

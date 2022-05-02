@@ -29,7 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "set-code-hash")]
-async fn forward_calls_works(mut ui: Ui) -> Result<()> {
+async fn set_code_hash_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path =
         utils::example_path("upgradeable-contracts/set-code-hash/Cargo.toml");
@@ -42,10 +42,10 @@ async fn forward_calls_works(mut ui: Ui) -> Result<()> {
     let manifest_path = utils::example_path(
         "upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml",
     );
-    let updated_incrementer_hash =
-        utils::extract_hash_from_contract_bundle(&manifest_path);
     let updated_incrementer_bundle =
         cargo_contract::build(&manifest_path).expect("contract build failed");
+    let updated_incrementer_hash =
+        utils::extract_hash_from_contract_bundle(&updated_incrementer_bundle);
     let updated_incrementer_addr = ui
         .execute_upload(Upload::new(updated_incrementer_bundle.clone()))
         .await?;
@@ -54,8 +54,7 @@ async fn forward_calls_works(mut ui: Ui) -> Result<()> {
         .await
         .expect("failed to `submit_transaction`");
     assert_eq!(
-        ui.execute_rpc(Call::new(&updated_incrementer_addr, "get"))
-            .await?,
+        ui.execute_rpc(Call::new(&incrementer_addr, "get")).await?,
         "1"
     );
 
@@ -67,8 +66,7 @@ async fn forward_calls_works(mut ui: Ui) -> Result<()> {
         .await
         .expect("failed to `submit_transaction`");
     assert_eq!(
-        ui.execute_rpc(Call::new(&updated_incrementer_addr, "get"))
-            .await?,
+        ui.execute_rpc(Call::new(&incrementer_addr, "get")).await?,
         "5"
     );
 
