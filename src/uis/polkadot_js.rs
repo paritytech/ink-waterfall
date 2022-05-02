@@ -686,7 +686,7 @@ impl ContractsUi for crate::uis::Ui {
                 input.send_keys(&value).await?;
 
                 log::info!("[{}] choosing account option '{}''", log_id, value);
-                let path = format!("//div[@class = 'selected item']");
+                let path = format!("//div[contains(@class, 'active')]//*/div[contains(@class, 'selected item')]");
                 self.client
                     .find(Locator::XPath(&path))
                     .await?
@@ -1062,7 +1062,7 @@ impl ContractsUi for crate::uis::Ui {
                 input.send_keys(&value).await?;
 
                 log::info!("[{}] choosing account option '{}''", log_id, value);
-                let path = format!("//div[@class = 'selected item']");
+                let path = format!("//div[contains(@class, 'active')]//*/div[contains(@class, 'selected item')]");
                 self.client
                     .find(Locator::XPath(&path))
                     .await?

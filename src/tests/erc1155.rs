@@ -118,7 +118,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "erc1155::safe_transfer_from")
             .caller("DAVE")
-            .push_value("from", "CHARLIE")
+            .push_value("from: AccountId", "CHARLIE")
             .push_value("to: AccountId", "ALICE")
             .push_value("tokenId", "1")
             .push_value("value", "41"),
@@ -155,7 +155,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
     ui.execute_transaction(
         Call::new(&contract_addr, "erc1155::safe_batch_transfer_from")
             .caller("ALICE")
-            .push_value("from", "ALICE")
+            .push_value("from: AccountId", "ALICE")
             .push_value("to: AccountId", "FERDIE")
             .add_item("tokenIds", "1")
             .add_item("tokenIds", "2")
@@ -209,7 +209,7 @@ async fn erc1155(mut ui: Ui) -> Result<()> {
             .execute_transaction(
                 Call::new(&contract_addr, "erc1155::safe_transfer_from")
                     .caller("DAVE")
-                    .push_value("from", "CHARLIE")
+                    .push_value("from: AccountId", "CHARLIE")
                     .push_value("to: AccountId", "ALICE")
                     .push_value("tokenId", "1")
                     .push_value("value", "41")
