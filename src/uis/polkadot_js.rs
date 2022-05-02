@@ -1090,7 +1090,7 @@ impl ContractsUi for crate::uis::Ui {
             } else {
                 log::info!("[{}] entering {:?} into {:?}", log_id, &value, &key);
                 let path = format!(
-                    "//input[contains(@data-testid,'{}') and @type = 'text']",
+                    "//div[contains(@class, 'ui--Params')]//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]/div//input[@type = 'text']",
                     key
                 );
                 self.client
