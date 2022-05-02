@@ -52,6 +52,7 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
                 manifest_path.pop();
                 "adder/adder"
             }
+            "set_code_hash" => "incrementer",
             _ => example_name.as_str(),
         };
         let possibly_target_dir = std::env::var("CARGO_TARGET_DIR");
