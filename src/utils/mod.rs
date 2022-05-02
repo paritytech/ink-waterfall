@@ -41,6 +41,9 @@ pub fn example_path(example: &str) -> PathBuf {
     // For the CI we copy all `ink-waterfall/examples/` to the `INK_EXAMPLES_PATH`.
     if !path.exists() {
         path = PathBuf::from("./examples/").join(example);
+        path = path.canonicalize().unwrap_or_else(|path| {
+            panic!("canonicalizing {:?} must work", path);
+        });
     }
 
     path

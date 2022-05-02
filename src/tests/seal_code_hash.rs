@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Tests for the `contract_introspection` example.
+//! Tests for the `seal_code_hash` example.
 
 use crate::{
     uis::{
@@ -28,41 +28,24 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test(example = "contract_introspection")]
+#[waterfall_test(example = "seal_code_hash")]
 async fn delegator_works(mut ui: Ui) -> Result<()> {
     // given
     let contract_path =
-        cargo_contract::build(&utils::example_path("contract-introspection/Cargo.toml"))
+        cargo_contract::build(&utils::example_path("seal-code-hash/Cargo.toml"))
             .expect("contract build failed");
+    let bundle_hash = utils::extract_hash_from_contract_bundle(&contract_path);
 
     // when
     let addr = ui.execute_upload(Upload::new(contract_path)).await?;
 
     // then
-    // the method is called directly via the ui.
-    assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "is_caller_contract"))
-            .await?,
-        "false"
-    );
-    // the `is_caller_contract` method is called indirectly from this contract method.
-    assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "calls_is_caller_contract"))
-            .await?,
-        "true"
-    );
-
-    // the method is called directly via the ui.
-    assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "is_caller_origin")).await?,
-        "true"
-    );
-    // the `is_caller_origin` method is called indirectly from this contract method.
-    assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "calls_is_caller_origin"))
-            .await?,
-        "false"
-    );
+    let deployed_hash = ui
+        .execute_rpc(Call::new(&addr, "code_hash").push_value("account_id", &addr))
+        .await?;
+    let own_code_hash = ui.execute_rpc(Call::new(&addr, "own_code_hash")).await?;
+    assert_eq!(own_code_hash, deployed_hash);
+    assert_eq!(own_code_hash, bundle_hash);
 
     Ok(())
 }
