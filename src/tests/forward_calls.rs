@@ -29,7 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "forward-calls")]
-async fn forward_calls_works_with_flipper(mut ui: Ui) -> Result<()> {
+async fn forward_calls_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path = utils::example_path("flipper/Cargo.toml");
     let flipper_bundle =
@@ -38,7 +38,8 @@ async fn forward_calls_works_with_flipper(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(flipper_bundle.clone()))
         .await?;
 
-    let manifest_path = utils::example_path("forward_calls/Cargo.toml");
+    let manifest_path =
+        utils::example_path("upgradeable-contracts/forward-calls/Cargo.toml");
     let forward_calls_bundle =
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let forward_calls_addr = ui
@@ -56,7 +57,8 @@ async fn forward_calls_works_with_flipper(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(transfer_bundle.clone()))
         .await?;
 
-    ui.update_metadata(&forward_calls_addr, &flipper_bundle).await?;
+    ui.update_metadata(&forward_calls_addr, &flipper_bundle)
+        .await?;
 
     ui.execute_transaction(Call::new(&forward_calls_addr, "flip"))
         .await
@@ -74,7 +76,8 @@ async fn forward_calls_works_with_flipper(mut ui: Ui) -> Result<()> {
         "false"
     );
 
-    ui.update_metadata(&forward_calls_addr, &forward_calls_bundle).await?;
+    ui.update_metadata(&forward_calls_addr, &forward_calls_bundle)
+        .await?;
 
     // TODO has to be disabled until https://github.com/polkadot-js/apps/issues/6603 is fixed.
     if false {
@@ -91,7 +94,8 @@ async fn forward_calls_works_with_flipper(mut ui: Ui) -> Result<()> {
         .push_value("new_address", &transfer_addr);
     ui.execute_transaction(call).await.expect("must work");
 
-    ui.update_metadata(&forward_calls_addr, &transfer_bundle).await?;
+    ui.update_metadata(&forward_calls_addr, &transfer_bundle)
+        .await?;
 
     // TODO has to be disabled until https://github.com/polkadot-js/apps/issues/5823 is fixed
     if false {

@@ -32,8 +32,9 @@ use lang_macro::waterfall_test;
 async fn delegate_call_works(mut ui: Ui) -> Result<()> {
     // given
     // …we build and upload all contracts.
-    let manifest_path =
-        utils::example_path("upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml");
+    let manifest_path = utils::example_path(
+        "upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml",
+    );
     let upgradeable_flipper =
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let upgradeable_flipper_hash =
@@ -42,7 +43,8 @@ async fn delegate_call_works(mut ui: Ui) -> Result<()> {
         .execute_upload(Upload::new(upgradeable_flipper.clone()))
         .await?;
 
-    let manifest_path = utils::example_path("upgradeable-contracts/delegate-calls/Cargo.toml");
+    let manifest_path =
+        utils::example_path("upgradeable-contracts/delegate-calls/Cargo.toml");
     let delegate_calls_contract =
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let delegate_calls_contract_addr = ui
