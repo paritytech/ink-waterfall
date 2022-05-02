@@ -10,9 +10,9 @@ async-trait = "0.1.50"
 convert_case = "0.4.0"
 futures-core = "0.3.15"
 futures-util = "0.3.15"
-tokio = { version = "1.7.1", features = [ "full" ] }
-webdriver = { version = "0.43.1", default-features = false }
-fantoccini = "0.17.7"
+tokio = { version = "1", features = [ "full" ] }
+webdriver = { version = "0.45", default-features = false }
+fantoccini = "0.19.0"
 serde = "1.0"
 serde_json = "1.0"
 rand = "0.8.4"
