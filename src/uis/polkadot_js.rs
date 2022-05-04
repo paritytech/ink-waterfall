@@ -765,11 +765,28 @@ impl ContractsUi for crate::uis::Ui {
 
         // click call
         log::info!("[{}] click read", log_id);
-        self.client
+        let is_read_button_available = self
+            .client
             .find(Locator::XPath("//button[contains(text(),'Read')]"))
-            .await?
-            .click()
-            .await?;
+            .await;
+
+        match is_read_button_available {
+            Ok(el) => el.click().await?,
+            Err(_) => {
+                let path = "//*[contains(text(),'read contract only, no execution')]/ancestor::div[1]//div[contains(@class,'ui--Toggle')]";
+                self.client
+                    .find(Locator::XPath(path))
+                    .await?
+                    .click()
+                    .await?;
+
+                self.client
+                    .find(Locator::XPath("//button[contains(text(),'Read')]"))
+                    .await?
+                    .click()
+                    .await?;
+            }
+        }
 
         log::info!("[{}] wait for outcome to appear", log_id);
         self.client
