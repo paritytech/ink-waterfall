@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Tests for the `contract_introspection` example.
+//! Tests for the `data_structures` example.
 
 use crate::{
     uis::{
@@ -28,40 +28,37 @@ use crate::{
 };
 use lang_macro::waterfall_test;
 
-#[waterfall_test(example = "contract_introspection")]
-async fn contract_instrospection_works(mut ui: Ui) -> Result<()> {
+#[waterfall_test(example = "data_structures")]
+async fn data_structures_works(mut ui: Ui) -> Result<()> {
     // given
     let contract_path =
-        cargo_contract::build(&utils::example_path("contract-introspection/Cargo.toml"))
+        cargo_contract::build(&utils::example_path("data-structures/Cargo.toml"))
             .expect("contract build failed");
 
     // when
     let addr = ui.execute_upload(Upload::new(contract_path)).await?;
 
     // then
-    // the method is called directly via the ui.
     assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "is_caller_contract"))
-            .await?,
-        "false"
+        ui.execute_rpc(
+            Call::new(&addr, "overwrite_key")
+                .push_value("key", "1")
+                .push_value("value", "true")
+        )
+        .await?,
+        "None"
     );
-    // the `is_caller_contract` method is called indirectly from this contract method.
+    ui.execute_transaction(
+        Call::new(&addr, "overwrite_key")
+            .push_value("key", "1")
+            .push_value("value", "true"),
+    )
+    .await
+    .expect("failed to execute transaction");
     assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "calls_is_caller_contract"))
+        ui.execute_rpc(Call::new(&addr, "remove_key").push_value("key", "1"))
             .await?,
-        "true"
-    );
-
-    // the method is called directly via the ui.
-    assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "is_caller_origin")).await?,
-        "true"
-    );
-    // the `is_caller_origin` method is called indirectly from this contract method.
-    assert_eq!(
-        ui.execute_rpc(Call::new(&addr, "calls_is_caller_origin"))
-            .await?,
-        "false"
+        "2"
     );
 
     Ok(())
