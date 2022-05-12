@@ -8,6 +8,7 @@ mod data_structures {
 
     #[ink(storage)]
     #[derive(Default)]
+    #[allow(mapping_initialized)]
     pub struct DataStructures {
         mapping: Mapping<u32, Option<bool>>,
     }
