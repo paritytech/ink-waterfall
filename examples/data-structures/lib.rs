@@ -4,23 +4,18 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod data_structures {
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping
-    };
+    use ink_storage::Mapping;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct DataStructures {
-        mapping: Mapping<u32, Option<bool>>
+        mapping: Mapping<u32, Option<bool>>,
     }
 
     impl DataStructures {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.mapping = Default::default();
-            })
+            Default::default()
         }
 
         /// Insert the given `value` at `key` into `DataStructures::mapping`.
