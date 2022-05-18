@@ -85,6 +85,14 @@ workflow:
   - PAST_MONTH=$(date -d "-1 month" +%Y-%m-%d)
   - git clone --shallow-since=${PAST_MONTH} --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
 
+.choose-ink-waterfall-repo:        &choose-ink-waterfall-repo
+  - echo "choosing repo"
+  - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
+  - if [ "$UPSTREAM_BRANCH" = "features/storage-rework"]; then
+      git clone --verbose --depth 1 --branch feature/refactored-storage https://github.com/Supercolony-net/ink-waterfall;
+      cd ink-waterfall/;
+    fi
+
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
   - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/substrate-contracts-node.log 2>&1 &
 
@@ -233,6 +241,7 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
   stage:                           test
   <<:                              *docker-env
   script:
+    - *choose-ink-waterfall-repo
     - *clone-repo
     - *start-substrate-contracts-node
     - *build-ink-example-contracts
@@ -249,6 +258,7 @@ polkadot-js-ui-rand-extension:
   stage:                           test
   <<:                              *docker-env
   script:
+    - *choose-ink-waterfall-repo
     - *clone-repo
     - *start-substrate-contracts-node-rand-extension
     - *build-rand-extension-contract
@@ -268,6 +278,7 @@ evaluate-ink-examples-changes:
   # Otherwise we would be comparing `master` with `master`.
   <<:                              *if-trigger-ref-valid
   script:
+    - *choose-ink-waterfall-repo
     - *clone-repo-past-month
 
     # Deserialize comparison data
