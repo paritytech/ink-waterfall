@@ -89,8 +89,8 @@ workflow:
   - echo "choosing repo"
   - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
   - if [ "$UPSTREAM_BRANCH" = "features/storage-rework" ]; then
-      git clone --verbose --depth 1 --branch feature/refactored-storage https://github.com/Supercolony-net/ink-waterfall;
-      cd ink-waterfall/;
+      echo "explicitly cloning external branch for storage pr";
+      git clone --verbose --depth 1 --branch feature/refactored-storage https://github.com/Supercolony-net/ink-waterfall && cd ./ink-waterfall/ && pwd && git show;
     fi
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
