@@ -88,7 +88,7 @@ workflow:
 .choose-ink-waterfall-repo:        &choose-ink-waterfall-repo
   - echo "choosing repo"
   - echo ${UPSTREAM_BRANCH} ${UPSTREAM_REPO}
-  - if [ "$UPSTREAM_BRANCH" = "features/storage-rework"]; then
+  - if [ "$UPSTREAM_BRANCH" = "features/storage-rework" ]; then
       git clone --verbose --depth 1 --branch feature/refactored-storage https://github.com/Supercolony-net/ink-waterfall;
       cd ink-waterfall/;
     fi
