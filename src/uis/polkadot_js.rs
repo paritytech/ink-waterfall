@@ -31,7 +31,6 @@ use crate::{
 use async_trait::async_trait;
 use fantoccini::{
     error,
-    Client,
     Locator,
 };
 use std::path::PathBuf;
@@ -154,7 +153,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("[{}] uploading {:?}", log_id, upload_input.contract_path);
-        let mut upload = self
+        let upload = self
             .client
             .find(Locator::XPath("//input[@type = 'file']"))
             .await?;
@@ -191,7 +190,7 @@ impl ContractsUi for crate::uis::Ui {
             let path = format!(
                 "//*[contains(text(),'deployment account')]/ancestor::div[1]//*/input"
             );
-            let mut input = self.client.find(Locator::XPath(&path)).await?;
+            let input = self.client.find(Locator::XPath(&path)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
             input.send_keys(&value).await?;
@@ -289,7 +288,7 @@ impl ContractsUi for crate::uis::Ui {
                 );
                 let path =
                     format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
-                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                let input = self.client.find(Locator::XPath(&path)).await?;
                 // we need to clear a possible default input from the field
                 input.clear().await?;
                 input.send_keys(&value).await?;
@@ -310,7 +309,7 @@ impl ContractsUi for crate::uis::Ui {
                 );
                 let path =
                     format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
-                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                let input = self.client.find(Locator::XPath(&path)).await?;
                 // we need to clear a possible default input from the field
                 input.clear().await?;
                 value.push('\n');
@@ -328,7 +327,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
-            let mut input = self.client.find(Locator::XPath(&last_item)).await?;
+            let input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
             input.send_keys(&format!("{}\n", &value)).await?;
@@ -426,7 +425,7 @@ impl ContractsUi for crate::uis::Ui {
             ))
             .await?;
         let mut statuses_processed = Vec::new();
-        for mut el in statuses {
+        for el in statuses {
             // the switch of status vs. header is intentional here
             let txt = el.html(true).await?.to_string().replace("\"", "");
             statuses_processed.push(Event {
@@ -694,7 +693,7 @@ impl ContractsUi for crate::uis::Ui {
                 );
                 let path =
                     format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
-                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                let input = self.client.find(Locator::XPath(&path)).await?;
                 // we need to clear a possible default input from the field
                 input.clear().await?;
                 input.send_keys(&value).await?;
@@ -747,7 +746,7 @@ impl ContractsUi for crate::uis::Ui {
                 .await?;
 
             let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
-            let mut input = self.client.find(Locator::XPath(&last_item)).await?;
+            let input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
             input.send_keys(&format!("{}\n", &value)).await?;
@@ -1031,7 +1030,7 @@ impl ContractsUi for crate::uis::Ui {
             // e.g. results in `ContractTrapped`).
             log::info!("[{}] possibly unset 'use estimated gas' checkbox", log_id);
             let max_gas_input_path = "//*[contains(text(),'max gas allowed')]/ancestor::div[1]/div//input[@type = 'text']";
-            let mut max_gas_input = self
+            let max_gas_input = self
                 .client
                 .wait()
                 .for_element(Locator::XPath(max_gas_input_path))
@@ -1092,7 +1091,7 @@ impl ContractsUi for crate::uis::Ui {
                 );
                 let path =
                     format!("//*[contains(normalize-space(text()),'{}')]/ancestor::div[1]//*/input", key);
-                let mut input = self.client.find(Locator::XPath(&path)).await?;
+                let input = self.client.find(Locator::XPath(&path)).await?;
                 // we need to clear a possible default input from the field
                 input.clear().await?;
                 input.send_keys(&value).await?;
@@ -1148,7 +1147,7 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] added item '{}' for '{}'", log_id, value, key);
 
             let last_item = format!("//div[contains(normalize-space(text()),'{}')]/ancestor::div[1]/ancestor::div[1]/*/div[@class = 'ui--Params-Content']/div[last()]//input", key);
-            let mut input = self.client.find(Locator::XPath(&last_item)).await?;
+            let input = self.client.find(Locator::XPath(&last_item)).await?;
             // we need to clear a possible default input from the field
             input.clear().await?;
             input.send_keys(&value).await?;
@@ -1239,7 +1238,7 @@ impl ContractsUi for crate::uis::Ui {
                     statuses.len(),
                     call.method
                 );
-                for mut el in statuses {
+                for el in statuses {
                     let txt = el.html(true).await?.to_string().replace("\"", "");
                     log::info!("[{}] transaction retry, text: {:?}", log_id, txt,);
                 }
@@ -1276,7 +1275,7 @@ impl ContractsUi for crate::uis::Ui {
             statuses.len()
         );
         let mut statuses_processed = Vec::new();
-        for mut el in statuses {
+        for el in statuses {
             let mut contents = el
                 .find_all(Locator::XPath(
                     "//div[contains(@class, 'header') or contains(@class, 'status')]",
@@ -1423,7 +1422,7 @@ impl ContractsUi for crate::uis::Ui {
             .await?;
 
         log::info!("[{}] uploading {:?}", log_id, new_abi);
-        let mut upload = self
+        let upload = self
             .client
             .find(Locator::XPath("//input[@type = 'file']"))
             .await?;

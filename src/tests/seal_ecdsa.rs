@@ -79,11 +79,11 @@ async fn seal_ecdsa_to_eth_address(mut ui: Ui) -> Result<()> {
     let addr = ui.execute_upload(Upload::new(contract_path)).await?;
 
     // then
-    let PUB_KEY = [
+    const PUB_KEY: [u8; 33] = [
         2, 141, 181, 91, 5, 219, 134, 192, 177, 120, 108, 164, 159, 9, 93, 118, 52, 76,
         158, 96, 86, 178, 240, 39, 1, 167, 231, 243, 194, 10, 171, 253, 145,
     ];
-    let EXPECTED_ETH_ADDRESS = [
+    const EXPECTED_ETH_ADDRESS: [u8; 20] = [
         9, 35, 29, 167, 177, 154, 1, 111, 158, 87, 109, 35, 177, 98, 119, 6, 47, 77, 70,
         168,
     ];

@@ -46,7 +46,7 @@ async fn set_code_hash_works(mut ui: Ui) -> Result<()> {
         cargo_contract::build(&manifest_path).expect("contract build failed");
     let updated_incrementer_hash =
         utils::extract_hash_from_contract_bundle(&updated_incrementer_bundle);
-    let updated_incrementer_addr = ui
+    let _updated_incrementer_addr = ui
         .execute_upload(Upload::new(updated_incrementer_bundle.clone()))
         .await?;
 
