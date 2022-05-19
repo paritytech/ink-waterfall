@@ -28,6 +28,7 @@ mod forward_calls;
 mod multisig;
 mod rand_extension;
 mod seal_code_hash;
+mod seal_ecdsa;
 mod set_code_hash;
 mod trait_erc20;
 mod trait_flipper;
