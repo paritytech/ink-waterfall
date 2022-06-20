@@ -1410,6 +1410,11 @@ impl ContractsUi for crate::uis::Ui {
 
         log::info!("[{}] entering contract address {:?}", log_id, contract_addr);
         let path = "//input[@data-testid = 'contract address']";
+
+	// to overcome a UI quirk with input, we typing the addres in two _typed batches
+	let mut first_typed = contract_addr.clone();
+	let last_typed = first_typed.pop().unwrap().to_string();
+
         self.client
             .find(Locator::XPath(path))
             .await?
@@ -1418,7 +1423,12 @@ impl ContractsUi for crate::uis::Ui {
         self.client
             .find(Locator::XPath(path))
             .await?
-            .send_keys(&contract_addr)
+            .send_keys(&first_typed)
+            .await?;
+        self.client
+            .find(Locator::XPath(path))
+            .await?
+            .send_keys(&last_typed)
             .await?;
 
         log::info!("[{}] uploading {:?}", log_id, new_abi);
