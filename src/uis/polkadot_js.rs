@@ -1414,7 +1414,7 @@ impl ContractsUi for crate::uis::Ui {
         // The following form submission failed when the input was done all-at-once.
         // To overcome this UI quirk, we type in the address here in two batches.
         let mut first_typed = contract_addr.clone();
-        let last_typed = first_typed.pop().expect("the contract address should not be empty!");
+        let last_typed = first_typed.pop().expect("the contract address should not be empty!").to_string();
 
         self.client
             .find(Locator::XPath(path))
