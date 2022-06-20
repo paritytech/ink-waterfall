@@ -1411,7 +1411,7 @@ impl ContractsUi for crate::uis::Ui {
         log::info!("[{}] entering contract address {:?}", log_id, contract_addr);
         let path = "//input[@data-testid = 'contract address']";
 
-	// to overcome a UI quirk with input, we typing the addres in two _typed batches
+	// To overcome a UI quirk with input, we type the address here in two batches.
 	let mut first_typed = contract_addr.clone();
 	let last_typed = first_typed.pop().unwrap().to_string();
 
