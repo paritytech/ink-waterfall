@@ -9,8 +9,7 @@ set -eux
 set -o pipefail
 
 CONTRACT=$(basename $1)
-cargo +nightly contract build --release --manifest-path $1/Cargo.toml
-SIZE_OUT=$(RUST_LOG="" cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json 2> /tmp/err) || exit $?
+SIZE_OUT=$(RUST_LOG="" cargo +nightly contract build --release --manifest-path $1/Cargo.toml --output-json) || exit $?
 OPTIMIZED_SIZE=$(echo $SIZE_OUT | jq '.optimization_result.optimized_size')
 
 echo -n "${CONTRACT}, ${OPTIMIZED_SIZE}"
