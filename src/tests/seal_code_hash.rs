@@ -29,6 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "seal_code_hash")]
+#[ignore]
 async fn delegator_works(mut ui: Ui) -> Result<()> {
     // given
     let contract_path =
