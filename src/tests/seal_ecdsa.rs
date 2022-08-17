@@ -29,6 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "seal_ecdsa")]
+#[ignore]
 async fn seal_ecdsa_recover(mut ui: Ui) -> Result<()> {
     // given
     let contract_path =
@@ -72,6 +73,7 @@ async fn seal_ecdsa_recover(mut ui: Ui) -> Result<()> {
 }
 
 #[waterfall_test(example = "seal_ecdsa")]
+#[ignore]
 async fn seal_ecdsa_to_eth_address(mut ui: Ui) -> Result<()> {
     // given
     let contract_path =

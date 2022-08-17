@@ -29,6 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "data_structures")]
+#[ignore]
 async fn data_structures_works(mut ui: Ui) -> Result<()> {
     // given
     let contract_path =

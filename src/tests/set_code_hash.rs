@@ -29,6 +29,7 @@ use crate::{
 use lang_macro::waterfall_test;
 
 #[waterfall_test(example = "set-code-hash")]
+#[ignore]
 async fn set_code_hash_works(mut ui: Ui) -> Result<()> {
     // given
     let manifest_path =
