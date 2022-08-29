@@ -18,7 +18,7 @@ use std::{
     process::Command,
 };
 
-/// Builds the contract at `manifest_path` using `cargo +nightly contract`.
+/// Builds the contract at `manifest_path` using `cargo contract`.
 ///
 /// If successful, returns the path to the `.contract` file.
 pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
@@ -77,7 +77,6 @@ pub(crate) fn build(manifest_path: &PathBuf) -> Result<PathBuf, String> {
     dir.pop(); // pop `Cargo.toml` from the path
 
     let output = Command::new("cargo")
-        .arg("+nightly")
         .arg("contract")
         .arg("build")
         .arg("--manifest-path=Cargo.toml")
