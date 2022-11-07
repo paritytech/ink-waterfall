@@ -39,7 +39,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
         .execute_upload(
             Upload::new(contract_file)
                 .caller("BOB")
-                .push_initial_value("initialSupply", "1000"),
+                .push_initial_value("totalSupply", "1000"),
         )
         .await?;
     let total_supply = ui
@@ -79,7 +79,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
         .execute_upload(
             Upload::new(contract_file)
                 .caller("BOB")
-                .push_initial_value("initialSupply", "1000"),
+                .push_initial_value("totalSupply", "1000"),
         )
         .await?;
 
