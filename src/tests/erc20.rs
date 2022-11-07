@@ -39,17 +39,17 @@ async fn erc20(mut ui: Ui) -> Result<()> {
         .execute_upload(
             Upload::new(contract_file)
                 .caller("BOB")
-                .push_initial_value("initialSupply", "1000"),
+                .push_initial_value("totalSupply", "1000"),
         )
         .await?;
     let total_supply = ui
         .execute_rpc(Call::new(&contract_addr, "total_supply"))
         .await?;
-    assert!(total_supply == "1,000,000,000,000,000" || total_supply == "1.0000 kUnit");
+    assert!(total_supply == "1,000,000,000,000,000" || total_supply == "1.0000 kUnit", "total_supply");
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "BOB"))
         .await?;
-    assert!(balance == "1,000,000,000,000,000" || balance == "1.0000 kUnit");
+    assert!(balance == "1,000,000,000,000,000" || balance == "1.0000 kUnit", "balance pre");
 
     ui.execute_transaction(
         Call::new(&contract_addr, "transfer")
@@ -63,7 +63,7 @@ async fn erc20(mut ui: Ui) -> Result<()> {
     let balance = ui
         .execute_rpc(Call::new(&contract_addr, "balance_of").push_value("owner", "ALICE"))
         .await?;
-    assert!(balance == "500,000,000,000,000" || balance == "500.0000 Unit");
+    assert!(balance == "500,000,000,000,000" || balance == "500.0000 Unit", "balance post");
 
     Ok(())
 }
@@ -79,7 +79,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
         .execute_upload(
             Upload::new(contract_file)
                 .caller("BOB")
-                .push_initial_value("initialSupply", "1000"),
+                .push_initial_value("totalSupply", "1000"),
         )
         .await?;
 
@@ -116,7 +116,7 @@ async fn erc20_allowances(mut ui: Ui) -> Result<()> {
                 .push_value("spender", "ALICE"),
         )
         .await?;
-    assert!(allowance == "600,000,000,000,000" || allowance == "600.0000 Unit");
+    assert!(allowance == "600,000,000,000,000" || allowance == "600.0000 Unit", "allowance");
 
     // Alice tries again to transfer tokens on behalf ob Bob
     ui.execute_transaction(

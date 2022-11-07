@@ -16,7 +16,6 @@ mod contract_introspection;
 mod contract_terminate;
 mod contract_transfer;
 mod data_structures;
-mod delegate_calls;
 mod delegator;
 mod dns;
 mod erc1155;
