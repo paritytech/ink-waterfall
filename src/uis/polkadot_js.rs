@@ -168,13 +168,9 @@ impl ContractsUi for crate::uis::Ui {
             let caller = caller.to_lowercase();
             // open listbox for accounts
             log::info!("[{}] click listbox for accounts", log_id);
-            self.client
-                .wait()
-                .for_element(Locator::XPath(
+            self.click(Locator::XPath(
                     "//*[contains(text(),'deployment account')]/ancestor::div[1]",
                 ))
-                .await?
-                .click()
                 .await?;
 
             std::thread::sleep(std::time::Duration::from_secs(3));
