@@ -30,7 +30,7 @@ pub fn test_name() -> String {
 /// Returns the full path to the ink! example directory for `example`.
 ///
 /// This method will first try to look the example up in `INK_EXAMPLES_PATH`.
-/// If not found there, it will fall back to `./examples/` ++ `example`.
+/// If not found there, it will fall back to `./integration-tests/` ++ `example`.
 pub fn example_path(example: &str) -> PathBuf {
     let examples_path = std::env::var("INK_EXAMPLES_PATH")
         .expect("env variable `INK_EXAMPLES_PATH` must be set");
@@ -40,7 +40,7 @@ pub fn example_path(example: &str) -> PathBuf {
     // This is done as a fallback if the waterfall tests are run locally.
     // For the CI we copy all `ink-waterfall/examples/` to the `INK_EXAMPLES_PATH`.
     if !path.exists() {
-        path = PathBuf::from("./examples/").join(example);
+        path = PathBuf::from("./integration-tests/").join(example);
         path = path.canonicalize().unwrap_or_else(|path| {
             panic!("canonicalizing {:?} must work", path);
         });

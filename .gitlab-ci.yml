@@ -16,7 +16,7 @@ variables:
   RUST_LIB_BACKTRACE:              "0"
   RUST_LOG:                        "info"
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
-  INK_EXAMPLES_PATH:               "./ink/examples"
+  INK_EXAMPLES_PATH:               "./ink/integration-tests"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTR_SUBCONTRACT:   "delegate-calls/upgradeable-flipper set-code-hash/updated-incrementer"
 
@@ -160,8 +160,8 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      if [ "$example" == "./ink/examples/upgradeable-contracts/" ]; then continue; fi;
-      if [ "$example" == "./ink/examples/lang-err-integration-tests/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/upgradeable-contracts/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/lang-err-integration-tests/" ]; then continue; fi;
       echo "set -o pipefail; ./scripts/ci/build-contract.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
@@ -189,7 +189,7 @@ parent-vars:
   # delete old list items if the key has existed previously
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_RAND_EXT_KEY
   - echo "Data will be written to $REDIS_SIZES_RAND_EXT_KEY"
-  - ./scripts/ci/build-contract.sh ./ink/examples/rand-extension/ |
+  - ./scripts/ci/build-contract.sh ./ink/integration-tests/rand-extension/ |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_RAND_EXT_KEY}
   # all ci/cd keys need to have ttl
   - redis-cli -u $GITLAB_REDIS_URI expire $REDIS_SIZES_RAND_EXT_KEY $GITLAB_REDIS_TTL
@@ -201,9 +201,9 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_GAS_USAGE_KEY
   - echo "Data will be written to $REDIS_GAS_USAGE_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
-      if [ "$example" == "./ink/examples/upgradeable-contracts/" ]; then continue; fi;
-      if [ "$example" == "./ink/examples/lang-err-integration-tests/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/rand-extension/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/upgradeable-contracts/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/lang-err-integration-tests/" ]; then continue; fi;
       echo $example;
       ./scripts/ci/extract-gas-usage.sh ${example};
     done
@@ -213,9 +213,9 @@ parent-vars:
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      if [ "$example" == "./ink/examples/rand-extension/" ]; then continue; fi;
-      if [ "$example" == "./ink/examples/upgradeable-contracts/" ]; then continue; fi;
-      if [ "$example" == "./ink/examples/lang-err-integration-tests/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/rand-extension/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/upgradeable-contracts/" ]; then continue; fi;
+      if [ "$example" == "./ink/integration-tests/lang-err-integration-tests/" ]; then continue; fi;
       ./scripts/ci/extract-gas-usage.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
     done
