@@ -56,7 +56,7 @@ requirement. By default the published versions of those projects are used
 ln -s /path/to/ink/ ./examples/ink
 
 export INK_EXAMPLES_PATH=/path/to/ink/integration-tests/
-substrate-contracts-node --tmp --dev > /tmp/substrate-contracts-node.log 2>&1 &
+substrate-contracts-node > /tmp/substrate-contracts-node.log 2>&1 &
 
 # By default you will see the Firefox GUI and the
 # tests interacting with it.
