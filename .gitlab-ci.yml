@@ -19,6 +19,7 @@ variables:
   INK_EXAMPLES_PATH:               "./ink/integration-tests"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTR_SUBCONTRACT:   "delegate-calls/upgradeable-flipper set-code-hash/updated-incrementer"
+  UI_URL:                          "https://polkadotjs-apps.web.app/"
 
 workflow:
   rules:
