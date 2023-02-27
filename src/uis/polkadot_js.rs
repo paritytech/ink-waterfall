@@ -797,7 +797,8 @@ impl ContractsUi for crate::uis::Ui {
             ))
             .await?
             .text()
-            .await?;
+            .await
+            .map(|str| str.replace("{ Ok: ", "").replace(" }", ""))?;
 
         log::info!("[{}] read outcome type", log_id);
         let ret_type = self
@@ -1165,7 +1166,7 @@ impl ContractsUi for crate::uis::Ui {
         std::thread::sleep(std::time::Duration::from_secs(3));
 
         log::info!("[{}] get estimated gas", log_id);
-        let max_gas_input_path = "//*[contains(text(),'max gas allowed')]/ancestor::div[1]/div//input[@type = 'text']";
+        let max_gas_input_path = "//*[contains(text(),'max RefTime allowed')]/ancestor::div[1]/div//input[@type = 'text']";
         let max_gas_input = self
             .client
             .wait()
@@ -1410,7 +1411,10 @@ impl ContractsUi for crate::uis::Ui {
         // The following form submission failed when the input was done all-at-once.
         // To overcome this UI quirk, we type in the address here in two batches.
         let mut first_typed = contract_addr.clone();
-        let last_typed = first_typed.pop().expect("the contract address should not be empty!").to_string();
+        let last_typed = first_typed
+            .pop()
+            .expect("the contract address should not be empty!")
+            .to_string();
 
         self.client
             .find(Locator::XPath(path))
@@ -1505,7 +1509,7 @@ fn base_url() -> String {
     // can cause issues.
     let mut url = base_url.trim_end_matches('/').to_string();
     url.push_str(&format!(
-        "/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
+        "?rpc=ws%3A%2F%2F127.0.0.1%3A{}#/",
         utils::node_port()
     ));
     url
