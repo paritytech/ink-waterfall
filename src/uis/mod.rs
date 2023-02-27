@@ -40,6 +40,7 @@ use std::{
     path::PathBuf,
     process,
     sync::Mutex,
+    time::Duration,
 };
 
 lazy_static! {
@@ -131,6 +132,8 @@ impl Ui {
             .stdout(std::process::Stdio::null())
             .spawn()
             .expect("geckodriver can not be spawned");
+
+        std::thread::sleep(Duration::from_secs(3));
 
         // connect to `webdriver` instance that is listening on that port
         let client = ClientBuilder::native()
