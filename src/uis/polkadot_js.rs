@@ -814,6 +814,7 @@ impl ContractsUi for crate::uis::Ui {
         if ret_type.contains("AccountId")
             && ret_value != "<none>"
             && ret_value != "<empty>"
+            && ret_value != "null"
         {
             // convert hash account id to mnemonic name
             log::info!("[{}] attempting to resolve {}", log_id, &ret_value);
@@ -821,12 +822,13 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] resolved to {}", log_id, &ret_value);
         }
 
-        if ret_value == "<none>" {
+        if ret_value == "<none>" || ret_value == "null" {
             ret_value = "None".to_string();
         }
 
         log::info!("[{}] outcome value is {:?}", log_id, ret_value);
         log::info!("[{}] outcome type value is {:?}", log_id, ret_type);
+
         Ok(ret_value)
     }
 
