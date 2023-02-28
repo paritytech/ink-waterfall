@@ -65,7 +65,7 @@ async fn flipper_default_constructor(mut ui: Ui) -> Result<()> {
 
     // when
     let contract_addr = ui
-        .execute_upload(Upload::new(contract_file).constructor("default"))
+        .execute_upload(Upload::new(contract_file).constructor("newDefault"))
         .await?;
 
     // then
