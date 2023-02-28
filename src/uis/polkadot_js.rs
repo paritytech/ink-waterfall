@@ -60,7 +60,7 @@ impl ContractsUi for crate::uis::Ui {
         std::thread::sleep(std::time::Duration::from_secs(6));
 
         let path = format!(
-            "//div[. = '{}']/ancestor::tr//span[@class = 'ui--FormatBalance-postfix']",
+            "//span[. = '{}']/ancestor::tr/following-sibling::tr//span[@class = 'ui--FormatBalance-postfix']",
             account
         );
         let txt = self
