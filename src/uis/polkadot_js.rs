@@ -363,7 +363,7 @@ impl ContractsUi for crate::uis::Ui {
         );
 
         let mut res;
-        for waited in 0..21 {
+        for waited in 0..26 {
             std::thread::sleep(std::time::Duration::from_secs(5));
             res = self.client.find(
                 Locator::XPath("//div[contains(@class, 'ui--Status')]//*/div[@class = 'status' and not(contains(text(),'ready') or contains(text(),'usurped') or contains(text(),'outdated'))]")
@@ -391,7 +391,7 @@ impl ContractsUi for crate::uis::Ui {
                 );
                 break
             } else {
-                if waited == 20 {
+                if waited == 25 {
                     log::info!(
                         "[{}] timed out on waiting for {:?} upload! next recursion.",
                         log_id,
