@@ -879,7 +879,7 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] checking contract {:?}", log_id, index);
             self.client
                 .find(Locator::XPath(&format!(
-                    "(//div[contains(@class, 'ui--AccountName')])[{}]",
+                    "(//span[contains(@class, 'ui--AccountName')])[{}]",
                     index
                 )))
                 .await?
