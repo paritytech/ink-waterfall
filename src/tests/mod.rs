@@ -22,7 +22,6 @@ mod erc1155;
 mod erc20;
 mod erc721;
 mod flipper;
-mod forward_calls;
 // mod incrementer;
 mod multisig;
 mod rand_extension;
