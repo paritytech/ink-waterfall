@@ -18,7 +18,6 @@ variables:
   CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
   INK_EXAMPLES_PATH:               "./ink/integration-tests"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTR_SUBCONTRACT:   "delegate-calls/upgradeable-flipper set-code-hash/updated-incrementer"
   UI_URL:                          "https://polkadotjs-apps.web.app/"
 
 workflow:
@@ -161,21 +160,12 @@ parent-vars:
   - redis-cli -u $GITLAB_REDIS_URI del $REDIS_SIZES_KEY
   - echo "Data will be written to $REDIS_SIZES_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
-      if [ "$example" == "./ink/integration-tests/upgradeable-contracts/" ]; then continue; fi;
       if [ "$example" == "./ink/integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-      echo "set -o pipefail; ./scripts/ci/build-contract.sh ${example} |
-      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
-    done
-  - for example in ${INK_EXAMPLES_PATH}/upgradeable-contracts/*/; do
       echo "set -o pipefail; ./scripts/ci/build-contract.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   - for contract in ${DELEGATOR_SUBCONTRACTS}; do
       echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/delegator/${contract} |
-      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
-    done
-  - for contract in ${UPGRADEABLE_CONTR_SUBCONTRACT}; do
-      echo "./scripts/ci/build-contract.sh ${INK_EXAMPLES_PATH}/upgradeable-contracts/${contract} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_SIZES_KEY}" >> /tmp/cmds;
     done
   # Exit when the first job fails. Kill running jobs
@@ -203,19 +193,12 @@ parent-vars:
   - echo "Data will be written to $REDIS_GAS_USAGE_KEY"
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/integration-tests/rand-extension/" ]; then continue; fi;
-      if [ "$example" == "./ink/integration-tests/upgradeable-contracts/" ]; then continue; fi;
       if [ "$example" == "./ink/integration-tests/lang-err-integration-tests/" ]; then continue; fi;
       echo $example;
       ./scripts/ci/extract-gas-usage.sh ${example};
     done
-  - for example in ${INK_EXAMPLES_PATH}/upgradeable-contracts/*/; do
-      echo $example;
-      ./scripts/ci/extract-gas-usage.sh ${example} |
-      redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
-    done
   - for example in ${INK_EXAMPLES_PATH}/*/; do
       if [ "$example" == "./ink/integration-tests/rand-extension/" ]; then continue; fi;
-      if [ "$example" == "./ink/integration-tests/upgradeable-contracts/" ]; then continue; fi;
       if [ "$example" == "./ink/integration-tests/lang-err-integration-tests/" ]; then continue; fi;
       ./scripts/ci/extract-gas-usage.sh ${example} |
       redis-cli -u ${GITLAB_REDIS_URI} -x rpush ${REDIS_GAS_USAGE_KEY};
