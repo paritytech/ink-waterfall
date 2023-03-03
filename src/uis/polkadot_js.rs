@@ -482,7 +482,7 @@ impl ContractsUi for crate::uis::Ui {
         );
         self.client
             .find(Locator::XPath(
-                "(//div[contains(@class, 'ui--AccountName')])[last()]",
+                "(//span[contains(@class, 'ui--AccountName')])[last()]",
             ))
             .await?
             .click()
@@ -544,7 +544,7 @@ impl ContractsUi for crate::uis::Ui {
         // iterate through the list and see which of the entries has the correct address
         let contracts_in_list = self
             .client
-            .find_all(Locator::XPath("//div[contains(@class, 'ui--AccountName')]"))
+            .find_all(Locator::XPath("//span[contains(@class, 'ui--AccountName')]"))
             .await?
             .len();
         log::info!("[{}] found {} contracts in list", log_id, contracts_in_list);
@@ -558,7 +558,7 @@ impl ContractsUi for crate::uis::Ui {
             log::info!("[{}] checking contract {:?}", log_id, index);
             self.client
                 .find(Locator::XPath(&format!(
-                    "(//div[contains(@class, 'ui--AccountName')])[{}]",
+                    "(//span[contains(@class, 'ui--AccountName')])[{}]",
                     index
                 )))
                 .await?
@@ -865,7 +865,7 @@ impl ContractsUi for crate::uis::Ui {
         // iterate through the list and see which of the entries has the correct address
         let contracts_in_list = self
             .client
-            .find_all(Locator::XPath("//div[contains(@class, 'ui--AccountName')]"))
+            .find_all(Locator::XPath("//span[contains(@class, 'ui--AccountName')]"))
             .await?
             .len();
         log::info!("[{}] found {} contracts in list", log_id, contracts_in_list);
