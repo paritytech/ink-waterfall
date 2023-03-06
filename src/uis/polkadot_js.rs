@@ -811,7 +811,7 @@ impl ContractsUi for crate::uis::Ui {
             .text()
             .await?;
 
-        if ret_type.contains("AccountId")
+        if (ret_type.contains("AccountId") || ret_type.contains("accountid"))
             && ret_value != "<none>"
             && ret_value != "<empty>"
             && ret_value != "null"
@@ -989,26 +989,6 @@ impl ContractsUi for crate::uis::Ui {
 
         // possibly add payment
         if let Some(payment) = &call.payment {
-            log::info!("[{}] open listbox for payment units", log_id);
-            let path = format!("//*[contains(text(),'{}')]/ancestor::div[1]/ancestor::div[1]/ancestor::div[1]", payment.unit);
-            self.client
-                .find(Locator::XPath(&path))
-                .await?
-                .click()
-                .await?;
-
-            log::info!("[{}] click payment unit option {}", log_id, payment.unit);
-            let path = format!(
-                "//div[@role='option']/span[contains(text(),'{}')]/ancestor::div[1]",
-                payment.unit
-            );
-            self.client
-                .wait()
-                .for_element(Locator::XPath(&path))
-                .await?
-                .click()
-                .await?;
-
             log::info!("[{}] entering payment {:?}", log_id, payment.payment);
             let path = "//*[contains(text(),'value')]/ancestor::div[1]/div//input[@type = 'text']";
             self.client

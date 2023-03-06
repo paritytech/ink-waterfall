@@ -75,7 +75,8 @@ async fn transfer_exactly_ten_to_contract(mut ui: Ui) -> Result<()> {
         .execute_transaction(
             Call::new(&contract_addr, "was_it_ten")
                 .caller("DAVE")
-                .payment("10", "pico"),
+                //.payment("10", "pico"),
+                .payment("0.000000000010", "Unit"),
         )
         .await;
 

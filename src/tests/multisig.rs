@@ -156,7 +156,8 @@ async fn multisig_works_with_payable_transaction(mut ui: Ui) -> Result<()> {
         Call::new(&contract_addr, "invoke_transaction")
             .caller("ALICE")
             .push_value("transId", id)
-            .payment("10", "pico"),
+            //.payment("10", "pico"),
+            .payment("0.000000000010", "Unit"),
     )
     .await
     .expect("failed to `invoke_transaction`");
