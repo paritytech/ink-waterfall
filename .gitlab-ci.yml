@@ -226,7 +226,7 @@ polkadot-js-ui-ink-examples:       &polkadot-js-ui-ink-examples
     - *clone-repo
     - *start-substrate-contracts-node
     - *build-ink-example-contracts
-    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 2 --features headless,polkadot-js-ui 2>&1 |
+    - WATERFALL_SKIP_CONTRACT_BUILD=true cargo test --jobs 1 --features headless,polkadot-js-ui 2>&1 |
         tee /tmp/waterfall.log
     - *store-ink-examples-gas-usage-to-redis
   after_script:
