@@ -14,7 +14,7 @@ variables:
   GIT_DEPTH:                       "100"
   RUST_LIB_BACKTRACE:              "0"
   RUST_LOG:                        "info"
-  CI_IMAGE:                        "paritytech/ink-waterfall-ci:latest"
+  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.69.0-2023-03-21"
   INK_EXAMPLES_PATH:               "./ink/integration-tests"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UI_URL:                          "https://polkadotjs-apps.web.app/"
