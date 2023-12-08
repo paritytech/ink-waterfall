@@ -1,5 +1,7 @@
 # Readme
 
+>This project has been deprecated. We hope it can serve as inspiration for other End-to-End testing projects!
+
 [![ci-result][a1]][a2] [![ci-duration][b1]][b2]
 
 [a1]: https://gitlab.parity.io/parity/ink-waterfall/badges/master/pipeline.svg
